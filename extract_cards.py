@@ -12,8 +12,9 @@ Usage:
 
 Options:
     --out OUTDIR        Output directory. Defaults to <pdfstem>_cards/ for a
-                        single PDF, or <directory>/extracted/ for a folder
-                        (with one sub-folder per PDF).
+                        single PDF, or <directory>/extracted/ for a folder.
+    --per-pdf-subdir    When input is a directory, write each PDF into its own
+                        sub-folder under the output root (default: flat).
     --dpi N             Render DPI (default 300; 800 for MPC print orders).
     --no-round          Skip the rounded-corner alpha mask; keep rectangles.
     --snap-black        Snap near-neutral very-dark pixels to pure RGB(0,0,0)
@@ -62,9 +63,10 @@ What it does, per page:
 
 Batch behaviour:
     When the input is a directory, every .pdf file in it is processed in
-    turn. Each PDF's output goes into its own sub-folder under the output
-    root. Errors are collected per-file so one bad PDF doesn't abort the
-    batch. The exit code is 1 if any PDF in the batch produced errors.
+    turn. By default all cards are written into the output root; use
+    --per-pdf-subdir to create a sub-folder per PDF. Errors are collected per-
+    file so one bad PDF doesn't abort the batch. The exit code is 1 if any
+    PDF in the batch produced errors.
 
 Recommended invocation for MPC-bound print orders:
     python3 extract_cards.py /path/to/pdfs --dpi 800 --snap-black --bleed
@@ -1313,8 +1315,10 @@ def main() -> int:
     p.add_argument("--out", type=Path, default=None,
                    help="Output directory. For a single PDF, defaults to "
                         "<pdfstem>_cards/ next to the input. For a directory "
-                        "of PDFs, defaults to <input>/extracted/ with one "
-                        "sub-folder per PDF.")
+                        "of PDFs, defaults to <input>/extracted/.")
+    p.add_argument("--per-pdf-subdir", action="store_true",
+                   help="When input is a directory, write each PDF into its "
+                        "own sub-folder under the output root.")
     p.add_argument("--dpi", type=int, default=300,
                    help="Render DPI (default: 300).")
     p.add_argument("--no-round", action="store_true",
@@ -1375,7 +1379,7 @@ def main() -> int:
         if not pdfs:
             sys.exit(f"No PDF files found in directory: {args.input}")
         default_out_root = args.input / "extracted"
-        per_pdf_subdir = True
+        per_pdf_subdir = args.per_pdf_subdir
     else:
         if args.input.suffix.lower() != ".pdf":
             sys.exit(f"Input file is not a PDF: {args.input}")
