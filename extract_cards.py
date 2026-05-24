@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 extract_cards.py — Extract individual card images from Star Trek CCG-style
-9-cards-per-page PDF(s).
+PDFs laid out in a grid of up to 3 columns by 3 rows per page.
 
 Usage:
     # Single PDF:
@@ -42,31 +42,44 @@ Requires:
 
 What it does, per page:
     1. Renders the page at the requested DPI with pdftoppm.
-    2. Detects the card grid by finding the four 4-card-intersection
-       "white stars" where rounded corners pull away from each other. The
-       grid can be 1, 2, or 3 rows tall (the last page of a set may be
-       short) — the row count is detected from the grid bounding box.
-       Falls back to symmetric prediction if any star is hidden.
+    2. Detects the card grid. The grid bounding box is found from the page
+       margins; column count is anchored on the page width (a single card
+       occupies ~30% of a US-letter page width regardless of DPI) and row
+       count then follows from the card aspect ratio. Both dimensions can be
+       1, 2, or 3 — the last page of a set may be short either way.
+       Interior seams are refined via the four-card-intersection "white
+       stars" where rounded corners pull away from each other; missing
+       stars fall back to symmetric prediction.
     3. Skips non-card pages (cover sheets, tables of contents) using
        aspect-ratio and ID-count heuristics.
     4. Crops each card and (by default) applies a rounded-corner alpha mask.
+       Corner radius is the median of the white-star measurements, or a
+       typical 3%-of-short-side default when no stars are found.
     5. Pulls card titles and IDs (e.g. "66 V 9", "12 BP 4", "0 VP 293",
        "1B1") from `pdftotext -bbox-layout`, assigning each word to a grid
        cell by its actual page coordinate, and names output files
-       {SET}{NUM:02d}_{slug}.png.
+       {SET}{NUM:02d}_{slug}.png. IDs are detected per cell, so a single
+       PDF containing cards from many different sets (e.g. an errata
+       compilation) names each card with its own canonical prefix.
     6. If the PDF has no extractable text (some PDFs flatten everything
        into raster images), tesseract OCRs the ID strip of every extracted
        card. Per-card reads are noisy, but the set prefix is the same on
        every card in a deck, so a simple majority vote across all cards
        reliably recovers the prefix. Card numbers are then assigned
-       sequentially in reading order across pages.
+       sequentially in reading order across pages. Note: this OCR fallback
+       assumes one set per PDF and won't work correctly on mixed-set
+       raster PDFs.
 
 Batch behaviour:
     When the input is a directory, every .pdf file in it is processed in
-    turn. By default all cards are written into the output root; use
-    --per-pdf-subdir to create a sub-folder per PDF. Errors are collected per-
-    file so one bad PDF doesn't abort the batch. The exit code is 1 if any
-    PDF in the batch produced errors.
+    turn, in alphabetical order. By default all cards are written into the
+    output root; use --per-pdf-subdir to create a sub-folder per PDF.
+    Filenames collide deliberately: if two PDFs extract the same canonical
+    card ID, the later one overwrites the earlier one. This means an errata
+    PDF named e.g. zzz_errata.pdf can be dropped alongside the regular set
+    PDFs and its updated card images will replace the originals.
+    Errors are collected per-file so one bad PDF doesn't abort the batch.
+    The exit code is 1 if any PDF in the batch produced errors.
 
 Recommended invocation for MPC-bound print orders:
     python3 extract_cards.py /path/to/pdfs --dpi 800 --snap-black --bleed
@@ -88,14 +101,22 @@ from PIL import Image, ImageDraw
 
 # --- constants -------------------------------------------------------------
 
-# Cards are always laid out 3 to a row, but the number of rows can be 1, 2,
-# or 3 depending on the page (the last page of a set may be short).
-GRID_COLS = 3
+# Cards are laid out in a grid of up to 3 columns by 3 rows. The last page
+# of a set may be short in either dimension (a single trailing card, a half
+# row, etc.).
+MAX_GRID_COLS = 3
 MAX_GRID_ROWS = 3
 
 # Standard trading-card aspect ratio (width / height). Used to detect how many
 # rows of cards are present on a page from the detected grid bounding box.
 CARD_ASPECT_W_OVER_H = 2.5 / 3.5  # ≈ 0.714
+
+# Fraction of the letter-sized PDF page width occupied by one card. A standard
+# trading card is 2.5" = 180pt wide and the page is 612pt wide, so a card is
+# about 29.4% of page width regardless of render DPI. Used to disambiguate the
+# column count when the detected grid bounding box could correspond to several
+# (n_cols, n_rows) configurations with the same cell aspect ratio.
+CARD_W_PAGE_FRAC = 180.0 / 612.0
 
 # Threshold for "near-white" page background (0..255 grayscale).
 WHITE_THRESHOLD = 240
@@ -123,8 +144,9 @@ CARD_ID_PATTERN = re.compile(r"\b(\d{1,3})\s*([A-Z]{1,2})\s*(\d{1,3})\b")
 @dataclass
 class PageGeometry:
     """The detected card grid for one page."""
-    x_edges: list[int]    # GRID_COLS+1 values: left edge, vertical seams, right edge
+    x_edges: list[int]    # n_cols+1 values: left edge, vertical seams, right edge
     y_edges: list[int]    # n_rows+1 values: top edge, horizontal seams, bottom edge
+    n_cols: int           # detected number of card columns (1, 2, or 3)
     n_rows: int           # detected number of card rows (1, 2, or 3)
     corner_radius: int    # in pixels
     page_width: int
@@ -390,41 +412,8 @@ def find_grid_outer_bounds(arr: np.ndarray) -> tuple[int, int, int, int]:
     return left, top, right, bottom
 
 
-def trace_corner_radius(arr: np.ndarray, left: int, top: int,
-                        max_curve: int) -> int:
-    """
-    Measure the corner radius by tracing the top-left corner of the top-left
-    card, which is exposed to the white page margin above and to its left.
-
-    Walks along the top edge from x=left until the topmost dark pixel reaches
-    y=top (i.e. the curve has flattened out). The horizontal distance walked
-    is the corner radius.
-
-    `max_curve` caps how far we walk; pass a value generous relative to the
-    expected radius in pixels (a trading-card corner radius is ~5% of the
-    card's short side, so 1/6 is generous).
-    """
-    h, w = arr.shape
-    # Find the actual top y at column x=left
-    col_at_left = arr[:max_curve + top + 1, left]
-    dark_at_left = np.where(col_at_left < INK_THRESHOLD)[0]
-    if len(dark_at_left) == 0:
-        return 0
-    # Walk along top edge: for each x, find topmost dark pixel; the curve ends
-    # when that y equals `top` (the flat top of the card border).
-    for dx in range(1, max_curve):
-        x = left + dx
-        if x >= w:
-            break
-        col = arr[:max_curve + top + 1, x]
-        dark = np.where(col < INK_THRESHOLD)[0]
-        if len(dark) > 0 and dark[0] <= top:
-            return dx
-    return max_curve  # didn't flatten out — unusual
-
-
 def detect_page_geometry(arr: np.ndarray, verbose: bool = False) -> PageGeometry:
-    """Detect the card grid for one page (always 3 columns; 1, 2, or 3 rows)."""
+    """Detect the card grid for one page (1-3 columns by 1-3 rows)."""
     h, w = arr.shape
 
     # Step 1: outer bounds
@@ -435,24 +424,33 @@ def detect_page_geometry(arr: np.ndarray, verbose: bool = False) -> PageGeometry
     grid_w = right - left + 1
     grid_h = bottom - top + 1
 
-    # Step 2: figure out how many rows are on this page.
-    # Cards are always 3 to a row, so cell width = grid_w / 3.
-    # Cards have a fixed aspect ratio (2.5" × 3.5"), so the expected cell
-    # height is cell_w / CARD_ASPECT_W_OVER_H.
-    # Dividing the observed grid_h by that gives the row count.
-    card_w_predicted = grid_w / GRID_COLS
+    # Step 2: figure out the grid shape.
+    # Column count is anchored on the page width: one card occupies
+    # CARD_W_PAGE_FRAC of the page width at any DPI (both grid_w and w come
+    # from the same pixel array). This anchor matters because for grids whose
+    # bounding box is itself card-aspect (e.g. a single card alone on a page,
+    # or a square-ish 3x3 grid), multiple (n_cols, n_rows) fits give the same
+    # cell aspect ratio and the column count can't be derived from grid shape
+    # alone.
+    # Row count then follows from the (now known) cell width: cell_h must be
+    # cell_w / CARD_ASPECT_W_OVER_H, and n_rows is grid_h divided by that.
+    expected_card_w = w * CARD_W_PAGE_FRAC
+    n_cols_float = grid_w / expected_card_w
+    n_cols = max(1, min(MAX_GRID_COLS, round(n_cols_float)))
+    card_w_predicted = grid_w / n_cols
     expected_card_h = card_w_predicted / CARD_ASPECT_W_OVER_H
     n_rows_float = grid_h / expected_card_h
     n_rows = max(1, min(MAX_GRID_ROWS, round(n_rows_float)))
     card_h_predicted = grid_h / n_rows
     if verbose:
-        print(f"    detected {n_rows} row(s) "
-              f"(grid_h/expected_card_h = {n_rows_float:.2f})")
+        print(f"    detected {n_cols} col(s) x {n_rows} row(s) "
+              f"(grid_w/expected_card_w = {n_cols_float:.2f}, "
+              f"grid_h/expected_card_h = {n_rows_float:.2f})")
 
     # Step 3: predicted seam positions (assume uniform grid).
     predicted_v_seams = [
         round(left + (i + 1) * card_w_predicted - 0.5)
-        for i in range(GRID_COLS - 1)
+        for i in range(n_cols - 1)
     ]
     predicted_h_seams = [
         round(top + (i + 1) * card_h_predicted - 0.5)
@@ -490,23 +488,32 @@ def detect_page_geometry(arr: np.ndarray, verbose: bool = False) -> PageGeometry
     h_seams = [int(round(refined_h[i])) if refined_h[i] is not None
                else predicted_h_seams[i] for i in range(len(predicted_h_seams))]
 
-    # Step 5: corner radius
+    # Step 5: corner radius. When white-star intersections are found, the
+    # median of their measured radii is reliable. When they aren't (e.g. pages
+    # where the inter-card gaps are too tight or dim to register), fall back
+    # to a typical default: real trading-card corners measure 2.5-3% of the
+    # short side consistently across pages with reliable star data, so 3% is
+    # a safe stand-in that keeps corners visually consistent with stars-found
+    # pages instead of varying wildly per-page.
     if star_radii:
         radius = int(np.median(star_radii))
     else:
-        radius = trace_corner_radius(arr, left, top,
-                                     max_curve=max(60, star_search))
+        radius = int(round(short_side * 0.03))
 
     if verbose:
         print(f"    stars found: {stars_found}/{n_star_checks}   "
               f"v_seams={v_seams}   h_seams={h_seams}")
         if stars_found < n_star_checks:
             print(f"    (fell back to symmetric prediction for missing seams)")
-        print(f"    corner radius: {radius}px")
+        if star_radii:
+            print(f"    corner radius: {radius}px")
+        else:
+            print(f"    corner radius: {radius}px (typical default; no stars)")
 
     return PageGeometry(
         x_edges=[left] + v_seams + [right],
         y_edges=[top] + h_seams + [bottom],
+        n_cols=n_cols,
         n_rows=n_rows,
         corner_radius=radius,
         page_width=w,
@@ -605,7 +612,7 @@ def parse_card_metadata_by_position(
     # grid cell it falls into.
     scale_x = page_image_w / PAGE_POINT_WIDTH
     scale_y = page_image_h / PAGE_POINT_HEIGHT
-    n_cells = geom.n_rows * GRID_COLS
+    n_cells = geom.n_rows * geom.n_cols
 
     # Build per-cell word lists, preserving reading order (y, then x).
     cells: list[list[tuple[float, float, str]]] = [
@@ -622,12 +629,12 @@ def parse_card_metadata_by_position(
         if row is None:
             continue
         col = None
-        for c in range(GRID_COLS):
+        for c in range(geom.n_cols):
             if geom.x_edges[c] <= cx < geom.x_edges[c + 1]:
                 col = c; break
         if col is None:
             continue
-        cells[row * GRID_COLS + col].append((cy, cx, text))
+        cells[row * geom.n_cols + col].append((cy, cx, text))
 
     # Sort each cell's words top-to-bottom, left-to-right.
     for cell in cells:
@@ -1072,7 +1079,7 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
     arr = np.array(img.convert("L"))
 
     geom = detect_page_geometry(arr, verbose=verbose)
-    n_cells = geom.n_rows * GRID_COLS
+    n_cells = geom.n_rows * geom.n_cols
 
     words = get_page_words(pdf_path, page_num)
     metas = parse_card_metadata_by_position(words, geom, arr.shape[1], arr.shape[0])
@@ -1091,7 +1098,7 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
     #   - no card IDs found AND cells aren't clearly portrait-shaped.
     grid_w = geom.x_edges[-1] - geom.x_edges[0]
     grid_h = geom.y_edges[-1] - geom.y_edges[0]
-    cell_w = grid_w / GRID_COLS
+    cell_w = grid_w / geom.n_cols
     cell_h = grid_h / geom.n_rows
     aspect = cell_w / cell_h if cell_h > 0 else float("inf")
     n_ids = sum(1 for m in metas if m and m.card_id)
@@ -1105,7 +1112,7 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
     # A cell is "empty" if its mean brightness > 245 (mostly white background).
     cells_with_cards: list[tuple[int, int]] = []
     for row in range(geom.n_rows):
-        for col in range(GRID_COLS):
+        for col in range(geom.n_cols):
             L, T, R, B = geom.cell(row, col)
             cell_arr = arr[T:B, L:R]
             if cell_arr.size and cell_arr.mean() < 245:
@@ -1124,7 +1131,7 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
                                 bleed_px=bleed_px,
                                 overwrite_px=overwrite_px)
 
-        meta = metas[row * GRID_COLS + col]
+        meta = metas[row * geom.n_cols + col]
 
         # Decide stem. --id-sequence overrides any detected ID/title:
         # synthesise an ID PREFIX{N:02d} for every card in reading order.
@@ -1141,14 +1148,6 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
             stem = f"page{page_num:02d}_r{row+1}c{col+1}"
 
         out_path = out_dir / f"{stem}.png"
-        # Avoid overwriting if two cards somehow ended up with the same name
-        if out_path.exists():
-            base = out_path.stem
-            counter = 2
-            while out_path.exists():
-                out_path = out_dir / f"{base}_{counter}.png"
-                counter += 1
-
         card_img.save(out_path)
         saved.append(out_path)
         if verbose:
@@ -1285,10 +1284,6 @@ def process_pdf(pdf_path: Path, *,
                 for n, path in enumerate(unnamed, start=1):
                     new_stem = f"{set_num}{set_letters}{n:02d}"
                     new_path = path.with_name(f"{new_stem}.png")
-                    counter = 2
-                    while new_path.exists() and new_path != path:
-                        new_path = path.with_name(f"{new_stem}_{counter}.png")
-                        counter += 1
                     try:
                         path.rename(new_path)
                         renamed += 1
