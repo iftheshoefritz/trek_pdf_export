@@ -374,7 +374,7 @@ INLINE_ICON_MAP = {
     'Fut': 'future', 'AU': 'au', 'Past': 'past',
     'Fed': 'federation', 'NA': 'nonaligned', 'Fer': 'ferengi',
     'AQ': 'quadrant_alpha', 'GQ': 'quadrant_gamma', 'DQ': 'quadrant_delta',
-    'Dual': 'dual',
+    'Dual': 'dual', 'HQ': 'headquarters',
 }
 LEADING_RATIO = 31.25 / 29   # uniform line height as a multiple of font size
 
@@ -397,10 +397,16 @@ def inline_icon(abbrev, height):
     return _inline_icon_cache[key]
 
 
+def strip_braces(text):
+    """Remove the curly brackets that wrap named-card references in card text
+    (e.g. '{Bajor}', "{Caretaker's Array}"), keeping the name itself."""
+    return text.replace("{", "").replace("}", "")
+
+
 def gametext_runs(text):
     """Styled runs for game text: a leading 'Order -'-style lexeme is bold,
     the remainder is medium."""
-    text = text.strip()
+    text = strip_braces(text.strip())
     m = re.match(r'^([A-Z][A-Za-z]+ -)(.*)$', text)
     if m:
         return [(m.group(1), 'bold'), (m.group(2), 'med')]
@@ -410,7 +416,7 @@ def gametext_runs(text):
 def keyword_runs(text):
     """Styled runs for the lore/keyword line: type before ': ' is bold, the
     value after it is italic."""
-    text = text.strip()
+    text = strip_braces(text.strip())
     if ': ' in text:
         head, tail = text.split(': ', 1)
         return [(head + ': ', 'bold'), (tail, 'italic')]
