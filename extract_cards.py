@@ -164,7 +164,8 @@ class CardMeta:
     card_id: Optional[str]   # canonical id like "66V09"
     set_prefix: Optional[str]  # e.g. "66V"
     number: Optional[int]    # e.g. 9
-    title: Optional[str]     # e.g. "Ghorusda"
+    title: Optional[str]     # e.g. "Yelgrun" or "Earth"
+    subtitle: Optional[str] = None  # e.g. "Blunt Negotiator" or "Humanity's Home"
 
 
 # --- shell helpers ---------------------------------------------------------
@@ -704,14 +705,40 @@ def parse_card_metadata_by_position(
 
         # Find title: take the topmost line in the cell that looks like a title.
         title: Optional[str] = None
-        for y, text in cell_lines:
+        title_y: Optional[float] = None
+        title_idx: Optional[int] = None
+        for idx, (y, text) in enumerate(cell_lines):
             if id_line_y is not None and abs(y - id_line_y) < 4:
                 continue  # don't reuse the ID line as title
             if looks_like_title(text):
                 clean = _clean_title(text)
                 if clean:
                     title = clean
+                    title_y = y
+                    title_idx = idx
                     break
+
+        # Find subtitle: the next title-looking line, if it sits directly
+        # below the title (i.e. is the printed subtitle line, not the much-
+        # lower species/class/type bar). Most cards don't have a subtitle —
+        # equipment, events, interrupts, dilemmas typically lack one — so the
+        # gap test is the discriminator: a real subtitle sits within roughly
+        # one line-height of the title (a few percent of card height), while
+        # the next title-looking line on a subtitle-less card is hundreds of
+        # pixels lower (species bar, card-class bar, etc.).
+        subtitle: Optional[str] = None
+        if title_idx is not None and title_y is not None:
+            max_subtitle_gap = page_image_h * 0.025  # ~2.5% of page height
+            for y, text in cell_lines[title_idx + 1:]:
+                if y - title_y > max_subtitle_gap:
+                    break
+                if id_line_y is not None and abs(y - id_line_y) < 4:
+                    continue
+                if looks_like_title(text):
+                    sub_clean = _clean_title(text)
+                    if sub_clean and sub_clean != title:
+                        subtitle = sub_clean
+                        break
 
         if set_prefix and number is not None:
             metas[i] = CardMeta(
@@ -719,10 +746,12 @@ def parse_card_metadata_by_position(
                 set_prefix=set_prefix,
                 number=number,
                 title=title,
+                subtitle=subtitle,
             )
         elif title:
             metas[i] = CardMeta(
                 card_id=None, set_prefix=None, number=None, title=title,
+                subtitle=subtitle,
             )
 
     return metas
@@ -1135,15 +1164,22 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
 
         # Decide stem. --id-sequence overrides any detected ID/title:
         # synthesise an ID PREFIX{N:02d} for every card in reading order.
+        # Include the subtitle in the slug when present so that name-only
+        # reprints (e.g. four different "Earth" missions) get distinct
+        # filenames matching their full "Title Subtitle" display name.
+        def _title_slug(m: CardMeta) -> str:
+            full = m.title if not m.subtitle else f"{m.title} {m.subtitle}"
+            return slugify(full)
+
         if id_sequence_prefix is not None and next_n is not None:
             stem = f"{id_sequence_prefix}{next_n:02d}"
             next_n += 1
         elif meta and meta.card_id and meta.title:
-            stem = f"{meta.set_prefix}{meta.number:02d}_{slugify(meta.title)}"
+            stem = f"{meta.set_prefix}{meta.number:02d}_{_title_slug(meta)}"
         elif meta and meta.card_id:
             stem = f"{meta.set_prefix}{meta.number:02d}"
         elif meta and meta.title:
-            stem = f"page{page_num:02d}_r{row+1}c{col+1}_{slugify(meta.title)}"
+            stem = f"page{page_num:02d}_r{row+1}c{col+1}_{_title_slug(meta)}"
         else:
             stem = f"page{page_num:02d}_r{row+1}c{col+1}"
 
@@ -1153,6 +1189,8 @@ def process_page(pdf_path: Path, page_num: int, dpi: int,
         if verbose:
             id_str = meta.card_id if meta and meta.card_id else "—"
             title_str = meta.title if meta and meta.title else "—"
+            if meta and meta.subtitle:
+                title_str = f"{title_str} / {meta.subtitle}"
             print(f"    [{row},{col}] {id_str:>6}  '{title_str}'  -> {out_path.name}")
 
     return saved, next_n

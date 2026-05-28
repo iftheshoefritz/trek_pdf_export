@@ -51,14 +51,21 @@ ROW_BLOCKS = [(0,29),(37,67),(74,104),(112,142),(149,178)]
 # Icon locations in the sprite (1-indexed, as identified by visual inspection
 # of the exported grid). Extend this dict to add other icons as needed.
 SPRITE_ICONS = {
-    'Staff':  (4, 1),   # (row0, col0) 0-indexed  ← row 5 col 2 in 1-indexed
-    'Future': (2, 2),   #                          ← row 3 col 3 in 1-indexed
+    'Staff':   (4, 1),   # silver 4-pointed star  ← row 5 col 2 in 1-indexed
+    'Command': (4, 0),   # yellow 6-pointed star  ← row 5 col 1 in 1-indexed
+    # Time-period swirls share row 3 (0-indexed row 2): AU=gold, Past=red, Future=blue
+    'AU':      (2, 0),   # gold swirl
+    'Past':    (2, 1),   # red swirl
+    'Future':  (2, 2),   # blue swirl
 }
 
 # Maps icon name → output path
 ICON_OUTPUTS = {
-    'Staff':  ASSETS / 'Slot_1/Staff.png',
-    'Future': ASSETS / 'Slot_3/Future.png',
+    'Staff':   ASSETS / 'Slot_1/Staff.png',
+    'Command': ASSETS / 'Slot_1/Command.png',
+    'AU':      ASSETS / 'Slot_3/AU.png',
+    'Past':    ASSETS / 'Slot_3/Past.png',
+    'Future':  ASSETS / 'Slot_3/Future.png',
 }
 
 # ---------------------------------------------------------------------------
