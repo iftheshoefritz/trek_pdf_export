@@ -424,7 +424,12 @@ def keyword_runs(text):
 
 
 def _flow_tokens(styled_runs, size):
-    """Tokenise styled runs at a given font size into (kind, payload, width, font)."""
+    """Tokenise styled runs at a given font size into (kind, payload, width, font).
+
+    An inline icon glued to the word that follows it (no space between, e.g.
+    "[HQ]Bajor") is merged into one atomic 'iconword' token so the wrapper never
+    splits the icon from its word across lines; the trailing space token still
+    separates the unit from the next word."""
     space_w = load_font(F_FUTURA_MED, size).getlength(" ")
     icon_h = round(size * 1.18)   # extends a little above and below the text
     tokens = []
@@ -443,7 +448,21 @@ def _flow_tokens(styled_runs, size):
                     tokens.append(('word', piece, font.getlength(piece), font))
             else:
                 tokens.append(('word', piece, font.getlength(piece), font))
-    return tokens
+
+    icon_gap = max(1, round(space_w * 0.5))   # small gap between icon and its word
+    merged = []
+    i = 0
+    while i < len(tokens):
+        kind, payload, tw, font = tokens[i]
+        if kind == 'icon' and i + 1 < len(tokens) and tokens[i + 1][0] == 'word':
+            _, wtext, wtw, wfont = tokens[i + 1]
+            merged.append(('iconword', (payload, icon_gap, wtext, wfont),
+                           tw + icon_gap + wtw, None))
+            i += 2
+        else:
+            merged.append(tokens[i])
+            i += 1
+    return merged
 
 
 def _wrap_tokens(tokens, max_w):
@@ -501,6 +520,10 @@ def draw_textflow(canvas, draw, styled_runs, box, fill, base_size, min_size=None
                 draw.text((x, y), payload, font=font, fill=fill)
             elif kind == 'icon':
                 canvas.alpha_composite(payload, dest=(int(round(x)), int(round(cap_mid - payload.height / 2))))
+            elif kind == 'iconword':
+                icon_img, gap, wtext, wfont = payload
+                canvas.alpha_composite(icon_img, dest=(int(round(x)), int(round(cap_mid - icon_img.height / 2))))
+                draw.text((int(round(x + icon_img.width + gap)), y), wtext, font=wfont, fill=fill)
             x += tw
         y += line_h
     return y
