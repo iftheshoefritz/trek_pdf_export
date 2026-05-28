@@ -1,0 +1,52 @@
+{
+  "source_psd": "2e HD Icon Set v1.psd",
+  "canvas": {
+    "width": 557,
+    "height": 329,
+    "dpi": [
+      300.0,
+      300.0
+    ],
+    "size_inches": [
+      1.8566666666666667,
+      1.0966666666666667
+    ]
+  },
+  "fonts_required": [],
+  "layers": [
+    {
+      "name": "Layer 10",
+      "path": "Layer 10",
+      "kind": "pixel",
+      "visible": true,
+      "bbox": [
+        0,
+        0,
+        557,
+        329
+      ],
+      "size": [
+        557,
+        329
+      ],
+      "asset_file": "assets/Layer_10.png"
+    },
+    {
+      "name": "Icons",
+      "path": "Icons",
+      "kind": "pixel",
+      "visible": true,
+      "bbox": [
+        104,
+        77,
+        461,
+        256
+      ],
+      "size": [
+        357,
+        179
+      ],
+      "asset_file": "assets/Icons.png"
+    }
+  ]
+}

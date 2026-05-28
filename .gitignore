@@ -1,0 +1,14 @@
+.ocr_tmp/
+__pycache__/
+.DS_Store
+
+# logs
+*.log
+
+# demonstration output
+out.pdf
+fixture/comparison.png
+
+# generated reconstructed card images
+fixture/reconstructed/
+fixture/reconstructed_*.png
