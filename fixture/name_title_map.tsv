@@ -1,0 +1,8 @@
+# Optional NAME/TITLE overrides, one per card, for when OCR inference is wrong.
+# Format (tab-separated): CollectorsInfo<TAB>Name<TAB>Title
+# Empty by default — reconstruct_card.py infers the split by OCR otherwise.
+CollectorsInfo	Name	Title
+6P050	Kira Nerys	Starfleet Emissary
+2U124	Julian Bashir	"Unnatural Freak"
+1S390	U.S.S. Akira
+2C172	Maquis Raider
