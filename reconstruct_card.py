@@ -24,6 +24,7 @@ A sidecar TSV (NAME_TITLE_OVERRIDE) can pin NAME/TITLE for any card OCR gets
 wrong; it is empty by default. Requires the `tesseract` CLI on PATH.
 """
 
+import csv
 import json
 import re
 import shutil
@@ -48,9 +49,18 @@ def S(v):
     return int(round(v * SCALE))
 
 ASSETS = Path("extracted/federation/assets")
+DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 FONTS  = Path("fonts")
 PHOTOS = Path("fixture/low quality decipher images")
+# Dilemma card art comes from the full-card scan library (keyed by ImageFile),
+# searched after PHOTOS. Path is relative to the repo root (the script's cwd).
+CARDIMAGES = Path("../webula/public/cardimages")
 NAME_TITLE_OVERRIDE = Path("fixture/name_title_map.tsv")
+# Per-card game text with <b>/<i> markup (bold = dilemma requirements etc.).
+# There is no markup in the card data, so bold is recovered from the original
+# scans by detect_bold_gametext.py and reviewed by hand. When a card appears
+# here its marked-up text replaces the plain gametext at render time.
+GAMETEXT_MARKUP = Path("fixture/gametext_bold.tsv")
 DEFAULT_INPUT  = Path("fixture/federation_personnel_fixture.txt")
 OUTDIR = Path("fixture/reconstructed")
 
@@ -75,11 +85,12 @@ COLUMNS = ["Name", "Set", "ImageFile", "Rarity", "Unique", "CollectorsInfo",
            "Strength", "Shields", "gametext", "HoF"]
 
 def load_rows(path: Path) -> list[dict]:
-    """Parse a tab-separated card file, skipping the header row."""
+    """Parse a tab-separated, double-quoted card file, skipping the header row.
+    Uses the csv module so fields with embedded quotes (e.g. The Caretaker's
+    "Guests") and tabs are unescaped correctly."""
     rows = []
-    with path.open() as f:
-        for line in f:
-            parts = [p.strip('"') for p in line.rstrip("\n").split("\t")]
+    with path.open(newline="") as f:
+        for parts in csv.reader(f, delimiter="\t", quotechar='"'):
             if len(parts) < 6 or parts[5] in ("", "CollectorsInfo"):
                 continue  # header or blank line
             rows.append(dict(zip(COLUMNS, parts)))
@@ -104,11 +115,29 @@ def load_name_title_overrides(path: Path) -> dict:
     return mapping
 
 
+def load_gametext_markup(path: Path) -> dict:
+    """CollectorsInfo -> game text with <b>/<i> markup, from a TSV with a header
+    row. '#'-prefixed and short lines are ignored. Empty/absent by default."""
+    mapping = {}
+    if not path.exists():
+        return mapping
+    with path.open() as f:
+        for line in f:
+            if line.startswith("#"):
+                continue
+            parts = line.rstrip("\n").split("\t")
+            if len(parts) < 2 or parts[0] in ("", "CollectorsInfo"):
+                continue
+            mapping[parts[0]] = parts[1]
+    return mapping
+
+
 def find_photo(row: dict) -> Path:
-    for stem in (row["CollectorsInfo"], row["ImageFile"]):
-        p = PHOTOS / f"{stem}.jpg"
-        if p.exists():
-            return p
+    for base in (PHOTOS, CARDIMAGES):
+        for stem in (row["CollectorsInfo"], row["ImageFile"]):
+            p = base / f"{stem}.jpg"
+            if p.exists():
+                return p
     raise SystemExit(f"No photo found for {row['CollectorsInfo']}")
 
 
@@ -373,6 +402,8 @@ INLINE_ICON_MAP = {
     'Maq': 'maquis', 'E': 'earth',
     'Fut': 'future', 'AU': 'au', 'Past': 'past',
     'Fed': 'federation', 'NA': 'nonaligned', 'Fer': 'ferengi',
+    'Rom': 'romulan', 'Kli': 'klingon', 'Car': 'cardassian',
+    'Dom': 'dominion', 'Baj': 'bajoran',
     'AQ': 'quadrant_alpha', 'GQ': 'quadrant_gamma', 'DQ': 'quadrant_delta',
     'Dual': 'dual', 'HQ': 'headquarters',
 }
@@ -403,10 +434,34 @@ def strip_braces(text):
     return text.replace("{", "").replace("}", "")
 
 
+def parse_markup_runs(text, default='med'):
+    """Split text carrying <b>..</b> / <i>..</i> tags into styled runs. Bold
+    spans (the dilemma requirements etc.) map to 'bold', italics to 'italic',
+    everything else to `default`. Tags may not nest in this data."""
+    runs, stack, pos = [], [default], 0
+    for m in re.finditer(r'</?[bi]>', text):
+        seg = text[pos:m.start()]
+        if seg:
+            runs.append((seg, stack[-1]))
+        tag = m.group(0)
+        if tag[1] == '/':
+            if len(stack) > 1:
+                stack.pop()
+        else:
+            stack.append('bold' if tag[1] == 'b' else 'italic')
+        pos = m.end()
+    seg = text[pos:]
+    if seg:
+        runs.append((seg, stack[-1]))
+    return runs
+
+
 def gametext_runs(text):
-    """Styled runs for game text: a leading 'Order -'-style lexeme is bold,
-    the remainder is medium."""
+    """Styled runs for game text. Explicit <b>/<i> markup (from the bold sidecar)
+    wins; otherwise fall back to bolding a leading 'Order -'-style lexeme."""
     text = strip_braces(text.strip())
+    if '<b>' in text or '<i>' in text:
+        return parse_markup_runs(text, default='med')
     m = re.match(r'^([A-Z][A-Za-z]+ -)(.*)$', text)
     if m:
         return [(m.group(1), 'bold'), (m.group(2), 'med')]
@@ -719,7 +774,13 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     cx = (S(619) + S(669)) // 2
     draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
 
-    # Disclaimer — small white text rotated 90° CCW, running up the right edge
+    draw_disclaimer(canvas)
+    return canvas
+
+
+def draw_disclaimer(canvas):
+    """Small white text rotated 90° CCW, running up the right edge — shared by
+    every card type (it sits on the grey chrome strip outside the text box)."""
     disclaimer = "NOT ENDORSED BY CBS OR PAR. PIC."
     font_disclaimer = gfont(F_FUTURA_BOLD, 12)
     tw = int(font_disclaimer.getlength(disclaimer))
@@ -736,6 +797,93 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     disclaimer_y = (S(637) + S(969)) // 2 - strip_rot.height // 2
     canvas.alpha_composite(strip_rot, dest=(disclaimer_x, disclaimer_y))
 
+
+# ---------------------------------------------------------------------------
+# Dilemma cards — a simpler layout than personnel/ships: photo, frame, a single
+# type icon (chosen by the DilemmaType field), cost, name, the static "Dilemma"
+# label, game text and rarity. No staffing, skills, attributes or species oval.
+# Assets come from the dilemma template (extracted/dilemma/assets); the type
+# icons were pulled per-layer because only one is visible in the shipped PSD.
+# ---------------------------------------------------------------------------
+# DilemmaType code -> type-icon asset. 'D' is dual (space + planet).
+DILEMMA_TYPE_ICON = {
+    'D': "Type/Space_Planet.png",
+    'S': "Type/Space.png",
+    'P': "Type/Planet.png",
+}
+PT_DILEMMA_LABEL = 30   # the "Dilemma" type label (design-space points)
+
+
+def clean_dilemma_name(name: str) -> str:
+    """Strip collection annotations from the data name, e.g. 'Agonizing
+    Encounter *VP' -> 'Agonizing Encounter', 'Assassination Attempt (AC)' ->
+    'Assassination Attempt'. Subtitled names ('Chula: The Chandra') are kept."""
+    name = re.sub(r"\s*\*\w+$", "", name)        # virtual/promo marker
+    name = re.sub(r"\s*\([A-Z]+\)$", "", name)   # printing annotation
+    return name.strip()
+
+
+def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
+    canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
+
+    # 1. Black Border background
+    paste_rgba(canvas, DILEMMA_ASSETS / "Affiliation/Black_Border.png", S(-2), S(-2))
+
+    # 2. Character art: scale the full-card scan to canvas, crop the photo window
+    photo_full = Image.open(find_photo(ROW)).convert("RGBA").resize((S(BASE_W), S(BASE_H)), Image.LANCZOS)
+    canvas.alpha_composite(photo_full.crop((S(32), S(140), S(672), S(574))), dest=(S(32), S(140)))
+
+    # 3. Frame: notched photo-border strip (Difference blend, like personnel
+    # Layer_4) then the card-background frame.
+    layer4 = scale_asset(Image.open(DILEMMA_ASSETS / "Affiliation/Layer_4.png").convert("RGBA"))
+    apply_difference(canvas, layer4, (S(31), S(139)))
+    paste_rgba(canvas, DILEMMA_ASSETS / "Affiliation/Layer_10.png", S(27), S(26))
+
+    # 4. Type icon — chosen by DilemmaType (Type group bbox top-left is 33,40).
+    dtype = ROW["DilemmaType"].strip().upper()
+    icon_rel = DILEMMA_TYPE_ICON.get(dtype)
+    if icon_rel:
+        paste_rgba(canvas, DILEMMA_ASSETS / icon_rel, S(33), S(40))
+    else:
+        print(f"  ! unknown dilemma type {dtype!r}; no type icon drawn")
+
+    draw = ImageDraw.Draw(canvas)
+    BLACK = (0, 0, 0, 255)
+    WHITE = (255, 255, 255, 255)
+
+    # Cost — white, centred in the 19x23 circle at (142, 59)
+    font_cost = gfont(F_CRILEE, PT_COST)
+    cost_text = ROW["Cost"]
+    cost_y = vcenter_y(S(59), S(23), font_cost, cost_text)
+    cost_x = S(142) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
+    draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
+
+    # Name — black, left-aligned in the name bar [190, 72, 370, 102]
+    font_name = gfont(F_CRILEE, PT_NAME)
+    name_y = vcenter_y(S(72), S(30), font_name, NAME)
+    draw.text((S(190), name_y), NAME, font=font_name, fill=BLACK)
+
+    # "Dilemma" type label — bold, centred in [313, 551, 415, 581]
+    font_lbl = gfont(F_FUTURA_BOLD, PT_DILEMMA_LABEL)
+    lbl = "Dilemma"
+    lbl_w = int(draw.textlength(lbl, font=font_lbl))
+    lbl_y = vcenter_y(S(551), S(30), font_lbl, lbl)
+    cx = (S(313) + S(415)) // 2
+    draw.text((cx - lbl_w // 2, lbl_y), lbl, font=font_lbl, fill=BLACK)
+
+    # Game text — flows in the text band; auto-shrinks to fit. No keyword line.
+    draw_textflow(canvas, draw, gametext_runs(ROW["gametext"]),
+                  [120, 670, 635, 797], BLACK, PT_GAME, min_size=15)
+
+    # Rarity — centred in [619, 984, 669, 996]
+    font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
+    rarity_text = format_rarity(ROW["CollectorsInfo"])
+    tw = int(draw.textlength(rarity_text, font=font_rarity))
+    r_y = vcenter_y(S(984), S(12), font_rarity, rarity_text)
+    cx = (S(619) + S(669)) // 2
+    draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
+
+    draw_disclaimer(canvas)
     return canvas
 
 
@@ -769,14 +917,22 @@ def main():
     if not input_path.exists():
         raise SystemExit(f"Input file not found: {input_path}")
 
-    if shutil.which("tesseract") is None:
-        raise SystemExit("tesseract CLI not found on PATH (needed for NAME/TITLE "
-                         "OCR). Install it or pin cards via " + str(NAME_TITLE_OVERRIDE))
-
     rows = load_rows(input_path)
     overrides = load_name_title_overrides(NAME_TITLE_OVERRIDE)
+    bold_markup = load_gametext_markup(GAMETEXT_MARKUP)
+    for row in rows:
+        if row["CollectorsInfo"] in bold_markup:
+            row["gametext"] = bold_markup[row["CollectorsInfo"]]
     outdir = OUTDIR if dpi == BASE_DPI else OUTDIR / f"{dpi}dpi"
     outdir.mkdir(parents=True, exist_ok=True)
+
+    # OCR (NAME/TITLE split) is only needed for non-dilemma cards without a
+    # sidecar override; dilemmas use their data name verbatim.
+    needs_ocr = any(r["Type"].strip().lower() != "dilemma"
+                    and r["CollectorsInfo"] not in overrides for r in rows)
+    if needs_ocr and shutil.which("tesseract") is None:
+        raise SystemExit("tesseract CLI not found on PATH (needed for NAME/TITLE "
+                         "OCR). Install it or pin cards via " + str(NAME_TITLE_OVERRIDE))
 
     print(f"Rendering {len(rows)} card(s) from {input_path} at {dpi} DPI (scale {SCALE:.3f})")
     rendered = 0
@@ -784,6 +940,14 @@ def main():
     for row in rows:
         cid = row["CollectorsInfo"]
         try:
+            if row["Type"].strip().lower() == "dilemma":
+                name = clean_dilemma_name(row["Name"])
+                print(f"  {cid}: dilemma NAME={name!r}")
+                canvas = render_dilemma(row, name)
+                out = outdir / f"{cid}.png"
+                canvas.save(out, dpi=(dpi, dpi))
+                rendered += 1
+                continue
             if cid in overrides:
                 name, title = overrides[cid]
                 print(f"  {cid}: NAME={name!r} TITLE={title!r} (sidecar override)")
