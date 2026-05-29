@@ -1,0 +1,511 @@
+{
+  "source_psd": "2e HD Dilemma v1.psd",
+  "canvas": {
+    "width": 736,
+    "height": 1029,
+    "dpi": [
+      300.0,
+      300.0
+    ],
+    "size_inches": [
+      2.453333333333333,
+      3.43
+    ]
+  },
+  "fonts_required": [
+    "CrilleeBT-Italic",
+    "FuturaLT-Condensed",
+    "FuturaLT-CondensedBold",
+    "FuturaLT-CondensedLightObl",
+    "FuturiCondensedBoldSWFTE"
+  ],
+  "layers": [
+    {
+      "name": "Card Image",
+      "path": "Card Image",
+      "kind": "group",
+      "visible": true,
+      "children": [
+        {
+          "name": "Place Image Here",
+          "path": "Card Image > Place Image Here",
+          "kind": "pixel",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "name": "Affiliation",
+      "path": "Affiliation",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        -2,
+        -2,
+        740,
+        1033
+      ],
+      "size": [
+        742,
+        1035
+      ],
+      "children": [
+        {
+          "name": "Layer 4",
+          "path": "Affiliation > Layer 4",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            31,
+            139,
+            671,
+            573
+          ],
+          "size": [
+            640,
+            434
+          ],
+          "asset_file": "assets/Affiliation/Layer_4.png"
+        },
+        {
+          "name": "Layer 10",
+          "path": "Affiliation > Layer 10",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            27,
+            26,
+            708,
+            1002
+          ],
+          "size": [
+            681,
+            976
+          ],
+          "asset_file": "assets/Affiliation/Layer_10.png"
+        },
+        {
+          "name": "Black Border",
+          "path": "Affiliation > Black Border",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -2,
+            -2,
+            740,
+            1033
+          ],
+          "size": [
+            742,
+            1035
+          ],
+          "asset_file": "assets/Affiliation/Black_Border.png"
+        }
+      ]
+    },
+    {
+      "name": "Skills and Flavor Text",
+      "path": "Skills and Flavor Text",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        120,
+        670,
+        635,
+        797
+      ],
+      "size": [
+        515,
+        127
+      ],
+      "children": [
+        {
+          "name": "Lore Text",
+          "path": "Skills and Flavor Text > Lore Text",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            137,
+            768,
+            294,
+            797
+          ],
+          "size": [
+            157,
+            29
+          ],
+          "text": "\r\r\r  \u201cI hate Ferengi. . .\u201d",
+          "font": "FuturaLT-CondensedLightObl",
+          "font_size": 28.70833,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -10,
+          "leading": 31.25
+        },
+        {
+          "name": "Game Text",
+          "path": "Skills and Flavor Text > Game Text",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            120,
+            670,
+            635,
+            764
+          ],
+          "size": [
+            515,
+            94
+          ],
+          "text": "For each of your headquarters missions, randomly select\ra personnel to be killed. You may discard two events from\rhand to prevent this.",
+          "font": "FuturaLT-Condensed",
+          "font_size": 29.16667,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -1,
+          "leading": 31.25
+        }
+      ]
+    },
+    {
+      "name": "Cost, Name, Rarity",
+      "path": "Cost, Name, Rarity",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        142,
+        59,
+        663,
+        995
+      ],
+      "size": [
+        521,
+        936
+      ],
+      "children": [
+        {
+          "name": "Dilemma",
+          "path": "Cost, Name, Rarity > Dilemma",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            313,
+            551,
+            415,
+            581
+          ],
+          "size": [
+            102,
+            30
+          ],
+          "text": "Dilemma",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 12.18412,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -15
+        },
+        {
+          "name": "Rarity",
+          "path": "Cost, Name, Rarity > Rarity",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            623,
+            983,
+            663,
+            995
+          ],
+          "size": [
+            40,
+            12
+          ],
+          "text": "32 V 1",
+          "font": "FuturiCondensedBoldSWFTE",
+          "font_size": 9.0,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0
+        },
+        {
+          "name": "Name",
+          "path": "Cost, Name, Rarity > Name",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            190,
+            72,
+            370,
+            102
+          ],
+          "size": [
+            180,
+            30
+          ],
+          "text": "Friendly Fire",
+          "font": "CrilleeBT-Italic",
+          "font_size": 16.24549,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -15
+        },
+        {
+          "name": "Cost",
+          "path": "Cost, Name, Rarity > Cost",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            142,
+            59,
+            161,
+            82
+          ],
+          "size": [
+            19,
+            23
+          ],
+          "text": "4",
+          "font": "CrilleeBT-Italic",
+          "font_size": 16.0,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0
+        }
+      ]
+    },
+    {
+      "name": "Type",
+      "path": "Type",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        33,
+        41,
+        112,
+        120
+      ],
+      "size": [
+        79,
+        79
+      ],
+      "children": [
+        {
+          "name": "Space/Planet",
+          "path": "Type > Space/Planet",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            33,
+            41,
+            112,
+            120
+          ],
+          "size": [
+            79,
+            79
+          ],
+          "asset_file": "assets/Type/Space_Planet.png"
+        },
+        {
+          "name": "Space",
+          "path": "Type > Space",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            33,
+            40,
+            113,
+            120
+          ],
+          "size": [
+            80,
+            80
+          ],
+          "asset_file": "assets/Type/Space.png"
+        },
+        {
+          "name": "Planet",
+          "path": "Type > Planet",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            33,
+            40,
+            113,
+            120
+          ],
+          "size": [
+            80,
+            80
+          ],
+          "asset_file": "assets/Type/Planet.png"
+        }
+      ]
+    },
+    {
+      "name": "Intro",
+      "path": "Intro",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        -168,
+        0,
+        909,
+        1029
+      ],
+      "size": [
+        1077,
+        1029
+      ],
+      "children": [
+        {
+          "name": "Layer 9",
+          "path": "Intro > Layer 9",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -168,
+            0,
+            909,
+            1029
+          ],
+          "size": [
+            1077,
+            1029
+          ],
+          "asset_file": "assets/Intro/Layer_9.png"
+        },
+        {
+          "name": "Logo",
+          "path": "Intro > Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            210,
+            73,
+            529,
+            291
+          ],
+          "size": [
+            319,
+            218
+          ],
+          "asset_file": "assets/Intro/Logo.png"
+        },
+        {
+          "name": "Dojo Logo",
+          "path": "Intro > Dojo Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            321,
+            745,
+            410,
+            844
+          ],
+          "size": [
+            89,
+            99
+          ],
+          "asset_file": "assets/Intro/Dojo_Logo.png"
+        },
+        {
+          "name": "Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "path": "Intro > Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            140,
+            416,
+            591,
+            985
+          ],
+          "size": [
+            451,
+            569
+          ],
+          "text": "Welcome to the STAR TREK CCG\rSECOND EDITION High Resolution Cardmaker!\r\rThis PSD includes the DILEMMA template\rVERSION 1.0\r\rCreated by:\rMWagner84\r\rExclusively available from:\r\r\r\r\rhttps://discord.gg/rsRy5GV\r\rTurn off this layer to get started, and...\rExpand your power in the universe!\r\r\r\r\r\r\r\r\r\r\r\r\r ",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 34.28211,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 39.71827
+        },
+        {
+          "name": "Border",
+          "path": "Intro > Border",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -1,
+            2,
+            735,
+            1029
+          ],
+          "size": [
+            736,
+            1027
+          ],
+          "asset_file": "assets/Intro/Border.png"
+        }
+      ]
+    }
+  ]
+}
