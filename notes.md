@@ -316,13 +316,15 @@ plus the `fixture/*_cards/` images sliced from them) — kept locally only.
 
 Source PDFs under `fixture/`:
 - `2eed_hires.pdf` — the 2E errata document: more recent updates to older cards,
-  so it spans many eras. Crucially its text is *real text in the actual fonts*
-  (regular = `Futura-Condensed`, bold = `Futura-CondensedBold`), so where a card
-  is present bold is recoverable directly from font names — exact ground truth,
-  unlike the pixel detector. **But it covers very few of the cards we care
-  about**, so it can only ever be one portion of the bold solution: a
-  high-confidence source for the handful of covered cards, layered above the
-  scan-based detector (which remains the fallback for the rest). Not a
-  replacement for `detect_bold_gametext.py`.
+  so it spans many eras. Its text is *real text in the actual fonts*
+  (regular = `Futura-Condensed`, bold = `Futura-CondensedBold`), so bold would be
+  recoverable directly from font names — but **it covers very few of the cards we
+  care about**, so it can never be more than a patch over a small handful.
+  **OUT OF SCOPE — do not propose this as a bold-detection improvement.** It is
+  deliberately set aside until the scan-based approaches in
+  `detect_bold_gametext.py` are exhausted (the in-script borderline-disambiguation
+  priors, per-line calibration tuning, etc.). Revisit only if those are genuinely
+  played out; until then it is not a replacement for, nor a layer above,
+  `detect_bold_gametext.py`.
 - `ReturntoGrace_hires.pdf`, `2e_eratta_sample.pdf` — further PDFs, not yet
   examined. `extract_cards.py` slices individual card images out of such grids.
