@@ -279,6 +279,11 @@ none of them is flavor text. If/when a flavor source is added, plumb it into
 
 ## Bold game-text detection
 
+**DILEMMAS ONLY.** Bold game text is a dilemma-specific convention — it marks
+the "requirements" to overcome a dilemma. No other card type uses bold this way,
+so `detect_bold_gametext.py` is meant to be run only on dilemma rows; running it
+on other types is meaningless.
+
 Bold game text marks 2E "requirements" (skills, attributes, cost, number of
 personnel, ...) and matters for gameplay, but no card-data source records it.
 `detect_bold_gametext.py` recovers it from the scans and writes

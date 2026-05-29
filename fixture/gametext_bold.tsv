@@ -3,30 +3,30 @@ CollectorsInfo	gametext
 # with hand corrections from gametext_bold_overrides.tsv merged in.
 0VP019	For each headquarters you command, this dilemma is cost -1. Your opponent names a skill. For each of your missions that requires that skill, randomly select a personnel to be stopped.
 27V001	Randomly select two personnel. Unless those personnel have <b>Exobiology and Cunning>11</b> or <b>Strength>13,</b> those personnel are killed.
-29V001	Randomly select a personnel. Unless <b>that personnel has an attribute<5,</b> he or she and a second randomly selected personnel are stopped and this dilemma returns to its owner's dilemma pile. Otherwise, he or she is stopped.
-36V001	Unless you have <b>Navigation and Weapons>7</b> or <b>this mission is a {Nebula} mission,</b> place your ship at a Nebula mission. If you cannot, all your personnel are stopped and place this dilemma on your ship. Damage - This ship is attributes -2.
-50V001	Your opponent names a skill (except Acquisition, Intelligence, Law, or Telepathy). Randomly select three personnel. Each selected personnel who has <b>that skill</b> is stopped. Then kill each selected unstopped [Car] personnel.
+29V001	Randomly select a personnel. Unless that personnel has an <b>attribute<5,</b> he or she and a second randomly selected personnel are stopped and this dilemma returns to its owner's dilemma pile. Otherwise, he or she is stopped.
+36V001	Unless you have <b>Navigation and Weapons>7</b> or this mission is a <b>Nebula mission,</b> place your ship at a Nebula mission. If you cannot, all your personnel are stopped and place this dilemma on your ship. Damage - This ship is attributes -2.
+50V001	Your opponent names a skill (except Acquisition, Intelligence, Law, or Telepathy). Randomly select three personnel. Each selected personnel who has that <b>skill</b> is stopped. Then kill each selected unstopped [Car] personnel.
 63V001	Randomly select three personnel. Each of those personnel that does not have <b>Anthropology</b> or <b>Science</b> is stopped.
 66V001	Randomly select personnel until you select a <b>Telepathy</b> personnel or the selected personnel have <b>any attribute>20.</b> Each selected personnel is killed.
 36V002	Add the span of this mission to this dilemma's cost. Randomly select three personnel. Each of those personnel with an attribute>6 is stopped.
-53V002	Randomly select three personnel. Unless your unselected personnel have the <b>skills on the selected personnel,</b> the selected personnel are stopped.
+53V002	Randomly select three personnel. Unless your unselected personnel have the <b>skills on</b> the selected personnel, the selected personnel are stopped.
 63V002	Randomly select three personnel. Each of those personnel that does not have <b>Diplomacy</b> or <b>Engineer</b> is stopped.
-66V002	Unless you have <b>Engineer, Leadership, 2 Security, and Cunning>38</b> or <b>Weapons>7 and you command a [HQ] mission in a different quadrant,</b> randomly select two personnel to be killed.
+66V002	Unless you have <b>Engineer, Leadership, 2 Security, and Cunning>38</b> or <b>Weapons>7</b> and you command a [HQ] mission in a different quadrant, randomly select two personnel to be killed.
 33V003	Randomly select a personnel who <b>costs 5 or more</b> to be stopped. If you cannot, your opponent chooses a personnel to be stopped. If a personnel who costs 5 or more was stopped by this dilemma, return this dilemma to its owner's dilemma pile.
-66V003	Reveal the top five cards of your deck. Unless you have <b>2 Diplomacy, 2 Medical, and Telepathy</b> or <b>the skills on the personnel revealed this way,</b> randomly select three personnel to be stopped and discard each revealed event and interrupt.
+66V003	Reveal the top five cards of your deck. Unless you have <b>2 Diplomacy, 2 Medical, and Telepathy</b> or the <b>skills on</b> the personnel revealed this way, randomly select three personnel to be stopped and discard each revealed event and interrupt.
 14U004	Randomly select a personnel. Repeat this until you select a personnel with a cost equal to or greater than the first personnel that you selected. Stop each selected personnel.
 22V004	Choose a <b>Medical</b> personnel to be stopped. Unless the personnel stopped by this dilemma has <b>2 Medical,</b> this dilemma returns to its owner's dilemma pile.
 26V004	Randomly select a personnel. Repeat this until you select a personnel of a different species than the first personnel that you selected. Stop each selected personnel.
-38V004	Randomly select two personnel. Unless those personnel have <b>Geology</b> and <b>Cunning>11</b> or <b>Strength>13,</b> those personnel are killed.
+38V004	Randomly select two personnel. Unless those personnel have <b>Geology and Cunning>11</b> or <b>Strength>13,</b> those personnel are killed.
 22V005	Choose an <b>Honor</b> personnel to be stopped. Unless the personnel stopped by this dilemma has <b>2 Honor,</b> this dilemma returns to its owner's dilemma pile.
-49V005	Choose a <b>personnel who has [Cmd] and Officer</b> or an <b>Android</b> or a <b>Hologram</b> to be stopped. If you cannot, randomly select personnel until their total cost is 4 or more. Place those personnel on the bottom of their owner's deck.
+49V005	Choose a personnel who has <b>[Cmd] and Officer</b> or an <b>Android</b> or a <b>Hologram</b> to be stopped. If you cannot, randomly select personnel until their total cost is 4 or more. Place those personnel on the bottom of their owner's deck.
 0VP126	Choose a personnel who has <b>Treachery</b> or <b>Integrity<4</b> to be stopped. If you cannot, randomly select a personnel to be killed.
 11P006	Your opponent chooses a personnel. You may replace him or her with any one personnel of the same affiliation from your discard pile. Place the personnel your opponent chose on the top of his or her owner's deck.
 24V006	This dilemma is cost +1. Place this dilemma on this mission (limit one per mission). If this mission is worth 30 or more points, add 10 to each printed attribute requirement<32 needed to complete this mission. When this mission is completed, place this dilemma beneath your incomplete non-headquarters mission.
 63V006	Randomly select three personnel. Each of those personnel that does not have <b>Programming</b> or <b>Security</b> is stopped.
 65V006	For each of your personnel who costs 2 or less attempting this mission, this dilemma is cost -1. Randomly select three personnel. Each of those personnel who has a cost of 2 or less is killed. If no personnel were killed by this dilemma, your opponent chooses one of the selected personnel to be placed in your opponent's brig.
 1R007	Randomly select two personnel. Each of those personnel who does not have <b>Treachery</b> is killed.
-22V008	If you have four or more personnel who have a cost of 2 or less attempting this mission, this dilemma is cost -3. Choose a <b>Leadership</b> or <b>Security</b> personnel to be stopped. Then choose an <b>Engineer</b> or <b>Programming</b> personnel to be stopped.
+22V008	If you have four or more personnel who have a cost of <b>2</b> or less attempting this mission, this dilemma is cost -3. Choose a <b>Leadership</b> or <b>Security</b> personnel to be stopped. Then choose an <b>Engineer</b> or <b>Programming</b> personnel to be stopped.
 38V009	Randomly select two personnel. Each of those personnel who does not have <b>Leadership</b> is killed.
 40V009	Randomly select three personnel. Each <b>Officer</b> personnel selected is stopped. Then place each unstopped [Rom] selected at your headquarters mission.
 14C010	When you reveal this dilemma from the dilemma stack, if this mission is worth 35 or less points, it is cost -1. Randomly select two personnel to be stopped.

@@ -1,20 +1,5 @@
 CollectorsInfo	gametext
-# Hand-reviewed bold corrections for cards the scan-based detector can't get
-# right (low-contrast/heavy printing, or semantic calls). These override the
-# auto-detection and survive re-running detect_bold_gametext.py.
-# 36V001: low-contrast card (bold renders at ~1.2-1.36). Two bold alternatives:
-#         "Navigation and Weapons>7" and "this mission is a {Nebula} mission".
-#         The "and"/"is" at 1.20 sit below the join threshold (raising it would
-#         break 66V001), and {Nebula}'s braces stop it anchoring.
-36V001	Unless you have <b>Navigation and Weapons>7</b> or <b>this mission is a {Nebula} mission,</b> place your ship at a Nebula mission. If you cannot, all your personnel are stopped and place this dilemma on your ship. Damage - This ship is attributes -2.
-# 1R007: card prints heavy, so the detector over-boxes the line; only the
-#        requirement skill "Treachery" is bold.
-1R007	Randomly select two personnel. Each of those personnel who does not have <b>Treachery</b> is killed.
-# 22V008: the cost-modifier condition ("four or more personnel who have a cost
-#         of 2 or less") is NOT bold; only the requirement skills are. The bare
-#         "2" measured heavy and was a false positive.
-22V008	If you have four or more personnel who have a cost of 2 or less attempting this mission, this dilemma is cost -3. Choose a <b>Leadership</b> or <b>Security</b> personnel to be stopped. Then choose an <b>Engineer</b> or <b>Programming</b> personnel to be stopped.
-# 66V002: two bold requirement clauses; the "or" between them is not bold. The
-#         second clause runs through "...a [HQ] mission in a different quadrant"
-#         (low contrast, so the detector dropped its tail).
-66V002	Unless you have <b>Engineer, Leadership, 2 Security, and Cunning>38</b> or <b>Weapons>7 and you command a [HQ] mission in a different quadrant,</b> randomly select two personnel to be killed.
+# Intentionally empty — cleared to start bold detection from a clean slate (no
+# hand overrides). To override the scan-based detector for a card it can't get
+# right, add a row here (CollectorsInfo<TAB>marked-up gametext); overrides win
+# and survive re-running detect_bold_gametext.py.

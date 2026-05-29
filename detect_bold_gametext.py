@@ -2,10 +2,15 @@
 """
 Recover bold spans in card game text from the original scans.
 
+DILEMMAS ONLY. Bold game text is a dilemma-specific convention: it marks the
+"requirements" a player must meet to overcome the dilemma (skills, attributes,
+cost, number of personnel, ...). No other card type uses bold this way, so this
+detector — and every heuristic in it — assumes the input is dilemma game text.
+Run it only on dilemma rows; feeding it other card types is meaningless.
+
 There is no card-data source that records which words are bold, yet bold is
-gameplay-critical: in 2E it marks the "requirements" to overcome a dilemma
-(skills, attributes, cost, number of personnel, ...). The only ground truth is
-the font weight printed on the card, so this measures it from the scan.
+gameplay-critical. The only ground truth is the font weight printed on the card,
+so this measures it from the scan.
 
 WHY PER-CARD SELF-CALIBRATION. These cards span 10+ years and are mostly
 *virtual* (never-printed) releases with no common print/scan/render process, so
@@ -31,10 +36,15 @@ Pipeline, per card:
      known skills anchor at a low bar; any word anchors if very heavy; bold then
      grows across clearly-heavy neighbours, bridging inline icons and single
      letters. Tokens are merged first ("2 Science", "any attribute>20",
-     word>digits).
+     word>digits). Words just after a requirement lead-in cue ("you have ...",
+     "that personnel has ...", "total cost of those personnel ...") anchor/grow
+     at a lowered bar (a prior, not a hard rule).
   5. Rules: "to be" is never bold (action separator); "or" is regular except
      "or less/more"; skills in an "(except ...)" list aren't requirements; a
-     lone bold word must be requirement-shaped.
+     lone bold word must be requirement-shaped. Grammatical scaffolding (frame
+     words: articles, pronouns, "personnel", "has/have", ...) is never bold, so
+     only the requirement *nucleus* survives ("a personnel who has 2 Geology" ->
+     "...<b>2 Geology</b>"); a span can't begin/end on a dangling "and"/"or".
   6. Re-emit the game text with bold spans wrapped in <b>..</b>.
 
 Hand corrections the pixels can't yield (heavy-print or low-contrast cards) live
@@ -170,6 +180,27 @@ ANCHOR_SHAPED = 1.25   # other requirement-shaped words (caps, comparisons, digi
 ANCHOR_ANY = 1.40      # any word, if measured very heavy (whole-clause bold)
 JOIN = 1.21            # bold grows from an anchor across clearly-heavy neighbours
 
+# Unambiguously-bold override. Every rule below the pixel measurement (frame
+# words, lone-word, "(except ...)", "or", edge-trim) is only a *fallback* for
+# ambiguous weight — so a token measured this far over its baseline is kept bold
+# no matter what those rules decide. The bar must sit above the heavy-print
+# artifact band: on the heaviest cards ordinary non-bold words read up to ~1.60
+# (e.g. 1R007 "personnel" 1.60), while a genuine strong bold like 50V001's
+# dynamic requirement "skill" reads 1.85 — so 1.70 clears the noise with margin.
+# (Narrow window, calibrated on the current deck; revisit if cards are added.)
+OVERRIDE = 1.70
+
+# Requirement lead-in cue (heuristic #1). Certain phrases grammatically
+# introduce a requirement, so a borderline word just after them is more likely
+# bold. A conjugation of "have" ("you have", "unless you have", "that personnel
+# has", "he or she has", "they have") or "total cost of those personnel" opens a
+# requirement clause; inside that window the skill/shape anchor bars and the
+# JOIN growth bar are scaled down by CUE_DISCOUNT. This is a prior on the pixel
+# measurement, never a hard rule — a word that reads clearly regular still won't
+# anchor, and ANCHOR_ANY (whole-clause heavy bold) is left undiscounted.
+HAVE_CUE = {"have", "has"}
+CUE_DISCOUNT = 0.92
+
 # ---------------------------------------------------------------------------
 # POTENTIAL HEURISTICS — NOT IMPLEMENTED YET
 # Ideas for disambiguating borderline cases (where the measured weight is too
@@ -177,14 +208,7 @@ JOIN = 1.21            # bold grows from an anchor across clearly-heavy neighbou
 # would act as priors (nudge the threshold) layered on the pixel measurement,
 # never as hard rules.
 #
-# 1. A span is *more likely* a bold requirement when:
-#    (a) it is preceded by a conjugation of "have": "you have" (especially
-#        "unless you have"), "that personnel has", "he or she has", "they have".
-#    (b) the phrase is "total cost of those personnel".
-#    These are the grammatical cues that introduce a requirement, so a borderline
-#    word just after them could anchor/join at a lower bar.
-#
-# 2. (To investigate — less certain.) The END of a bold requirement is usually an
+# 1. (To investigate — less certain.) The END of a bold requirement is usually an
 #    "or" or a comma. Could help decide where a bold span should stop (and pair
 #    with the existing "or"/comma handling), but needs verification first.
 # ---------------------------------------------------------------------------
@@ -257,6 +281,27 @@ SKILLS = {
 # so it's forced non-bold and acts as a barrier between a requirement and its
 # action.
 ACTION_BARRIER = {"to", "be"}
+
+
+# Grammatical scaffolding around a requirement: articles, demonstratives,
+# relativisers, pronouns, copula/auxiliary "have" forms, and the structural noun
+# "personnel". These are never the requirement *nucleus* (the skill/attribute/
+# comparison/count). Gameplay only cares that the nucleus is bold, so we never
+# bold the frame — even on cards that printed a whole clause bold: "a personnel
+# who has 2 Geology" -> "a personnel who has <b>2 Geology</b>". Frame words can't
+# anchor a span and are stripped from any span at the end (which also kills
+# heavy-print over-boxes like 1R007's "personnel who"). "and"/"or"/commas are
+# deliberately excluded — they are list connectors *between* nuclei and stay
+# bold inside a multi-element requirement ("Geology and Cunning>11").
+FRAME_WORDS = {
+    "a", "an", "the",
+    "this", "that", "these", "those",
+    "who", "whom", "whose", "which",
+    "he", "she", "it", "its", "they", "them", "you", "your", "his", "her", "their",
+    "is", "are", "was", "were", "be", "been", "being",
+    "have", "has", "had", "do", "does", "did",
+    "of", "with", "each", "personnel",
+}
 
 
 def is_requirement_word(tok):
@@ -349,6 +394,37 @@ def req_shaped(tok, sentence_initial):
     return False
 
 
+def requirement_cue_window(tokens, sentence_initial):
+    """Bool per token: True when the token sits in a requirement clause opened
+    by a lead-in cue (heuristic #1) — a conjugation of "have" ("you have",
+    "that personnel has", "unless you have", ...) or "total cost of those
+    personnel". The window starts just after the cue and runs to the next
+    clause boundary (a sentence end or the "to be" action barrier), since the
+    requirement ends where the action it gates begins. Used only to scale the
+    anchor/join bars down for the cued words."""
+    norm = [_norm(t) for t in tokens]
+    starts = []
+    for ti in range(len(tokens)):
+        if norm[ti] in HAVE_CUE:
+            starts.append(ti + 1)
+    phrase = ["total", "cost", "of", "those", "personnel"]
+    for ti in range(len(tokens) - len(phrase) + 1):
+        if norm[ti:ti + len(phrase)] == phrase:
+            starts.append(ti + len(phrase))
+
+    cued = [False] * len(tokens)
+    for s in starts:
+        ti = s
+        while ti < len(tokens):
+            if ti != s and sentence_initial[ti]:
+                break
+            if norm[ti] in ACTION_BARRIER:
+                break
+            cued[ti] = True
+            ti += 1
+    return cued
+
+
 def wrap_bold(tokens, is_bold) -> str:
     """Rejoin tokens, wrapping each maximal run of bold tokens in <b>..</b>."""
     out, i = [], 0
@@ -381,7 +457,11 @@ def _write_review(binimg, tokens, token_boxes, is_bold, path):
 
 def detect(row, debug=False, review_dir=None):
     """Return marked-up game text for one card, or None if no scan/text."""
-    gametext = row["gametext"].strip()
+    # Curly braces wrap named-card references ("{Nebula}", "{Bajor}"); they are
+    # render-only markup that reconstruct_card.py strips before drawing. Drop
+    # them here too so a braced name is measured/shaped like a plain word
+    # (otherwise the leading "{" stops it anchoring as a requirement).
+    gametext = rc.strip_braces(row["gametext"].strip())
     if not gametext:
         return None
     try:
@@ -428,19 +508,22 @@ def detect(row, debug=False, review_dir=None):
     for ti in range(1, len(tokens)):
         sentence_initial[ti] = tokens[ti - 1].rstrip('"\'').endswith(('.', '!', '?', ':'))
     shaped = {ti: req_shaped(tokens[ti], sentence_initial[ti]) for ti in thicks}
+    cued = requirement_cue_window(tokens, sentence_initial)
 
     # --- B. Anchors + propagation -----------------------------------------
     # Anchor = a requirement-shaped word measured clearly heavy. Bold then grows
-    # from anchors across adjacent words that are at least mildly heavy (JOIN) —
-    # regardless of shape — so whole clauses survive ("that personnel has an
-    # attribute<5") while a lone heavy non-requirement word ("each") with no
-    # anchor beside it does not.
+    # from anchors across adjacent heavy words (JOIN). A frame/scaffolding word
+    # can never anchor (it isn't a requirement nucleus), so heavy-print noise on
+    # ordinary words like "personnel who" can't seed a span; frame words that get
+    # swept in by JOIN are stripped at the end (see FRAME_WORDS).
     is_skill = {ti: re.sub(r'[^A-Za-z]', '', tokens[ti]).lower() in SKILLS for ti in thicks}
+    is_frame = {ti: _norm(tokens[ti]) in FRAME_WORDS for ti in thicks}
     is_bold = [False] * len(tokens)
     for ti in thicks:
-        if ratio[ti] > ANCHOR_ANY \
-                or (is_skill[ti] and ratio[ti] > ANCHOR_SKILL) \
-                or (shaped[ti] and ratio[ti] > ANCHOR_SHAPED):
+        d = CUE_DISCOUNT if cued[ti] else 1.0  # heuristic #1: lower bar after a requirement cue
+        if (ratio[ti] > ANCHOR_ANY and not is_frame[ti]) \
+                or (is_skill[ti] and ratio[ti] > ANCHOR_SKILL * d) \
+                or (shaped[ti] and ratio[ti] > ANCHOR_SHAPED * d):
             is_bold[ti] = True
 
     def bridgeable(tok):
@@ -458,6 +541,20 @@ def detect(row, debug=False, review_dir=None):
             j += step
         return (j if 0 <= j < len(tokens) else None), skipped
 
+    def requirement_continues(p):
+        """Does the requirement list continue at/after token p? True when the
+        nearest substantive token there — skipping and/or connectors and
+        bridgeable icons/single letters — is requirement-shaped. This tells an
+        *internal* list comma ("Astrometrics, Engineer, and Cunning>42", whose
+        comma is followed by more requirement elements) from the *terminal*
+        comma that ends the requirement (followed by the action clause, e.g.
+        "..., randomly select ...")."""
+        j = p
+        while 0 <= j < len(tokens) and (bridgeable(tokens[j])
+                                        or _norm(tokens[j]) in ("and", "or")):
+            j += 1
+        return 0 <= j < len(tokens) and req_shaped(tokens[j], sentence_initial[j])
+
     changed = True
     while changed:
         changed = False
@@ -468,7 +565,17 @@ def detect(row, debug=False, review_dir=None):
                 nb, icons = next_word(ti, step)
                 if nb is None or is_bold[nb]:
                     continue
-                if nb in ratio and ratio[nb] > JOIN \
+                # heuristic #1: lower the join bar inside a cue window. Across a
+                # comma the discount applies only if the requirement *continues*
+                # past it (the next substantive token is requirement-shaped) — so
+                # a list connector ("Engineer, and Cunning>42") still joins, but
+                # the terminal comma's action verb ("...2 Physics, randomly
+                # select...") must clear the full bar. Anchors stay discounted
+                # regardless, so a real skill after an internal comma benefits.
+                after_comma = nb > 0 and tokens[nb - 1].rstrip('"\'').endswith(',')
+                discount = cued[nb] and (not after_comma or requirement_continues(nb))
+                join_bar = JOIN * (CUE_DISCOUNT if discount else 1.0)
+                if nb in ratio and ratio[nb] > join_bar \
                         and _norm(tokens[nb]) not in ACTION_BARRIER \
                         and not sentence_initial[max(ti, nb)]:  # don't cross "." / "to be"
                     is_bold[nb] = True
@@ -488,6 +595,14 @@ def detect(row, debug=False, review_dir=None):
     # "to be" (the action separator) is never bold.
     for ti in range(len(tokens)):
         if _norm(tokens[ti]) in ACTION_BARRIER:
+            is_bold[ti] = False
+
+    # Strip grammatical scaffolding from every span: only the requirement nucleus
+    # (and the connectors between nuclei) stays bold, so "a personnel who has 2
+    # Geology" keeps just "2 Geology" — the gameplay-relevant part — whether the
+    # card printed the whole clause bold or only the skill. See FRAME_WORDS.
+    for ti in range(len(tokens)):
+        if is_frame.get(ti, _norm(tokens[ti]) in FRAME_WORDS):
             is_bold[ti] = False
 
     # "or" inside a requirement is almost always non-bold (it separates
@@ -528,6 +643,39 @@ def detect(row, debug=False, review_dir=None):
                 is_bold[k] = False
         ti = j
 
+    # A span must not begin or end on a bare "and"/"or": stripping scaffolding
+    # can leave a connector dangling ("Weapons>7 and you command" -> "Weapons>7
+    # and"). A connector is only meaningful *between* two bold nuclei, so trim it
+    # off the edges (repeatedly, in case several stack up).
+    def _conn(ti):
+        return _norm(tokens[ti].rstrip(',')) in ("and", "or")
+    trimmed = True
+    while trimmed:
+        trimmed = False
+        ti = 0
+        while ti < len(tokens):
+            if not is_bold[ti]:
+                ti += 1
+                continue
+            j = ti
+            while j < len(tokens) and is_bold[j]:
+                j += 1
+            if _conn(ti):
+                is_bold[ti] = False           # leading connector
+                trimmed = True
+            elif _conn(j - 1):
+                is_bold[j - 1] = False        # trailing connector
+                trimmed = True
+            ti = j
+
+    # Unambiguously-bold override (last word): a token measured far over its
+    # baseline is trusted over every suppression rule above — they are only
+    # fallbacks for ambiguous weight. This recovers genuine bold the shape/frame
+    # heuristics can't see, e.g. 50V001's dynamic requirement "that skill".
+    for ti in thicks:
+        if ratio[ti] >= OVERRIDE:
+            is_bold[ti] = True
+
     if debug:
         print(f"  card_base={card_base:.2f} anchor_shaped>{ANCHOR_SHAPED} "
               f"anchor_any>{ANCHOR_ANY} join>{JOIN}")
@@ -536,6 +684,10 @@ def detect(row, debug=False, review_dir=None):
             tags = []
             if ti in shaped and shaped[ti]:
                 tags.append("shape")
+            if cued[ti]:
+                tags.append("cue")
+            if _norm(tok) in FRAME_WORDS:
+                tags.append("frame")
             if is_bold[ti]:
                 tags.append("BOLD")
             print(f"    {tok:16} {('%.2f' % r) if r is not None else '  - ':>5} "
