@@ -1,5 +1,29 @@
 # Trek export — working notes
 
+## Project principle (read this first)
+
+This entire project is about **assembling high-DPI card images from low-res
+source material**. The two halves of every card are treated very differently:
+
+- **Text and frame — rendered crisply, resolution-independent.** All card text
+  (name, cost, game text, skills, attributes, rarity, the "Dilemma"/type label,
+  etc.) is drawn from the card *data* using real fonts, and the frame/icons come
+  from vector-ish template assets. These render natively at whatever `--dpi` is
+  requested, so they stay sharp at any output size. 300-DPI is just the design
+  space; 600/800 DPI scale the text and layout up losslessly.
+
+- **Character art — upscaled with low effort, source-limited.** The photo is the
+  one piece we don't have at high resolution (the Decipher scans are ~357×499).
+  We just LANCZOS-resize it to fill the card and crop the art window. It will
+  look soft when rendered large, and that's expected — it's a hard input limit,
+  not a rendering bug. Don't spend effort trying to make the art "HD"; a fancier
+  upscaler (super-resolution) is the only lever, and it's explicitly optional
+  (see "Upscaling the card photo"). The text staying crisp is what carries the
+  perceived quality.
+
+So when a render "looks low res," check *which* part: crisp text + frame over a
+soft photo is the intended result.
+
 ## Alternative icon source
 
 `/Users/frederickmeissner/devprojects/webula/public/icons/` contains 24×24 GIF
@@ -113,9 +137,11 @@ icon (ship `Icons` field) reuses the personnel slot 2/3 sockets via
 `render_icons()`. Ship staffing/icon/attribute assets live under
 `extracted/federation/assets/Staffing_and_Attributes/Ship/`.
 
-Event, Dilemma, Mission and other card types still need their own rendering
-paths. Other affiliations (Klingon/Romulan/etc.) have their own PSD templates
-under `templates/` and their own extracted asset trees.
+**Dilemma** cards now have a rendering path (`render_dilemma()`), with assets
+extracted by `extract_dilemma_assets.py` into `extracted/dilemma/`. Event,
+Mission and other card types still need their own paths. Other affiliations
+(Klingon/Romulan/etc.) have their own PSD templates under `templates/` and their
+own extracted asset trees.
 
 Staffing icons sit *inside* the photo window (unlike personnel, whose staffing
 is on the chrome below the photo). The template only carries populated per-slot
@@ -250,3 +276,49 @@ photo window for `reconstruct_card.py` to consume instead of resizing inline.
 Not currently rendered. `cards_with_processed_columns.txt` has 28 columns and
 none of them is flavor text. If/when a flavor source is added, plumb it into
 `reconstruct_card.py` below the game text block.
+
+## Bold game-text detection
+
+Bold game text marks 2E "requirements" (skills, attributes, cost, number of
+personnel, ...) and matters for gameplay, but no card-data source records it.
+`detect_bold_gametext.py` recovers it from the scans and writes
+`fixture/gametext_bold.tsv`, which `reconstruct_card.py` reads (via the
+`GAMETEXT_MARKUP` sidecar) to render `<b>..</b>` runs. See the script's module
+docstring for the full pipeline and rules. Two design facts worth keeping front
+of mind:
+
+- **Per-card self-calibration is mandatory.** The dilemmas span 10+ years and
+  are mostly *virtual* (never-printed) cards with no common print/scan/render
+  process, so there is no absolute or cross-card weight scale — bold vs regular
+  is only separable *within* one card. Hence per-card / per-line baselines, and
+  detection per word-instance (the same word can be bold in one place and not
+  another, so we never key off word identity).
+- **Recall-biased on purpose.** A missed bold is a silent gameplay error; an
+  extra one is obvious in review and easy to trim. Thresholds favour
+  over-flagging; the sidecar is a reviewed first pass.
+
+Cases the pixels can't resolve (heavy-print or low-contrast cards) are pinned in
+`fixture/gametext_bold_overrides.tsv` and merged at write time, so they survive
+re-running the detector. `--review-dir DIR` writes per-card crops with the
+detected-bold words boxed, for eyeballing against the scans.
+
+## Reference deck and source PDFs
+
+`reference_export/reference_deck_input.txt` is the canonical test deck driving
+the pipeline (lines are `<collector-code>\t<name>`). The per-type fixtures
+`fixture/deck_*.txt` are derived from it: normalise each collector code
+(`<set><rarity><number>` with the number zero-padded to 3 digits, e.g.
+`0VP19` → `0VP019`) to match `CollectorsInfo` in
+`cards_with_processed_columns.txt`, then group the matched rows by `Type`.
+
+The source PDFs are large (~148MB total) and are **git-ignored** (`fixture/*.pdf`,
+plus the `fixture/*_cards/` images sliced from them) — kept locally only.
+
+Source PDFs under `fixture/`:
+- `2eed_hires.pdf` — the 2E errata document: more recent updates to older cards,
+  so it spans many eras. Crucially its text is *real text in the actual fonts*
+  (regular = `Futura-Condensed`, bold = `Futura-CondensedBold`), so bold is
+  recoverable directly from font names — a far better bold source than the
+  scans **where a card is present**. Check coverage before relying on it.
+- `ReturntoGrace_hires.pdf`, `2e_eratta_sample.pdf` — further PDFs, not yet
+  examined. `extract_cards.py` slices individual card images out of such grids.

@@ -12,3 +12,9 @@ fixture/comparison.png
 # generated reconstructed card images
 fixture/reconstructed/
 fixture/reconstructed_*.png
+
+# large source PDFs (2E errata / hi-res) — kept locally, NOT committed
+# (~148MB; see notes.md "Reference deck and source PDFs")
+fixture/*.pdf
+# card images sliced out of those PDFs (regenerate with extract_cards.py)
+fixture/*_cards/
