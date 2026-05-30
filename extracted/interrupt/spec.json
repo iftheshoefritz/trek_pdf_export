@@ -1,0 +1,403 @@
+{
+  "source_psd": "2e HD Interrupt v1.psd",
+  "canvas": {
+    "width": 736,
+    "height": 1029,
+    "dpi": [
+      300.0,
+      300.0
+    ],
+    "size_inches": [
+      2.453333333333333,
+      3.43
+    ]
+  },
+  "fonts_required": [
+    "CrilleeBT-Italic",
+    "FuturaLT-CondensedBold",
+    "FuturaLT-CondensedLightObl",
+    "FuturiCondensedBoldSWFTE"
+  ],
+  "layers": [
+    {
+      "name": "Card Image",
+      "path": "Card Image",
+      "kind": "group",
+      "visible": true
+    },
+    {
+      "name": "Affiliation",
+      "path": "Affiliation",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        -2,
+        -2,
+        740,
+        1033
+      ],
+      "size": [
+        742,
+        1035
+      ],
+      "children": [
+        {
+          "name": "Frame",
+          "path": "Affiliation > Frame",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            32,
+            140,
+            672,
+            574
+          ],
+          "size": [
+            640,
+            434
+          ],
+          "asset_file": "assets/Affiliation/Frame.png"
+        },
+        {
+          "name": "Layer 16",
+          "path": "Affiliation > Layer 16",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            28,
+            27,
+            709,
+            1003
+          ],
+          "size": [
+            681,
+            976
+          ],
+          "asset_file": "assets/Affiliation/Layer_16.png"
+        },
+        {
+          "name": "Black Border",
+          "path": "Affiliation > Black Border",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -2,
+            -2,
+            740,
+            1033
+          ],
+          "size": [
+            742,
+            1035
+          ],
+          "asset_file": "assets/Affiliation/Black_Border.png"
+        }
+      ]
+    },
+    {
+      "name": "Skills and Flavor Text",
+      "path": "Skills and Flavor Text",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        120,
+        672,
+        639,
+        832
+      ],
+      "size": [
+        519,
+        160
+      ],
+      "children": [
+        {
+          "name": "Lore Text",
+          "path": "Skills and Flavor Text > Lore Text",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            134,
+            803,
+            376,
+            832
+          ],
+          "size": [
+            242,
+            29
+          ],
+          "text": "\r\r\r\r\u201cWhat do you call that shot?\u201d",
+          "font": "FuturaLT-CondensedLightObl",
+          "font_size": 28.70833,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -9,
+          "leading": 31.25
+        },
+        {
+          "name": "Game Text",
+          "path": "Skills and Flavor Text > Game Text",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            120,
+            672,
+            639,
+            796
+          ],
+          "size": [
+            519,
+            124
+          ],
+          "text": "Temporal. Plays in your core. Dilemmas cannot be\rprevented (and cannot be overcome by \u201cprevent and\rovercome\u201d effects). When any player completes a mission,\rdestroy this event.",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 29.16667,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 31.25
+        }
+      ]
+    },
+    {
+      "name": "Name, Rarity",
+      "path": "Name, Rarity",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        161,
+        72,
+        669,
+        996
+      ],
+      "size": [
+        508,
+        924
+      ],
+      "children": [
+        {
+          "name": "Label",
+          "path": "Name, Rarity > Label",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            313,
+            555,
+            417,
+            587
+          ],
+          "size": [
+            104,
+            32
+          ],
+          "text": "Interrupt",
+          "font": "FuturiCondensedBoldSWFTE",
+          "font_size": 12.18412,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -10
+        },
+        {
+          "name": "Rarity",
+          "path": "Name, Rarity > Rarity",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            619,
+            984,
+            669,
+            996
+          ],
+          "size": [
+            50,
+            12
+          ],
+          "text": "32 V 18",
+          "font": "FuturiCondensedBoldSWFTE",
+          "font_size": 9.0,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0
+        },
+        {
+          "name": "Name",
+          "path": "Name, Rarity > Name",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            161,
+            72,
+            422,
+            101
+          ],
+          "size": [
+            261,
+            29
+          ],
+          "text": "Shrouded in Light",
+          "font": "CrilleeBT-Italic",
+          "font_size": 16.24549,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -15
+        }
+      ]
+    },
+    {
+      "name": "Intro",
+      "path": "Intro",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        -168,
+        0,
+        909,
+        1029
+      ],
+      "size": [
+        1077,
+        1029
+      ],
+      "children": [
+        {
+          "name": "Layer 9",
+          "path": "Intro > Layer 9",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -168,
+            0,
+            909,
+            1029
+          ],
+          "size": [
+            1077,
+            1029
+          ],
+          "asset_file": "assets/Intro/Layer_9.png"
+        },
+        {
+          "name": "Logo",
+          "path": "Intro > Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            210,
+            73,
+            529,
+            291
+          ],
+          "size": [
+            319,
+            218
+          ],
+          "asset_file": "assets/Intro/Logo.png"
+        },
+        {
+          "name": "Dojo Logo",
+          "path": "Intro > Dojo Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            321,
+            745,
+            410,
+            844
+          ],
+          "size": [
+            89,
+            99
+          ],
+          "asset_file": "assets/Intro/Dojo_Logo.png"
+        },
+        {
+          "name": "Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "path": "Intro > Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            140,
+            416,
+            591,
+            985
+          ],
+          "size": [
+            451,
+            569
+          ],
+          "text": "Welcome to the STAR TREK CCG\rSECOND EDITION High Resolution Cardmaker!\r\rThis PSD includes the INTERRUPT template\rVERSION 1.0\r\rCreated by:\rMWagner84\r\rExclusively available from:\r\r\r\r\rhttps://discord.gg/rsRy5GV\r\rTurn off this layer to get started, and...\rExpand your power in the universe!\r\r\r\r\r\r\r\r\r\r\r\r\r ",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 34.28211,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 39.71827
+        },
+        {
+          "name": "Border",
+          "path": "Intro > Border",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -1,
+            2,
+            735,
+            1029
+          ],
+          "size": [
+            736,
+            1027
+          ],
+          "asset_file": "assets/Intro/Border.png"
+        }
+      ]
+    }
+  ]
+}

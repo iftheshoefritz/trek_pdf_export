@@ -51,6 +51,7 @@ def S(v):
 ASSETS = Path("extracted/federation/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
+INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
 FONTS  = Path("fonts")
 PHOTOS = Path("fixture/low quality decipher images")
 # Dilemma card art comes from the full-card scan library (keyed by ImageFile),
@@ -417,15 +418,23 @@ STYLE_FONT = {'bold': F_FUTURA_BOLD, 'med': F_FUTURA_MED, 'italic': F_FUTURA_BOL
 INLINE_ICON_DIR = Path("extracted/icons/inline")
 # Text icon abbreviation -> inline icon file stem (extracted/icons/inline/<stem>.png)
 INLINE_ICON_MAP = {
+    # Staffing / command
     'Cmd': 'command', 'Stf': 'staff',
-    'TNG': 'tng', 'DS9': 'ds9', 'Voy': 'voyager', 'TOS': 'tos',
+    # Affiliations / series
+    'TNG': 'tng', 'TN': 'tng', 'DS9': 'ds9', 'Voy': 'voyager', 'TOS': 'tos',
     'Maq': 'maquis', 'E': 'earth',
-    'Fut': 'future', 'AU': 'au', 'Past': 'past',
-    'Fed': 'federation', 'NA': 'nonaligned', 'Fer': 'ferengi',
-    'Rom': 'romulan', 'Kli': 'klingon', 'Car': 'cardassian',
-    'Dom': 'dominion', 'Baj': 'bajoran',
+    'Fed': 'federation', 'NA': 'nonaligned', 'Non': 'nonaligned',
+    'Fer': 'ferengi', 'Rom': 'romulan', 'Kli': 'klingon',
+    'Car': 'cardassian', 'Dom': 'dominion', 'Baj': 'bajoran',
+    'Bor': 'borg', 'Vid': 'vidiian',
+    'SF': 'starfleet', 'Sta': 'starfleet',
+    # Time-period swirls
+    'Fut': 'future', 'AU': 'au', 'Past': 'past', 'Pa': 'past',
+    # Quadrant letters
     'AQ': 'quadrant_alpha', 'GQ': 'quadrant_gamma', 'DQ': 'quadrant_delta',
-    'Dual': 'dual', 'HQ': 'headquarters',
+    # Mission/type marks
+    'P': 'planet', 'S': 'space', 'Dual': 'dual', 'D': 'dual', 'HQ': 'headquarters',
+    'Equ': 'equipment', 'Ev': 'event', 'Int': 'interrupt',
 }
 LEADING_RATIO = 31.25 / 29   # uniform line height as a multiple of font size
 
@@ -902,6 +911,7 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
 # so they are omitted.
 # ---------------------------------------------------------------------------
 PT_EVENT_LABEL = 30   # the "Event" type label (design-space points)
+PT_INTERRUPT_LABEL = 30   # the "Interrupt" type label (same PSD size as event)
 # Unique dot asset is shared across card families (the federation template's
 # Card_Name/Unique). It sits just left of the name; when present, the name
 # slides right by ~17px to make room.
@@ -1029,6 +1039,64 @@ def render_event(ROW: dict, NAME: str) -> Image.Image:
 
 
 # ---------------------------------------------------------------------------
+# Interrupt cards — same frame family as events (photo, notched Difference-blend
+# photo strip, card-background frame, centred type label, game text, rarity),
+# from the interrupt template (extracted/interrupt/assets). Differences from
+# events: assets live under INTERRUPT_ASSETS and the card-background layer is
+# Layer_16; the type label reads "Interrupt"; per reconstruct_card.md printed
+# interrupts never carry the unique dot, so unique=False regardless of the data
+# field. Italic lore quote and keyword reminder text aren't in the card data so
+# they are omitted.
+# ---------------------------------------------------------------------------
+def render_interrupt(ROW: dict, NAME: str) -> Image.Image:
+    canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
+
+    paste_rgba(canvas, INTERRUPT_ASSETS / "Affiliation/Black_Border.png", S(-2), S(-2))
+
+    photo_full = Image.open(find_photo(ROW)).convert("RGBA").resize((S(BASE_W), S(BASE_H)), Image.LANCZOS)
+    canvas.alpha_composite(photo_full.crop((S(32), S(140), S(672), S(574))), dest=(S(32), S(140)))
+
+    frame = scale_asset(Image.open(INTERRUPT_ASSETS / "Affiliation/Frame.png").convert("RGBA"))
+    apply_difference(canvas, frame, (S(31), S(139)))
+    paste_rgba(canvas, INTERRUPT_ASSETS / "Affiliation/Layer_16.png", S(27), S(26))
+
+    draw = ImageDraw.Draw(canvas)
+    BLACK = (0, 0, 0, 255)
+
+    # Interrupts have no cost symbol on the printed card (the data's Cost
+    # column is meaningless here) and never show the unique dot.
+    draw_card_name(canvas, draw, NAME, unique=False,
+                   bar_top=65, bar_h=30, base_x=189, right_edge=590, color=BLACK)
+
+    # "Interrupt" type label — bold, centred in [313, 555, 417, 587]
+    font_lbl = gfont(F_FUTURA_BOLD, PT_INTERRUPT_LABEL)
+    lbl = "Interrupt"
+    lbl_w = int(draw.textlength(lbl, font=font_lbl))
+    lbl_y = vcenter_y(S(555), S(32), font_lbl, lbl)
+    cx = (S(313) + S(417)) // 2
+    draw.text((cx - lbl_w // 2, lbl_y), lbl, font=font_lbl, fill=BLACK)
+
+    # Game text — keyword (rare for interrupts) renders bold ahead of the
+    # rules text, in one wrapped flow; auto-shrinks to fit.
+    keywords_text = strip_braces(ROW["Keywords"].strip())
+    runs = gametext_runs(ROW["gametext"])
+    if keywords_text:
+        runs = [(keywords_text + " ", 'bold')] + runs
+    draw_textflow(canvas, draw, runs, [120, 672, 639, 796], BLACK, PT_GAME, min_size=15)
+
+    # Rarity — centred in [619, 984, 669, 996]
+    font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
+    rarity_text = format_rarity(ROW["CollectorsInfo"])
+    tw = int(draw.textlength(rarity_text, font=font_rarity))
+    r_y = vcenter_y(S(984), S(12), font_rarity, rarity_text)
+    cx = (S(619) + S(669)) // 2
+    draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
+
+    draw_disclaimer(canvas)
+    return canvas
+
+
+# ---------------------------------------------------------------------------
 # Batch driver
 # ---------------------------------------------------------------------------
 
@@ -1093,6 +1161,14 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: event NAME={name!r}")
                 canvas = render_event(row, name)
+                out = outdir / f"{cid}.png"
+                canvas.save(out, dpi=(dpi, dpi))
+                rendered += 1
+                continue
+            if row["Type"].strip().lower() == "interrupt":
+                name = clean_dilemma_name(row["Name"])
+                print(f"  {cid}: interrupt NAME={name!r}")
+                canvas = render_interrupt(row, name)
                 out = outdir / f"{cid}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1

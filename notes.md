@@ -126,6 +126,42 @@ wrong split, add a row to `fixture/name_title_map.tsv`
 (`CollectorsInfo<TAB>Name<TAB>Title`); it's empty by default and takes
 precedence over OCR when present.
 
+## Bootstrapping a new card type
+
+Repeatable steps for setting up a new card-type renderer. Done for Interrupt
+(2026-05-30); follow the same shape for Mission, Equipment, non-Federation
+affiliations, etc.
+
+1. **Build a sets-1-14 fixture** — `fixture/deck_<type>_sets_1_14.txt` (TSV
+   with the same 28-column header as `cards_with_processed_columns.txt`). The
+   hand-curated events fixture is *not* derived from any deck file, but for
+   new types I take the union of all available deck sources and filter:
+     - `reference_export/reference_deck_input.txt` (107 rows, sparse on rare
+       card types — only 2 unique interrupts)
+     - `fixture/worlds_2025_decks/*.txt` (13 competitive decks, much richer)
+   Normalise each `<set><rarity><number>` code (pad number to 3 digits,
+   e.g. `7U39` → `7U039`) to match `CollectorsInfo`, look it up in
+   `cards_with_processed_columns.txt`, filter by `Type` and
+   `1 ≤ set ≤ 14`, dedupe. For Interrupt this yielded 6 unique rows.
+
+2. **Copy scans** for every row's `ImageFile` from
+   `../webula/public/cardimages/<ImageFile>.jpg` into
+   `fixture/low quality decipher images/`. They're already there for personnel
+   but missing for most other types. Skip if the dst already exists.
+
+3. **Extract the PSD template**:
+   ```
+   python3 extract_layout_from_template.py "templates/2e HD <Type> v1.psd" ./extracted/<type>
+   ```
+   Produces `extracted/<type>/{spec.json, preview.png, assets/}`. Open
+   `preview.png` to eyeball the layout before writing the renderer.
+
+4. **Write `render_<type>()`** in `reconstruct_card.py` — branch on `Type` in
+   `render_card()` (or wherever the dispatch lives). Reuse cross-cutting
+   helpers: `draw_card_name`, `draw_cost`, `draw_textflow`. Honour the
+   unique-dot policy from `reconstruct_card.md` (Interrupt and Dilemma never
+   show the dot).
+
 ## Scope
 
 The script handles **Federation Personnel and Ship** cards; it branches on the
@@ -177,7 +213,12 @@ flow that supports:
     after is italic (`keyword_runs`);
   - inline icons — `[TNG]` etc. in the text render as a small icon centred on
     the line's midline, from `extracted/icons/inline/<stem>.png` (copied from
-    the webula 24×24 single-ring icons; see `INLINE_ICON_MAP`);
+    the webula 24×24 single-ring icons; see `INLINE_ICON_MAP`). Missing
+    sources (not in webula): `[H]` Holo, `[Hir]` Hirogen, `[Kaz]` Kazon,
+    plus `[Ref]` / `[SD]` whose meaning is unclear — bake from the
+    `templates/2e HD Icon Set v1.psd` sprite when needed (the affiliation
+    cells on sprite rows 1–2 are the candidates per the "Alternative icon
+    source" section);
   - left-aligned, ragged right (the printed cards are not justified);
   - uniform line height (always room for an icon, present or not);
   - auto-shrink: game text starts at the nominal size and shrinks to fit the
@@ -270,6 +311,23 @@ compositing. Possible avenues:
   - a two-pass approach: SR upscale, then mild sharpen/denoise
 If pursued, factor it into an `upscale_photo.py` step that emits a high-res
 photo window for `reconstruct_card.py` to consume instead of resizing inline.
+
+## Upscaling inline icons (future work)
+
+The inline icons in `extracted/icons/inline/` are the webula 24×24 GIFs and
+are runtime LANCZOS-resized to text height by `inline_icon()`. At 300 DPI
+the target is ~24px so no real upscale happens; at 800 DPI the target is
+~64px and the icons start to look soft. Options if/when this matters:
+  - Pre-bake a higher-res version per icon (super-resolution: Real-ESRGAN
+    or waifu2x — illustration-tuned models suit these flat-shaded rings).
+  - Bake from the `templates/2e HD Icon Set v1.psd` sprite cells (~30×30,
+    slightly larger and the canonical source per the "Alternative icon
+    source" section).
+  - Vectorise the simpler glyphs (quadrant letters, staff/command stars)
+    by tracing — these are geometric and trace cleanly; affiliation rings
+    with photo-emblem interiors don't.
+Same shape as the photo-upscaling work: emit pre-upscaled PNGs into
+`extracted/icons/inline/` so `inline_icon()` just downsizes from them.
 
 ## Flavor text
 

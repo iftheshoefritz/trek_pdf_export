@@ -38,6 +38,22 @@ some card types but not others. The dot is the federation template's
 For interrupts and dilemmas, call `draw_card_name(..., unique=False, ...)`
 regardless of the data field — the printed cards do not carry the dot.
 
+## Cost symbol
+
+Most card types carry a cost in the black circle at the top-left of the
+name bar (rendered by `draw_cost()`). Interrupts do **not** — the printed
+card has no cost circle, and the data's `Cost` column is meaningless on
+interrupt rows. Skip `draw_cost` in `render_interrupt`.
+
+| Card type  | Cost symbol? |
+|------------|--------------|
+| Personnel  | yes          |
+| Ship       | yes          |
+| Event      | yes          |
+| Equipment  | yes          |
+| Dilemma    | yes          |
+| Interrupt  | no           |
+
 ## Title
 
 Personnel and ships carry a *title* (subtitle below the name; e.g.
