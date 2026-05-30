@@ -53,6 +53,8 @@ DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
 EQUIPMENT_ASSETS = Path("extracted/equipment/assets")
+MISSION_ASSETS = Path("extracted/mission/assets")
+INLINE_ICONS = Path("extracted/icons/inline")
 FONTS  = Path("fonts")
 PHOTOS = Path("fixture/low quality decipher images")
 # Dilemma card art comes from the full-card scan library (keyed by ImageFile),
@@ -208,6 +210,7 @@ F_FUTURA_BOLD   = FONTS / "Futura LT Condensed Bold.ttf"
 F_FUTURA_BOLDO  = FONTS / "Futura LT Condensed Bold Oblique.ttf"
 F_FUTURA_MED    = FONTS / "Futura LT Condensed Medium.ttf"
 F_FUTURI_BOLD   = FONTS / "FUTURCB.TTF"    # FuturiCondensedBoldSWFTE
+F_SWISS911_UCM  = FONTS / "Swiss911 UCm BT.ttf"  # ultra-compressed heavy display
 
 
 def load_font(path, size):
@@ -914,6 +917,10 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
 PT_EVENT_LABEL = 30   # the "Event" type label (design-space points)
 PT_INTERRUPT_LABEL = 30   # the "Interrupt" type label (same PSD size as event)
 PT_EQUIPMENT_LABEL = 38   # the "Equipment" label is larger on the printed cards
+PT_MISSION_REQ = 30       # mission Requirements text (centred, bold upright)
+PT_MISSION_POINTS = 60    # white italic display digits in the chrome circle
+PT_MISSION_SPAN = 36      # white italic digit in the small black disc
+PT_MISSION_AFFIL_TEXT = 24  # "Any affiliation..." / "Federation Headquarters" italic line
 # Unique dot asset is shared across card families (the federation template's
 # Card_Name/Unique). It sits just left of the name; when present, the name
 # slides right by ~17px to make room.
@@ -1160,6 +1167,242 @@ def render_equipment(ROW: dict, NAME: str) -> Image.Image:
 
 
 # ---------------------------------------------------------------------------
+# Mission cards — landscape-art portrait layout from extracted/mission/.
+# The PSD's Affiliations/{Even,Odd}/*.png assets are empty (the printed glyphs
+# came entirely from layer styles, which don't rasterise), so the affiliation
+# icons are composited from extracted/icons/inline/*.png upscaled to the
+# strip height. Mission column drives the type icon (S/P/H); Quadrant column
+# drives the quadrant icon (A/G/D; B = no icon). Skills column carries the
+# requirements line. Lore (italic quote) isn't in our data — skip.
+# ---------------------------------------------------------------------------
+MISSION_TYPE_ASSET = {
+    "S": "Type/Space.png",
+    "P": "Type/Planet.png",
+    "H": "Type/Headquarters.png",
+}
+MISSION_QUADRANT_ASSET = {
+    "A": "Quadrant/Alpha.png",
+    "G": "Quadrant/Gamma.png",
+    "D": "Quadrant/Delta.png",
+    # B (Beta) has no icon in the template — Beta is the implicit/default.
+}
+# Map data-field affiliation abbreviations -> baked affiliation-icon filename.
+# Icons are the centre disc of the PSD's Odd/<affil> row, with the strip's
+# navy background keyed out — they include the chrome ring and laurel wreath.
+MISSION_AFFIL_ICON = {
+    "Fed": "Federation",
+    "NA":  "Non-Alligned",
+    "Kli": "Klingon",
+    "Rom": "Romulan",
+    "Car": "Cardassian",
+    "Dom": "Dominion",
+    "Baj": "Bajoran",
+    "Fer": "Ferengi",
+    "Bor": "Borg",
+}
+
+# Affiliation strip geometry, derived from the PSD's actual icon positions in
+# the Odd (5-icon row) and Even (6-icon row) layers. For N affiliations the
+# printed cards use the centre N positions of whichever row has the matching
+# parity. For N>6 the strip is too narrow for natural-size icons, so we
+# equally space N icons across the strip and scale them down.
+MISSION_AFFIL_CY = 895
+MISSION_AFFIL_ODD_X  = (169, 268, 367, 466, 564)
+MISSION_AFFIL_EVEN_X = (120, 218, 316, 414, 512, 610)
+MISSION_AFFIL_NATIVE_PX = 100   # baked icon width in design space
+
+def _affil_positions(n: int):
+    """Return (x_centres, scale) for N affiliation icons."""
+    if n <= 0:
+        return (), 1.0
+    if n <= 5 and n % 2 == 1:
+        row = MISSION_AFFIL_ODD_X
+        start = (len(row) - n) // 2
+        return row[start:start + n], 1.0
+    if n <= 6 and n % 2 == 0:
+        row = MISSION_AFFIL_EVEN_X
+        start = (len(row) - n) // 2
+        return row[start:start + n], 1.0
+    # N=7+: even-space across the strip and shrink each icon so they don't
+    # overlap. The Even row's full span (120..610) is the strip's working
+    # width; divide it into N slots and centre each icon in its slot.
+    left, right = MISSION_AFFIL_EVEN_X[0], MISSION_AFFIL_EVEN_X[-1]
+    width = right - left
+    slot = width / (n - 1) if n > 1 else 0
+    positions = tuple(int(round(left + i * slot)) for i in range(n))
+    natural_slot = (MISSION_AFFIL_EVEN_X[1] - MISSION_AFFIL_EVEN_X[0])
+    scale = min(1.0, slot / natural_slot) if slot else 1.0
+    return positions, scale
+
+
+def _paste_affil_icon(canvas, stem: str, cx: int, cy: int, scale: float = 1.0):
+    """Paste a baked mission affiliation icon centred at (cx, cy) in design
+    space, optionally pre-scaled (for N>=7 layouts that shrink to fit)."""
+    src = Image.open(
+        MISSION_ASSETS / "Affiliations/icons" / f"{stem}.png").convert("RGBA")
+    if scale != 1.0:
+        new_w = max(1, int(round(src.width * scale)))
+        new_h = max(1, int(round(src.height * scale)))
+        src = src.resize((new_w, new_h), Image.LANCZOS)
+    src = scale_asset(src)
+    canvas.alpha_composite(src,
+        dest=(S(cx) - src.width // 2, S(cy) - src.height // 2))
+
+
+def draw_centered_text(draw, text: str, font, box, fill):
+    """Wrap `text` to fit box width and draw centred horizontally, anchored to
+    the top of the box. box=[l,t,r,b] in design space."""
+    l, t, r, _ = (S(box[0]), S(box[1]), S(box[2]), S(box[3]))
+    max_w = r - l
+    # Greedy wrap by word
+    words = text.split()
+    lines = []
+    cur = ""
+    for w in words:
+        trial = (cur + " " + w).strip()
+        if int(draw.textlength(trial, font=font)) <= max_w:
+            cur = trial
+        else:
+            if cur:
+                lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
+
+    # Use font size for line height
+    line_h = int(font.size * 1.15)
+    y = t
+    for line in lines:
+        tw = int(draw.textlength(line, font=font))
+        cx = (l + r) // 2
+        draw.text((cx - tw // 2, y), line, font=font, fill=fill)
+        y += line_h
+    return y
+
+
+def render_mission(ROW: dict, NAME: str) -> Image.Image:
+    canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
+
+    # 1. Black border background
+    paste_rgba(canvas, MISSION_ASSETS / "Black_Border.png", S(-2), S(-2))
+
+    # 2. Photo: scale full-card scan to canvas; crop landscape art window
+    # (the Image_Frame layer bbox in the mission spec.json).
+    photo_full = Image.open(find_photo(ROW)).convert("RGBA").resize(
+        (S(BASE_W), S(BASE_H)), Image.LANCZOS)
+    canvas.alpha_composite(photo_full.crop((S(33), S(138), S(708), S(586))),
+                           dest=(S(33), S(138)))
+
+    # 3. Card frame (chrome with affiliation circle holes baked in).
+    paste_rgba(canvas, MISSION_ASSETS / "Card_Background/Card_Frame.png",
+               S(27), S(26))
+
+    # 4. Type icon (Space/Planet/Headquarters) top-left.
+    mtype = (ROW.get("Mission") or "").strip().upper()
+    if mtype in MISSION_TYPE_ASSET:
+        paste_rgba(canvas, MISSION_ASSETS / MISSION_TYPE_ASSET[mtype],
+                   S(33), S(40))
+
+    # 5. Quadrant icon (left, below image). Beta has no asset.
+    quad = (ROW.get("Quadrant") or "").strip().upper()
+    if quad in MISSION_QUADRANT_ASSET:
+        paste_rgba(canvas, MISSION_ASSETS / MISSION_QUADRANT_ASSET[quad],
+                   S(33), S(552))
+
+    draw = ImageDraw.Draw(canvas)
+    BLACK = (0, 0, 0, 255)
+    WHITE = (255, 255, 255, 255)
+
+    # 6. Card name — single line (no NAME/TITLE split on missions); unique
+    # dot when flagged. Top chrome bar mid ≈ y=66.
+    draw_card_name(canvas, draw, NAME, ROW.get("Unique", "").upper() == "Y",
+                   bar_top=54, bar_h=30, base_x=180, right_edge=665, color=BLACK)
+
+    # 7. Points — white heavy display digit, centred in the chrome circle at
+    # top-right of the below-image bar. PSD bbox: [628, 568, 701, 613]; the
+    # actual printed glyphs are much taller than the bbox (they overflow into
+    # the chrome ring) and use an ultra-compressed weight, so use Swiss 911
+    # UCm and treat the bbox centre as the anchor, not the height bound.
+    points_text = (ROW.get("Points") or "").strip()
+    if points_text:
+        # Italic Crillee matches the printed Points/Span digits.
+        font_pts = gfont(F_CRILEE, PT_MISSION_POINTS)
+        l, t, r, b = font_pts.getbbox(points_text)
+        cx_design, cy_design = 664, 590       # circle centre, design space
+        px = S(cx_design) - (l + r) // 2
+        py = S(cy_design) - (t + b) // 2
+        draw.text((px, py), points_text, font=font_pts, fill=WHITE)
+
+    # 8. Requirements (Skills column) — centred bold upright, may wrap.
+    req_text = (ROW.get("Skills") or "").strip()
+    if req_text:
+        font_req = gfont(F_FUTURA_BOLD, PT_MISSION_REQ)
+        # PSD bbox ([163, 612, 566, 675]) is too narrow (text spills to many
+        # lines), but the printed cards wrap "Astrometrics, Engineer,
+        # Physics," to line 1 — pick a width between that line's measured
+        # length and the next candidate ("...Cunning>34,") so it breaks here.
+        draw_centered_text(draw, req_text, font_req,
+                           [135, 612, 605, 685], BLACK)
+
+    # 9. Game text — keyword bold lead-in, then rules text in one flow.
+    keywords_text = strip_braces((ROW.get("Keywords") or "").strip())
+    runs = gametext_runs(ROW.get("gametext", ""))
+    if keywords_text:
+        runs = [(keywords_text + " ", 'bold')] + runs
+    # PSD game-text bbox is [73, 689, 543, 783], but we don't render the lore
+    # quote, so widen right edge to the affiliation strip top and extend down
+    # through the lore band.
+    draw_textflow(canvas, draw, runs, [73, 689, 660, 828], BLACK,
+                  PT_GAME, min_size=15)
+
+    # 10. Affiliation strip. Data values:
+    #     "[Fed]"       -> one inline icon centred
+    #     "[Fed][NA]"   -> two icons split across the strip
+    #     "Any affiliation may attempt this mission." -> render as italic text
+    #     "<x> Headquarters"                          -> render as italic text
+    affil = (ROW.get("Affiliation") or "").strip()
+    affil_tokens = re.findall(r"\[([^\]]+)\]", affil)
+    if affil_tokens:
+        stems = [MISSION_AFFIL_ICON.get(a) for a in affil_tokens]
+        stems = [s for s in stems if s]
+        positions, scale = _affil_positions(len(stems))
+        for stem, cx in zip(stems, positions):
+            _paste_affil_icon(canvas, stem, cx, MISSION_AFFIL_CY, scale)
+    elif affil:
+        # Plain text variant (Any / HQ). Italic bold.
+        font_aff = gfont(F_FUTURA_BOLDO, PT_MISSION_AFFIL_TEXT)
+        # Strip wraps PSD bbox roughly [80, 875, 655, 915].
+        tw = int(draw.textlength(affil, font=font_aff))
+        y = vcenter_y(S(875), S(40), font_aff, affil)
+        cx = (S(80) + S(655)) // 2
+        draw.text((cx - tw // 2, y), affil, font=font_aff, fill=BLACK)
+
+    # 11. Span — white digit centred in the small black disc at the bottom.
+    # PSD bbox: [360, 953, 373, 982]. Same Futuri Condensed Bold face as Points.
+    span_text = (ROW.get("Span") or "").strip()
+    if span_text:
+        # Italic Crillee, centred on the small black disc (canvas ≈ 367, 968).
+        font_span = gfont(F_CRILEE, PT_MISSION_SPAN)
+        l, t, r, b = font_span.getbbox(span_text)
+        # Span disc centre measured from Card_Frame.png by darkness scan.
+        cx_design, cy_design = 365, 968
+        sx = S(cx_design) - (l + r) // 2
+        sy = S(cy_design) - (t + b) // 2
+        draw.text((sx, sy), span_text, font=font_span, fill=WHITE)
+
+    # 12. Rarity — bottom right (same band as event/equipment).
+    font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
+    rarity_text = format_rarity(ROW["CollectorsInfo"])
+    tw = int(draw.textlength(rarity_text, font=font_rarity))
+    r_y = vcenter_y(S(982), S(14), font_rarity, rarity_text)
+    cx = (S(624) + S(665)) // 2
+    draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
+
+    draw_disclaimer(canvas)
+    return canvas
+
+
+# ---------------------------------------------------------------------------
 # Batch driver
 # ---------------------------------------------------------------------------
 
@@ -1200,7 +1443,8 @@ def main():
 
     # OCR (NAME/TITLE split) is only needed for non-dilemma cards without a
     # sidecar override; dilemmas use their data name verbatim.
-    needs_ocr = any(r["Type"].strip().lower() not in ("dilemma", "event")
+    needs_ocr = any(r["Type"].strip().lower() not in
+                    ("dilemma", "event", "interrupt", "equipment", "mission")
                     and r["CollectorsInfo"] not in overrides for r in rows)
     if needs_ocr and shutil.which("tesseract") is None:
         raise SystemExit("tesseract CLI not found on PATH (needed for NAME/TITLE "
@@ -1240,6 +1484,14 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: equipment NAME={name!r}")
                 canvas = render_equipment(row, name)
+                out = outdir / f"{cid}.png"
+                canvas.save(out, dpi=(dpi, dpi))
+                rendered += 1
+                continue
+            if row["Type"].strip().lower() == "mission":
+                name = clean_dilemma_name(row["Name"])
+                print(f"  {cid}: mission NAME={name!r}")
+                canvas = render_mission(row, name)
                 out = outdir / f"{cid}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1

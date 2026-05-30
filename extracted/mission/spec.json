@@ -1,0 +1,1174 @@
+{
+  "source_psd": "2e HD Mission v1.psd",
+  "canvas": {
+    "width": 736,
+    "height": 1029,
+    "dpi": [
+      300.0,
+      300.0
+    ],
+    "size_inches": [
+      2.453333333333333,
+      3.43
+    ]
+  },
+  "fonts_required": [
+    "CrilleeBT-Italic",
+    "FuturaLT-CondensedBold",
+    "FuturaLT-CondensedLightObl",
+    "FuturaLT-CondensedOblique"
+  ],
+  "layers": [
+    {
+      "name": "Black Border",
+      "path": "Black Border",
+      "kind": "pixel",
+      "visible": true,
+      "bbox": [
+        -2,
+        -2,
+        740,
+        1033
+      ],
+      "size": [
+        742,
+        1035
+      ],
+      "asset_file": "assets/Black_Border.png"
+    },
+    {
+      "name": "Card Image",
+      "path": "Card Image",
+      "kind": "group",
+      "visible": true,
+      "children": [
+        {
+          "name": "Place Image Here",
+          "path": "Card Image > Place Image Here",
+          "kind": "pixel",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "name": "Card Background",
+      "path": "Card Background",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        27,
+        26,
+        708,
+        1002
+      ],
+      "size": [
+        681,
+        976
+      ],
+      "children": [
+        {
+          "name": "Image Frame",
+          "path": "Card Background > Image Frame",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            33,
+            138,
+            708,
+            586
+          ],
+          "size": [
+            675,
+            448
+          ],
+          "asset_file": "assets/Card_Background/Image_Frame.png"
+        },
+        {
+          "name": "Card Frame",
+          "path": "Card Background > Card Frame",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            27,
+            26,
+            708,
+            1002
+          ],
+          "size": [
+            681,
+            976
+          ],
+          "asset_file": "assets/Card_Background/Card_Frame.png"
+        }
+      ]
+    },
+    {
+      "name": "Affiliations",
+      "path": "Affiliations",
+      "kind": "group",
+      "visible": true,
+      "children": [
+        {
+          "name": "Even",
+          "path": "Affiliations > Even",
+          "kind": "group",
+          "visible": true,
+          "children": [
+            {
+              "name": "Starfleet",
+              "path": "Affiliations > Even > Starfleet",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                81,
+                855,
+                648,
+                941
+              ],
+              "size": [
+                567,
+                86
+              ],
+              "asset_file": "assets/Affiliations/Even/Starfleet.png"
+            },
+            {
+              "name": "Non-Alligned",
+              "path": "Affiliations > Even > Non-Alligned",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                79,
+                859,
+                650,
+                935
+              ],
+              "size": [
+                571,
+                76
+              ],
+              "asset_file": "assets/Affiliations/Even/Non-Alligned.png"
+            },
+            {
+              "name": "Bajoran",
+              "path": "Affiliations > Even > Bajoran",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                84,
+                852,
+                648,
+                936
+              ],
+              "size": [
+                564,
+                84
+              ],
+              "asset_file": "assets/Affiliations/Even/Bajoran.png"
+            },
+            {
+              "name": "Klingon",
+              "path": "Affiliations > Even > Klingon",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                81,
+                854,
+                657,
+                935
+              ],
+              "size": [
+                576,
+                81
+              ],
+              "asset_file": "assets/Affiliations/Even/Klingon.png"
+            },
+            {
+              "name": "Romulan",
+              "path": "Affiliations > Even > Romulan",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                71,
+                858,
+                661,
+                933
+              ],
+              "size": [
+                590,
+                75
+              ],
+              "asset_file": "assets/Affiliations/Even/Romulan.png"
+            },
+            {
+              "name": "Federation",
+              "path": "Affiliations > Even > Federation",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                77,
+                859,
+                656,
+                930
+              ],
+              "size": [
+                579,
+                71
+              ],
+              "asset_file": "assets/Affiliations/Even/Federation.png"
+            },
+            {
+              "name": "Borg",
+              "path": "Affiliations > Even > Borg",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                90,
+                849,
+                642,
+                935
+              ],
+              "size": [
+                552,
+                86
+              ],
+              "asset_file": "assets/Affiliations/Even/Borg.png"
+            },
+            {
+              "name": "Dominion",
+              "path": "Affiliations > Even > Dominion",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                81,
+                852,
+                640,
+                938
+              ],
+              "size": [
+                559,
+                86
+              ],
+              "asset_file": "assets/Affiliations/Even/Dominion.png"
+            },
+            {
+              "name": "Cardassian",
+              "path": "Affiliations > Even > Cardassian",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                83,
+                853,
+                641,
+                942
+              ],
+              "size": [
+                558,
+                89
+              ],
+              "asset_file": "assets/Affiliations/Even/Cardassian.png"
+            },
+            {
+              "name": "Ferengi",
+              "path": "Affiliations > Even > Ferengi",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                81,
+                864,
+                649,
+                932
+              ],
+              "size": [
+                568,
+                68
+              ],
+              "asset_file": "assets/Affiliations/Even/Ferengi.png"
+            }
+          ]
+        },
+        {
+          "name": "Odd",
+          "path": "Affiliations > Odd",
+          "kind": "group",
+          "visible": true,
+          "children": [
+            {
+              "name": "Starfleet",
+              "path": "Affiliations > Odd > Starfleet",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                130,
+                855,
+                599,
+                941
+              ],
+              "size": [
+                469,
+                86
+              ],
+              "asset_file": "assets/Affiliations/Odd/Starfleet.png"
+            },
+            {
+              "name": "Non-Alligned",
+              "path": "Affiliations > Odd > Non-Alligned",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                127,
+                859,
+                601,
+                935
+              ],
+              "size": [
+                474,
+                76
+              ],
+              "asset_file": "assets/Affiliations/Odd/Non-Alligned.png"
+            },
+            {
+              "name": "Bajoran",
+              "path": "Affiliations > Odd > Bajoran",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                134,
+                852,
+                599,
+                936
+              ],
+              "size": [
+                465,
+                84
+              ],
+              "asset_file": "assets/Affiliations/Odd/Bajoran.png"
+            },
+            {
+              "name": "Klingon",
+              "path": "Affiliations > Odd > Klingon",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                128,
+                854,
+                609,
+                935
+              ],
+              "size": [
+                481,
+                81
+              ],
+              "asset_file": "assets/Affiliations/Odd/Klingon.png"
+            },
+            {
+              "name": "Romulan",
+              "path": "Affiliations > Odd > Romulan",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                120,
+                858,
+                612,
+                933
+              ],
+              "size": [
+                492,
+                75
+              ],
+              "asset_file": "assets/Affiliations/Odd/Romulan.png"
+            },
+            {
+              "name": "Federation",
+              "path": "Affiliations > Odd > Federation",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                126,
+                859,
+                607,
+                930
+              ],
+              "size": [
+                481,
+                71
+              ],
+              "asset_file": "assets/Affiliations/Odd/Federation.png"
+            },
+            {
+              "name": "Borg",
+              "path": "Affiliations > Odd > Borg",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                135,
+                849,
+                589,
+                935
+              ],
+              "size": [
+                454,
+                86
+              ],
+              "asset_file": "assets/Affiliations/Odd/Borg.png"
+            },
+            {
+              "name": "Dominion",
+              "path": "Affiliations > Odd > Dominion",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                130,
+                852,
+                591,
+                938
+              ],
+              "size": [
+                461,
+                86
+              ],
+              "asset_file": "assets/Affiliations/Odd/Dominion.png"
+            },
+            {
+              "name": "Cardassian",
+              "path": "Affiliations > Odd > Cardassian",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                132,
+                853,
+                592,
+                942
+              ],
+              "size": [
+                460,
+                89
+              ],
+              "asset_file": "assets/Affiliations/Odd/Cardassian.png"
+            },
+            {
+              "name": "Ferengi",
+              "path": "Affiliations > Odd > Ferengi",
+              "kind": "pixel",
+              "visible": false,
+              "bbox": [
+                130,
+                864,
+                600,
+                932
+              ],
+              "size": [
+                470,
+                68
+              ],
+              "asset_file": "assets/Affiliations/Odd/Ferengi.png"
+            }
+          ]
+        },
+        {
+          "name": "Any",
+          "path": "Affiliations > Any",
+          "kind": "text",
+          "visible": false,
+          "bbox": [
+            191,
+            882,
+            553,
+            912
+          ],
+          "size": [
+            362,
+            30
+          ],
+          "text": "Any affiliation may attempt this mission.",
+          "font": "FuturaLT-CondensedOblique",
+          "font_size": 29.16667,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 39.71827
+        },
+        {
+          "name": "Headquarters",
+          "path": "Affiliations > Headquarters",
+          "kind": "text",
+          "visible": false,
+          "bbox": [
+            232,
+            878,
+            516,
+            918
+          ],
+          "size": [
+            284,
+            40
+          ],
+          "text": "Federation Headquarters",
+          "font": "FuturaLT-CondensedOblique",
+          "font_size": 37.5,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 39.71827
+        }
+      ]
+    },
+    {
+      "name": "Points, Game Text, Span",
+      "path": "Points, Game Text, Span",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        73,
+        568,
+        701,
+        982
+      ],
+      "size": [
+        628,
+        414
+      ],
+      "children": [
+        {
+          "name": "Span",
+          "path": "Points, Game Text, Span > Span",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            360,
+            953,
+            373,
+            982
+          ],
+          "size": [
+            13,
+            29
+          ],
+          "text": "1",
+          "font": "CrilleeBT-Italic",
+          "font_size": 20.30686,
+          "color": [
+            254,
+            254,
+            254,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -15
+        },
+        {
+          "name": "Lore Text",
+          "path": "Points, Game Text, Span > Lore Text",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            88,
+            798,
+            578,
+            828
+          ],
+          "size": [
+            490,
+            30
+          ],
+          "text": "\r\r\r  \u201cAll the Maquis had were a pair of lightly armed shuttlecraft.\u201d",
+          "font": "FuturaLT-CondensedLightObl",
+          "font_size": 28.70833,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -10,
+          "leading": 31.25
+        },
+        {
+          "name": "Game Text",
+          "path": "Points, Game Text, Span > Game Text",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            73,
+            689,
+            543,
+            783
+          ],
+          "size": [
+            470,
+            94
+          ],
+          "text": "Nebula. While this personnel is\raboard your ship at a       mission, each of your non-\runique       personnel present is attributes +1.",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 29.16667,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 31.25
+        },
+        {
+          "name": "Requirements",
+          "path": "Points, Game Text, Span > Requirements",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            163,
+            612,
+            566,
+            675
+          ],
+          "size": [
+            403,
+            63
+          ],
+          "text": "Engineer, Honor, Officer, Cunning>32, and\rtotal Weapons at this mission >10",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 29.16667,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -28,
+          "leading": 31.25
+        },
+        {
+          "name": "Points",
+          "path": "Points, Game Text, Span > Points",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            628,
+            568,
+            701,
+            613
+          ],
+          "size": [
+            73,
+            45
+          ],
+          "text": "50",
+          "font": "CrilleeBT-Italic",
+          "font_size": 30.46029,
+          "color": [
+            254,
+            254,
+            254,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -15
+        }
+      ]
+    },
+    {
+      "name": "Name, Title, Rarity",
+      "path": "Name, Title, Rarity",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        166,
+        54,
+        665,
+        996
+      ],
+      "size": [
+        499,
+        942
+      ],
+      "children": [
+        {
+          "name": "Rarity",
+          "path": "Name, Title, Rarity > Rarity",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            624,
+            982,
+            665,
+            996
+          ],
+          "size": [
+            41,
+            14
+          ],
+          "text": "32 V  8",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 8.12274,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "right",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": -50
+        },
+        {
+          "name": "Title",
+          "path": "Name, Title, Rarity > Title",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            180,
+            93,
+            309,
+            112
+          ],
+          "size": [
+            129,
+            19
+          ],
+          "text": "Last Stand",
+          "font": "CrilleeBT-Italic",
+          "font_size": 10.15343,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 3
+        },
+        {
+          "name": "Card Name",
+          "path": "Name, Title, Rarity > Card Name",
+          "kind": "group",
+          "visible": true,
+          "bbox": [
+            166,
+            54,
+            310,
+            79
+          ],
+          "size": [
+            144,
+            25
+          ],
+          "children": [
+            {
+              "name": "Normal",
+              "path": "Name, Title, Rarity > Card Name > Normal",
+              "kind": "group",
+              "visible": false,
+              "children": [
+                {
+                  "name": "Name copy",
+                  "path": "Name, Title, Rarity > Card Name > Normal > Name copy",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    166,
+                    54,
+                    376,
+                    84
+                  ],
+                  "size": [
+                    210,
+                    30
+                  ],
+                  "text": "U.S.S. Odyssey",
+                  "font": "CrilleeBT-Italic",
+                  "font_size": 16.24549,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": -10
+                }
+              ]
+            },
+            {
+              "name": "Unique",
+              "path": "Name, Title, Rarity > Card Name > Unique",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                166,
+                54,
+                310,
+                79
+              ],
+              "size": [
+                144,
+                25
+              ],
+              "children": [
+                {
+                  "name": "Name",
+                  "path": "Name, Title, Rarity > Card Name > Unique > Name",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    182,
+                    54,
+                    310,
+                    79
+                  ],
+                  "size": [
+                    128,
+                    25
+                  ],
+                  "text": "Wolf 359",
+                  "font": "CrilleeBT-Italic",
+                  "font_size": 16.24549,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": -15
+                },
+                {
+                  "name": "Unique",
+                  "path": "Name, Title, Rarity > Card Name > Unique > Unique",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    166,
+                    61,
+                    177,
+                    71
+                  ],
+                  "size": [
+                    11,
+                    10
+                  ],
+                  "asset_file": "assets/Name__Title__Rarity/Card_Name/Unique/Unique.png"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quadrant",
+      "path": "Quadrant",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        33,
+        552,
+        110,
+        629
+      ],
+      "size": [
+        77,
+        77
+      ],
+      "children": [
+        {
+          "name": "Gamma",
+          "path": "Quadrant > Gamma",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            35,
+            553,
+            110,
+            628
+          ],
+          "size": [
+            75,
+            75
+          ],
+          "asset_file": "assets/Quadrant/Gamma.png"
+        },
+        {
+          "name": "Delta",
+          "path": "Quadrant > Delta",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            34,
+            552,
+            110,
+            628
+          ],
+          "size": [
+            76,
+            76
+          ],
+          "asset_file": "assets/Quadrant/Delta.png"
+        },
+        {
+          "name": "Alpha",
+          "path": "Quadrant > Alpha",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            33,
+            552,
+            110,
+            629
+          ],
+          "size": [
+            77,
+            77
+          ],
+          "asset_file": "assets/Quadrant/Alpha.png"
+        }
+      ]
+    },
+    {
+      "name": "Type",
+      "path": "Type",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        33,
+        40,
+        113,
+        120
+      ],
+      "size": [
+        80,
+        80
+      ],
+      "children": [
+        {
+          "name": "Space/Planet",
+          "path": "Type > Space/Planet",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            33,
+            41,
+            112,
+            120
+          ],
+          "size": [
+            79,
+            79
+          ],
+          "asset_file": "assets/Type/Space_Planet.png"
+        },
+        {
+          "name": "Headquarters",
+          "path": "Type > Headquarters",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            36,
+            45,
+            705,
+            631
+          ],
+          "size": [
+            669,
+            586
+          ],
+          "asset_file": "assets/Type/Headquarters.png"
+        },
+        {
+          "name": "Space",
+          "path": "Type > Space",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            33,
+            40,
+            113,
+            120
+          ],
+          "size": [
+            80,
+            80
+          ],
+          "asset_file": "assets/Type/Space.png"
+        },
+        {
+          "name": "Planet",
+          "path": "Type > Planet",
+          "kind": "pixel",
+          "visible": false,
+          "bbox": [
+            33,
+            40,
+            113,
+            120
+          ],
+          "size": [
+            80,
+            80
+          ],
+          "asset_file": "assets/Type/Planet.png"
+        }
+      ]
+    },
+    {
+      "name": "Intro",
+      "path": "Intro",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        -168,
+        0,
+        909,
+        1029
+      ],
+      "size": [
+        1077,
+        1029
+      ],
+      "children": [
+        {
+          "name": "Layer 9",
+          "path": "Intro > Layer 9",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -168,
+            0,
+            909,
+            1029
+          ],
+          "size": [
+            1077,
+            1029
+          ],
+          "asset_file": "assets/Intro/Layer_9.png"
+        },
+        {
+          "name": "Logo",
+          "path": "Intro > Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            210,
+            73,
+            529,
+            291
+          ],
+          "size": [
+            319,
+            218
+          ],
+          "asset_file": "assets/Intro/Logo.png"
+        },
+        {
+          "name": "Dojo Logo",
+          "path": "Intro > Dojo Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            321,
+            745,
+            410,
+            844
+          ],
+          "size": [
+            89,
+            99
+          ],
+          "asset_file": "assets/Intro/Dojo_Logo.png"
+        },
+        {
+          "name": "Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "path": "Intro > Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            140,
+            416,
+            591,
+            985
+          ],
+          "size": [
+            451,
+            569
+          ],
+          "text": "Welcome to the STAR TREK CCG\rSECOND EDITION High Resolution Cardmaker!\r\rThis PSD includes the MISSION template\rVERSION 1.0\r\rCreated by:\rMWagner84\r\rExclusively available from:\r\r\r\r\rhttps://discord.gg/rsRy5GV\r\rTurn off this layer to get started, and...\rExpand your power in the universe!\r\r\r\r\r\r\r\r\r\r\r\r\r ",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 34.28211,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 39.71827
+        },
+        {
+          "name": "Border",
+          "path": "Intro > Border",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -1,
+            2,
+            735,
+            1029
+          ],
+          "size": [
+            736,
+            1027
+          ],
+          "asset_file": "assets/Intro/Border.png"
+        }
+      ]
+    }
+  ]
+}
