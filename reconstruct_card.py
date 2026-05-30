@@ -386,6 +386,25 @@ PT_COST, PT_NAME, PT_TITLE, PT_SPECIES = 33, 35, 27, 33
 PT_SKILL, PT_GAME, PT_ATTR, PT_RARITY = 29, 29, 28, 17
 PT_ATTR_CAP, PT_ATTR_SC = 28, 21
 
+# The black cost circle is in the same canvas position on every card type
+# (Personnel/Ship/Event/Dilemma all paste their background at the same offset),
+# so the cost number's center is universal. Measured from the rendered chrome:
+# the dark disc spans canvas x≈139..165, y≈58..86 in 300-DPI design space.
+COST_CIRCLE_CX, COST_CIRCLE_CY = 152, 71
+
+
+def draw_cost(draw, cost_text):
+    """Draw the white cost number centered on the black cost circle.
+
+    Centering is by the glyph's visible bbox (not advance width) so italic
+    digits like '1' don't appear left-shifted.
+    """
+    font = gfont(F_CRILEE, PT_COST)
+    l, t, r, b = font.getbbox(cost_text)
+    cx = S(COST_CIRCLE_CX) - (l + r) // 2
+    cy = S(COST_CIRCLE_CY) - (t + b) // 2
+    draw.text((cx, cy), cost_text, font=font, fill=(255, 255, 255, 255))
+
 
 # ---------------------------------------------------------------------------
 # Rich text flow — used for the lore/keyword line and the game text.
@@ -634,12 +653,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     BLACK = (0, 0, 0, 255)
     WHITE = (255, 255, 255, 255)
 
-    # Cost — white, centred in 19x23 circle at (143, 59)
-    font_cost = gfont(F_CRILEE, PT_COST)
-    cost_text = ROW["Cost"]
-    cost_y = vcenter_y(S(59), S(23), font_cost, cost_text)
-    cost_x = S(143) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
-    draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
+    draw_cost(draw, ROW["Cost"])
 
     # Name — black, wraps when long, unique dot when flagged.
     draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
@@ -846,12 +860,7 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
     BLACK = (0, 0, 0, 255)
     WHITE = (255, 255, 255, 255)
 
-    # Cost — white, centred in the 19x23 circle at (142, 59)
-    font_cost = gfont(F_CRILEE, PT_COST)
-    cost_text = ROW["Cost"]
-    cost_y = vcenter_y(S(59), S(23), font_cost, cost_text)
-    cost_x = S(142) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
-    draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
+    draw_cost(draw, ROW["Cost"])
 
     # Name — black, wraps when long. Dilemmas never carry a unique dot (the
     # printed cards don't show one even when the data has Unique=Y).
@@ -980,12 +989,7 @@ def render_event(ROW: dict, NAME: str) -> Image.Image:
     BLACK = (0, 0, 0, 255)
     WHITE = (255, 255, 255, 255)
 
-    # Cost — white, centred in the 19x23 circle at (141, 59)
-    font_cost = gfont(F_CRILEE, PT_COST)
-    cost_text = ROW["Cost"]
-    cost_y = vcenter_y(S(59), S(23), font_cost, cost_text)
-    cost_x = S(141) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
-    draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
+    draw_cost(draw, ROW["Cost"])
 
     # Name — black, left-aligned, wraps to a second line for long names; if
     # Unique=Y, paste the unique dot just left of the name. For card types
