@@ -50,6 +50,7 @@ def S(v):
 
 ASSETS = Path("extracted/federation/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
+EVENT_ASSETS = Path("extracted/event/assets")
 FONTS  = Path("fonts")
 PHOTOS = Path("fixture/low quality decipher images")
 # Dilemma card art comes from the full-card scan library (keyed by ImageFile),
@@ -624,10 +625,6 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
 
     # 5. Attribute labels bar background (asset is transparent; labels rendered as text below)
 
-    # 6. Unique dot next to name (only if card is flagged Unique)
-    if ROW["Unique"].upper() == "Y":
-        paste_rgba(canvas, ASSETS / "Cost__Name__Title__and_Class_Race/Card_Name/Unique/Unique.png", S(196), S(63))
-
     # -----------------------------------------------------------------------
     # Text overlays
     # Sizes calibrated via getbbox() measurements against spec.json layer bboxes.
@@ -644,11 +641,9 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     cost_x = S(143) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
     draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
 
-    # Name — black, left-aligned after unique dot (or further left if not unique)
-    font_name = gfont(F_CRILEE, PT_NAME)
-    name_x = S(213) if ROW["Unique"].upper() == "Y" else S(196)
-    name_y = vcenter_y(S(56), S(30), font_name, NAME)
-    draw.text((name_x, name_y), NAME, font=font_name, fill=BLACK)
+    # Name — black, wraps when long, unique dot when flagged.
+    draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
+                   bar_top=56, bar_h=30, base_x=196, right_edge=590, color=BLACK)
 
     # Title — vert-centred in 22px bbox at y=93
     font_title = gfont(F_CRILEE, PT_TITLE)
@@ -858,10 +853,10 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
     cost_x = S(142) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
     draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
 
-    # Name — black, left-aligned in the name bar [190, 72, 370, 102]
-    font_name = gfont(F_CRILEE, PT_NAME)
-    name_y = vcenter_y(S(72), S(30), font_name, NAME)
-    draw.text((S(190), name_y), NAME, font=font_name, fill=BLACK)
+    # Name — black, wraps when long. Dilemmas never carry a unique dot (the
+    # printed cards don't show one even when the data has Unique=Y).
+    draw_card_name(canvas, draw, NAME, unique=False,
+                   bar_top=72, bar_h=30, base_x=190, right_edge=590, color=BLACK)
 
     # "Dilemma" type label — bold, centred in [313, 551, 415, 581]
     font_lbl = gfont(F_FUTURA_BOLD, PT_DILEMMA_LABEL)
@@ -874,6 +869,148 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
     # Game text — flows in the text band; auto-shrinks to fit. No keyword line.
     draw_textflow(canvas, draw, gametext_runs(ROW["gametext"]),
                   [120, 670, 635, 797], BLACK, PT_GAME, min_size=15)
+
+    # Rarity — centred in [619, 984, 669, 996]
+    font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
+    rarity_text = format_rarity(ROW["CollectorsInfo"])
+    tw = int(draw.textlength(rarity_text, font=font_rarity))
+    r_y = vcenter_y(S(984), S(12), font_rarity, rarity_text)
+    cx = (S(619) + S(669)) // 2
+    draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
+
+    draw_disclaimer(canvas)
+    return canvas
+
+
+# ---------------------------------------------------------------------------
+# Event cards — same frame family as dilemmas (photo, notched Difference-blend
+# photo strip, card-background frame, centred type label, game text, rarity),
+# from the event template (extracted/event/assets). Differences from dilemmas:
+# the type label reads "Event"; there is no per-card type icon (the event swirl
+# is baked into the frame); and the Keywords field (e.g. "Recall: 1.",
+# "Maneuver.") renders as a bold lead-in to the game text, as on the printed
+# cards. The italic lore quote and keyword reminder text aren't in the card data
+# so they are omitted.
+# ---------------------------------------------------------------------------
+PT_EVENT_LABEL = 30   # the "Event" type label (design-space points)
+# Unique dot asset is shared across card families (the federation template's
+# Card_Name/Unique). It sits just left of the name; when present, the name
+# slides right by ~17px to make room.
+UNIQUE_DOT_ASSET = ASSETS / "Cost__Name__Title__and_Class_Race/Card_Name/Unique/Unique.png"
+UNIQUE_DOT_OFFSET = 17   # design-space px to shift the name when unique
+
+
+def _wrap_name_lines(name: str, font, max_w: int) -> list[str]:
+    """Greedy word-wrap a card name within max_w (scaled px) using `font`."""
+    lines, cur = [], ""
+    for word in name.split():
+        candidate = f"{cur} {word}" if cur else word
+        if cur and font.getlength(candidate) > max_w:
+            lines.append(cur)
+            cur = word
+        else:
+            cur = candidate
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def draw_card_name(canvas, draw, NAME: str, unique: bool,
+                   bar_top: int, bar_h: int, base_x: int, right_edge: int,
+                   color, base_size: int = PT_NAME, min_size: int = 22):
+    """Draw the card name in the Crillee italic font, wrapping to additional
+    lines when long (printed cards do this on titles like 'How Would You Like
+    a Trip to Romulus?'). Shrinks to min_size before allowing >2 lines. Bar
+    coords are design-space; right_edge is design-space too. If unique, paste
+    the unique dot just left of the name and shift the name right."""
+    if unique:
+        # Centre the dot vertically with the (first) line of name text.
+        paste_rgba(canvas, UNIQUE_DOT_ASSET, S(base_x), S(bar_top + 7))
+        name_x = S(base_x + UNIQUE_DOT_OFFSET)
+    else:
+        name_x = S(base_x)
+    max_w = S(right_edge) - name_x
+
+    size = base_size
+    while size > min_size:
+        font_name = gfont(F_CRILEE, size)
+        lines = _wrap_name_lines(NAME, font_name, max_w)
+        if len(lines) <= 2 and all(font_name.getlength(l) <= max_w for l in lines):
+            break
+        size -= 1
+    else:
+        font_name = gfont(F_CRILEE, size)
+        lines = _wrap_name_lines(NAME, font_name, max_w)
+
+    if len(lines) == 1:
+        name_y = vcenter_y(S(bar_top), S(bar_h), font_name, lines[0])
+        draw.text((name_x, name_y), lines[0], font=font_name, fill=color)
+    else:
+        # Multi-line: centre the wrapped block on the bar's midline so both
+        # lines sit symmetrically inside the two visible horizontal frame lines
+        # bounding the name bar. (Reference: the printed "How Would You Like a
+        # Trip to Romulus?" — the 2-line block is centred between those frame
+        # lines, not anchored to the top or bottom.)
+        line_h = int(S(size) * 1.0)
+        midline = S(bar_top) + S(bar_h) // 2
+        for i, line in enumerate(lines):
+            center_y = midline + (i - (len(lines) - 1) / 2) * line_h
+            fb = font_name.getbbox(line)
+            y = int(center_y - (fb[1] + fb[3]) / 2)
+            draw.text((name_x, y), line, font=font_name, fill=color)
+
+
+def render_event(ROW: dict, NAME: str) -> Image.Image:
+    canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
+
+    # 1. Black Border background
+    paste_rgba(canvas, EVENT_ASSETS / "Affiliation/Black_Border.png", S(-2), S(-2))
+
+    # 2. Character art: scale the full-card scan to canvas, crop the photo window
+    photo_full = Image.open(find_photo(ROW)).convert("RGBA").resize((S(BASE_W), S(BASE_H)), Image.LANCZOS)
+    canvas.alpha_composite(photo_full.crop((S(32), S(140), S(672), S(574))), dest=(S(32), S(140)))
+
+    # 3. Frame: notched photo-border strip (Difference blend, like the dilemma /
+    # personnel Layer_4) then the card-background frame (carries the event swirl).
+    frame = scale_asset(Image.open(EVENT_ASSETS / "Affiliation/Frame.png").convert("RGBA"))
+    apply_difference(canvas, frame, (S(31), S(139)))
+    paste_rgba(canvas, EVENT_ASSETS / "Affiliation/Layer_13.png", S(27), S(26))
+
+    draw = ImageDraw.Draw(canvas)
+    BLACK = (0, 0, 0, 255)
+    WHITE = (255, 255, 255, 255)
+
+    # Cost — white, centred in the 19x23 circle at (141, 59)
+    font_cost = gfont(F_CRILEE, PT_COST)
+    cost_text = ROW["Cost"]
+    cost_y = vcenter_y(S(59), S(23), font_cost, cost_text)
+    cost_x = S(141) + (S(19) - int(draw.textlength(cost_text, font=font_cost))) // 2
+    draw.text((cost_x, cost_y), cost_text, font=font_cost, fill=WHITE)
+
+    # Name — black, left-aligned, wraps to a second line for long names; if
+    # Unique=Y, paste the unique dot just left of the name. For card types
+    # without a subtitle (events, dilemmas), the name midline matches the big
+    # affiliation swirl's vertical centre (~y=80), not the cost circle. The
+    # swirl runs canvas y≈30..130 in the event Layer_13 asset.
+    draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
+                   bar_top=65, bar_h=30, base_x=189, right_edge=590, color=BLACK)
+
+    # "Event" type label — bold, centred in [332, 554, 396, 580]
+    font_lbl = gfont(F_FUTURA_BOLD, PT_EVENT_LABEL)
+    lbl = "Event"
+    lbl_w = int(draw.textlength(lbl, font=font_lbl))
+    lbl_y = vcenter_y(S(554), S(26), font_lbl, lbl)
+    cx = (S(332) + S(396)) // 2
+    draw.text((cx - lbl_w // 2, lbl_y), lbl, font=font_lbl, fill=BLACK)
+
+    # Game text — keyword (e.g. "Recall: 1.") renders bold ahead of the rules
+    # text, in one wrapped flow. Auto-shrinks to fit; lore quote omitted (not in
+    # the data), so the box reaches down into the lore band.
+    keywords_text = strip_braces(ROW["Keywords"].strip())
+    runs = gametext_runs(ROW["gametext"])
+    if keywords_text:
+        runs = [(keywords_text + " ", 'bold')] + runs
+    draw_textflow(canvas, draw, runs, [120, 672, 639, 828], BLACK, PT_GAME, min_size=15)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
@@ -928,7 +1065,7 @@ def main():
 
     # OCR (NAME/TITLE split) is only needed for non-dilemma cards without a
     # sidecar override; dilemmas use their data name verbatim.
-    needs_ocr = any(r["Type"].strip().lower() != "dilemma"
+    needs_ocr = any(r["Type"].strip().lower() not in ("dilemma", "event")
                     and r["CollectorsInfo"] not in overrides for r in rows)
     if needs_ocr and shutil.which("tesseract") is None:
         raise SystemExit("tesseract CLI not found on PATH (needed for NAME/TITLE "
@@ -944,6 +1081,14 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: dilemma NAME={name!r}")
                 canvas = render_dilemma(row, name)
+                out = outdir / f"{cid}.png"
+                canvas.save(out, dpi=(dpi, dpi))
+                rendered += 1
+                continue
+            if row["Type"].strip().lower() == "event":
+                name = clean_dilemma_name(row["Name"])
+                print(f"  {cid}: event NAME={name!r}")
+                canvas = render_event(row, name)
                 out = outdir / f"{cid}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
