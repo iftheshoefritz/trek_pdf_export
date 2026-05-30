@@ -52,6 +52,7 @@ ASSETS = Path("extracted/federation/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
+EQUIPMENT_ASSETS = Path("extracted/equipment/assets")
 FONTS  = Path("fonts")
 PHOTOS = Path("fixture/low quality decipher images")
 # Dilemma card art comes from the full-card scan library (keyed by ImageFile),
@@ -666,7 +667,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
 
     # Name — black, wraps when long, unique dot when flagged.
     draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
-                   bar_top=56, bar_h=30, base_x=196, right_edge=590, color=BLACK)
+                   bar_top=56, bar_h=30, base_x=196, right_edge=670, color=BLACK)
 
     # Title — vert-centred in 22px bbox at y=93
     font_title = gfont(F_CRILEE, PT_TITLE)
@@ -874,7 +875,7 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
     # Name — black, wraps when long. Dilemmas never carry a unique dot (the
     # printed cards don't show one even when the data has Unique=Y).
     draw_card_name(canvas, draw, NAME, unique=False,
-                   bar_top=72, bar_h=30, base_x=190, right_edge=590, color=BLACK)
+                   bar_top=72, bar_h=30, base_x=190, right_edge=670, color=BLACK)
 
     # "Dilemma" type label — bold, centred in [313, 551, 415, 581]
     font_lbl = gfont(F_FUTURA_BOLD, PT_DILEMMA_LABEL)
@@ -912,6 +913,7 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
 # ---------------------------------------------------------------------------
 PT_EVENT_LABEL = 30   # the "Event" type label (design-space points)
 PT_INTERRUPT_LABEL = 30   # the "Interrupt" type label (same PSD size as event)
+PT_EQUIPMENT_LABEL = 38   # the "Equipment" label is larger on the printed cards
 # Unique dot asset is shared across card families (the federation template's
 # Card_Name/Unique). It sits just left of the name; when present, the name
 # slides right by ~17px to make room.
@@ -1007,7 +1009,7 @@ def render_event(ROW: dict, NAME: str) -> Image.Image:
     # affiliation swirl's vertical centre (~y=80), not the cost circle. The
     # swirl runs canvas y≈30..130 in the event Layer_13 asset.
     draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
-                   bar_top=65, bar_h=30, base_x=189, right_edge=590, color=BLACK)
+                   bar_top=65, bar_h=30, base_x=189, right_edge=670, color=BLACK)
 
     # "Event" type label — bold, centred in [332, 554, 396, 580]
     font_lbl = gfont(F_FUTURA_BOLD, PT_EVENT_LABEL)
@@ -1066,7 +1068,7 @@ def render_interrupt(ROW: dict, NAME: str) -> Image.Image:
     # Interrupts have no cost symbol on the printed card (the data's Cost
     # column is meaningless here) and never show the unique dot.
     draw_card_name(canvas, draw, NAME, unique=False,
-                   bar_top=65, bar_h=30, base_x=189, right_edge=590, color=BLACK)
+                   bar_top=65, bar_h=30, base_x=189, right_edge=670, color=BLACK)
 
     # "Interrupt" type label — bold, centred in [313, 555, 417, 587]
     font_lbl = gfont(F_FUTURA_BOLD, PT_INTERRUPT_LABEL)
@@ -1083,6 +1085,67 @@ def render_interrupt(ROW: dict, NAME: str) -> Image.Image:
     if keywords_text:
         runs = [(keywords_text + " ", 'bold')] + runs
     draw_textflow(canvas, draw, runs, [120, 672, 639, 796], BLACK, PT_GAME, min_size=15)
+
+    # Rarity — centred in [619, 984, 669, 996]
+    font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
+    rarity_text = format_rarity(ROW["CollectorsInfo"])
+    tw = int(draw.textlength(rarity_text, font=font_rarity))
+    r_y = vcenter_y(S(984), S(12), font_rarity, rarity_text)
+    cx = (S(619) + S(669)) // 2
+    draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
+
+    draw_disclaimer(canvas)
+    return canvas
+
+
+# ---------------------------------------------------------------------------
+# Equipment cards — same frame family as events/interrupts (photo + notched
+# Difference-blend strip + card-background frame + centred type label + game
+# text + rarity), from the equipment template (extracted/equipment/assets).
+# Differences: card-background layer is Layer_15; the type label reads
+# "Equipment" and is set noticeably larger than Event/Interrupt; the game-text
+# box is shorter (bottom y=734 vs event's 796), leaving room for a lore quote
+# (which we don't render). Equipment shows the unique dot per
+# reconstruct_card.md. The PSD ships an empty placeholder Layer_14 over the
+# photo window — it has no pixels, so we skip it.
+# ---------------------------------------------------------------------------
+def render_equipment(ROW: dict, NAME: str) -> Image.Image:
+    canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
+
+    paste_rgba(canvas, EQUIPMENT_ASSETS / "Affiliation/Black_Border.png", S(-2), S(-2))
+
+    photo_full = Image.open(find_photo(ROW)).convert("RGBA").resize((S(BASE_W), S(BASE_H)), Image.LANCZOS)
+    canvas.alpha_composite(photo_full.crop((S(32), S(140), S(672), S(574))), dest=(S(32), S(140)))
+
+    frame = scale_asset(Image.open(EQUIPMENT_ASSETS / "Affiliation/Frame.png").convert("RGBA"))
+    apply_difference(canvas, frame, (S(31), S(139)))
+    paste_rgba(canvas, EQUIPMENT_ASSETS / "Affiliation/Layer_15.png", S(27), S(26))
+
+    draw = ImageDraw.Draw(canvas)
+    BLACK = (0, 0, 0, 255)
+
+    draw_cost(draw, ROW["Cost"])
+
+    draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
+                   bar_top=65, bar_h=30, base_x=190, right_edge=670, color=BLACK)
+
+    # "Equipment" type label — bold, centred in [305, 555, 424, 589]
+    font_lbl = gfont(F_FUTURA_BOLD, PT_EQUIPMENT_LABEL)
+    lbl = "Equipment"
+    lbl_w = int(draw.textlength(lbl, font=font_lbl))
+    lbl_y = vcenter_y(S(555), S(34), font_lbl, lbl)
+    cx = (S(305) + S(424)) // 2
+    draw.text((cx - lbl_w // 2, lbl_y), lbl, font=font_lbl, fill=BLACK)
+
+    # Game text — keyword bold lead-in, then rules text in one flow.
+    keywords_text = strip_braces(ROW["Keywords"].strip())
+    runs = gametext_runs(ROW["gametext"])
+    if keywords_text:
+        runs = [(keywords_text + " ", 'bold')] + runs
+    # The PSD's game-text bbox stops at y=734 because the template reserves
+    # space for a lore quote below; we don't render lore, so the band extends
+    # down through the lore area (same pattern as render_event).
+    draw_textflow(canvas, draw, runs, [120, 671, 650, 828], BLACK, PT_GAME, min_size=15)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
@@ -1169,6 +1232,14 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: interrupt NAME={name!r}")
                 canvas = render_interrupt(row, name)
+                out = outdir / f"{cid}.png"
+                canvas.save(out, dpi=(dpi, dpi))
+                rendered += 1
+                continue
+            if row["Type"].strip().lower() == "equipment":
+                name = clean_dilemma_name(row["Name"])
+                print(f"  {cid}: equipment NAME={name!r}")
+                canvas = render_equipment(row, name)
                 out = outdir / f"{cid}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
