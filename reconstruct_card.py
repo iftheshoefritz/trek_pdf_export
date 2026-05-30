@@ -71,6 +71,9 @@ OUTDIR = Path("fixture/reconstructed")
 
 # NAME/TITLE split inference via OCR of the card's top (name) row.
 NAME_ROW_BOX = (92, 26, 340, 46)   # name-row band in the ~357x499 Decipher scan
+# Missions: location names ("Second Moon of Bajor VIII") run longer than
+# personnel names, so widen the band to nearly the full chrome bar.
+MISSION_NAME_ROW_BOX = (85, 22, 355, 44)
 OCR_UPSCALE = 5                    # upscale the tiny crop before OCR
 OCR_TMP = Path(".ocr_tmp")
 # A split is "confident" if the best candidate's fuzzy score is high OR it beats
@@ -146,11 +149,11 @@ def find_photo(row: dict) -> Path:
     raise SystemExit(f"No photo found for {row['CollectorsInfo']}")
 
 
-def _ocr_name_row(photo: Path) -> str:
+def _ocr_name_row(photo: Path, name_row_box=None) -> str:
     """OCR the top (name) row band of a card scan."""
     OCR_TMP.mkdir(exist_ok=True)
     im = Image.open(photo).convert("L")
-    l, t, r, b = NAME_ROW_BOX
+    l, t, r, b = name_row_box if name_row_box is not None else NAME_ROW_BOX
     crop = im.crop((l, t, r, b)).resize(((r - l) * OCR_UPSCALE, (b - t) * OCR_UPSCALE))
     out = OCR_TMP / "name_row.png"
     crop.save(out)
@@ -163,15 +166,18 @@ def _norm_words(s: str) -> list:
     return re.sub(r"[^a-z0-9 ]", " ", s.lower()).split()
 
 
-def infer_name_title(full_name: str, photo: Path):
+def infer_name_title(full_name: str, photo: Path, name_row_box=None):
     """Split the concatenated column-1 name into (name, title) by OCR'ing the
     card's name row and fuzzy-aligning it against the known tokens. The OCR text
     is usually garbled, but we only need the boundary, so we score each candidate
-    split point and take the best. Returns (name, title, score, margin)."""
+    split point and take the best. Returns (name, title, score, margin).
+
+    `name_row_box` defaults to the personnel/ship top-name band; mission scans
+    use a slightly wider box (their location names run longer)."""
     tokens = full_name.split()
     if len(tokens) <= 1:
         return full_name, "", 1.0, 1.0
-    ocr = " ".join(_norm_words(_ocr_name_row(photo)))
+    ocr = " ".join(_norm_words(_ocr_name_row(photo, name_row_box)))
     scored = sorted(
         ((SequenceMatcher(None, " ".join(_norm_words(" ".join(tokens[:k]))), ocr).ratio(), k)
          for k in range(1, len(tokens))),
@@ -1280,7 +1286,7 @@ def draw_centered_text(draw, text: str, font, box, fill):
     return y
 
 
-def render_mission(ROW: dict, NAME: str) -> Image.Image:
+def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
 
     # 1. Black border background
@@ -1313,10 +1319,19 @@ def render_mission(ROW: dict, NAME: str) -> Image.Image:
     BLACK = (0, 0, 0, 255)
     WHITE = (255, 255, 255, 255)
 
-    # 6. Card name — single line (no NAME/TITLE split on missions); unique
-    # dot when flagged. Top chrome bar mid ≈ y=66.
+    # 6. Card name (location, in the top chrome bar) + title (objective, in
+    # the italic sub-band underneath). Unique dot prefixes the name.
+    # PSD bbox: Name [182, 54, 310, 79], Title [180, 93, 309, 112].
     draw_card_name(canvas, draw, NAME, ROW.get("Unique", "").upper() == "Y",
                    bar_top=54, bar_h=30, base_x=180, right_edge=665, color=BLACK)
+    if TITLE:
+        font_title = gfont(F_CRILEE, PT_TITLE)
+        title_y = vcenter_y(S(93), S(22), font_title, TITLE)
+        # Left-aligned with the name (which sits at base_x + unique-dot offset
+        # when unique). The two lines read as a single block.
+        title_x = S(180 + UNIQUE_DOT_OFFSET) \
+                  if ROW.get("Unique", "").upper() == "Y" else S(180)
+        draw.text((title_x, title_y), TITLE, font=font_title, fill=BLACK)
 
     # 7. Points — white heavy display digit, centred in the chrome circle at
     # top-right of the below-image bar. PSD bbox: [628, 568, 701, 613]; the
@@ -1444,7 +1459,7 @@ def main():
     # OCR (NAME/TITLE split) is only needed for non-dilemma cards without a
     # sidecar override; dilemmas use their data name verbatim.
     needs_ocr = any(r["Type"].strip().lower() not in
-                    ("dilemma", "event", "interrupt", "equipment", "mission")
+                    ("dilemma", "event", "interrupt", "equipment")
                     and r["CollectorsInfo"] not in overrides for r in rows)
     if needs_ocr and shutil.which("tesseract") is None:
         raise SystemExit("tesseract CLI not found on PATH (needed for NAME/TITLE "
@@ -1489,9 +1504,21 @@ def main():
                 rendered += 1
                 continue
             if row["Type"].strip().lower() == "mission":
-                name = clean_dilemma_name(row["Name"])
-                print(f"  {cid}: mission NAME={name!r}")
-                canvas = render_mission(row, name)
+                full = clean_dilemma_name(row["Name"])
+                if cid in overrides:
+                    name, title = overrides[cid]
+                    print(f"  {cid}: mission NAME={name!r} TITLE={title!r} (sidecar override)")
+                else:
+                    photo = find_photo(row)
+                    name, title, score, margin = infer_name_title(
+                        full, photo, MISSION_NAME_ROW_BOX)
+                    confident = score >= OCR_MIN_SCORE or margin >= OCR_MIN_MARGIN
+                    if not confident:
+                        low_conf.append(cid)
+                    flag = "" if confident else "  <-- LOW CONFIDENCE, verify"
+                    print(f"  {cid}: mission NAME={name!r} TITLE={title!r} "
+                          f"(OCR score {score:.2f}, margin {margin:.2f}){flag}")
+                canvas = render_mission(row, name, title)
                 out = outdir / f"{cid}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
