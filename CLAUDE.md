@@ -18,6 +18,9 @@ the principle in `notes.md` ("Project principle").
 python3 extract_icon_assets.py
 python3 extract_socket.py
 
+# Bake non-Federation affiliation sockets (via headless Photopea — see below)
+python3 bake_sockets.py
+
 # Regenerate dilemma/event assets from their PSDs
 python3 extract_dilemma_assets.py
 
@@ -131,3 +134,38 @@ The authoritative notes are in `reconstruct_card.md` and `notes.md`:
   crops tightly and tapers the right edge of its alpha for this reason;
   pasting slot 2's full chrome strip onto slot 3 produces a visible darker
   patch.
+- **Only Federation has a baked socket in `Card_Background`.** Audited all
+  affiliation PSDs at slot 1/2/3 positions: only `2e HD Federation v1.psd`'s
+  Layer_11 has the socket disc rasterised — `extract_socket.py` crops it. The
+  other seven affiliation PSDs render their sockets via vector mask + PS layer
+  effects (color overlay + stroke) on per-slot `Base` layers. Those layers
+  show as zero-alpha through `psd-tools.composite()` AND `psd2svg`, because
+  neither simulates Photoshop layer effects.
+
+## Headless Photopea for layer-effect rendering
+
+For anything that depends on PSD layer effects (sockets, the affiliation
+strip icons in the mission PSD, era-affiliation glyphs, etc.) the working
+pipeline is **headless Chromium + Photopea iframe API via Playwright**:
+
+- `bake_sockets.py` is the reference implementation. It opens each
+  affiliation PSD by posting its bytes into Photopea, isolates one named
+  layer (`Slot 1/Base`), and `app.activeDocument.saveToOE("png")`s the
+  canvas. Output is trimmed + right-edge alpha-tapered the same way
+  `extract_socket.py` finishes Federation's socket.
+- Deps: `pip install playwright && playwright install chromium`. Launch
+  with `args=["--use-gl=swiftshader"]` — software WebGL is required for
+  layer effects to render correctly in headless mode.
+- Photopea responds to `postMessage` with `'done'` after each script and
+  with `ArrayBuffer` PNG bytes after `saveToOE`. The wrapper page in
+  `bake_sockets.py` queues both into `window._mm` / `window._bins` so
+  Playwright can poll them.
+- Photopea substitutes missing fonts (FuturiCondensed → DejaVuSans) on
+  load — fine for bakes that don't render text, **not** fine if we ever
+  try to use Photopea for whole-card rendering.
+- Throughput is ~30s for Photopea startup, then ~3s per layer bake.
+
+Other paths we tried that don't work for layer effects: `psd-tools`,
+`psd2svg`, ImageMagick. Reserve Photopea-style baking for layers where
+`psd-tools` returns zero-alpha; for everything that *is* a real raster
+in the PSD, keep using `extract_layout_from_template.py`.

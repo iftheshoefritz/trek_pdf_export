@@ -49,6 +49,7 @@ def S(v):
     return int(round(v * SCALE))
 
 ASSETS = Path("extracted/federation/assets")
+NONALIGNED_ASSETS = Path("extracted/nonaligned/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
@@ -277,8 +278,59 @@ def apply_difference(base, top, dest):
 # ---------------------------------------------------------------------------
 # Staffing icons — data-driven from card Icons field e.g. "[Stf][TNG][Fut]"
 # ---------------------------------------------------------------------------
+# Per-affiliation asset configs. Federation and Non-Aligned share the same
+# layout (slot positions, text bboxes, fonts), they just differ in the chrome
+# colourway and the card-background layer name. Federation also ships a
+# standalone Icon_Socket.png that's pasted under slots 1 & 3 (its slot 2 socket
+# is baked into Layer_11); Non-Aligned bakes all three sockets into Layer_13.
+AFFIL_CFG = {
+    "Federation": {
+        "assets": ASSETS,
+        "cardbg_layer": "Card_Background/Layer_11.png",
+        # Federation bakes slot 2's socket into Layer_11, so the shared
+        # Icon_Socket is only pasted under slots 1 & 3. The PSD asset's
+        # connector tab points up only; mirror=True lightens it onto its own
+        # flip to also draw a tab pointing down.
+        "socket_asset": ASSETS / "Card_Background/Icon_Socket.png",
+        "socket_slots": ("slot1", "slot3", "slot4"),
+        "socket_mirror": True,
+        "socket_centre": (30, 30),
+    },
+    "Non-Aligned": {
+        "assets": NONALIGNED_ASSETS,
+        "cardbg_layer": "Card_Background/Layer_13.png",
+        # NA's PSD ships each Slot N/Base layer as a self-contained chunk of
+        # the cardbg chrome with the socket disc cut into it — gold trim
+        # slice on the left, beige chrome slice on the right, disc + up/down
+        # connector tabs in the middle, all aligned to a specific (x, y) on
+        # the canvas. Pasted at that native position the chrome slices line
+        # up seamlessly with Layer_13 underneath. They CAN'T just be pasted
+        # at slot ring centres — the trim/chrome bleed would land in the
+        # wrong place. So each slot has its own asset + paste position.
+        # Slot 4 is a copy of Slot 3 shifted down 67px (NA's PSD only has
+        # three personnel slots; AU goes in a 4th printed-only position).
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (43, 619)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (42, 689)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (42, 757)),
+            "slot4": ("Card_Background/Slot_4_Base.png", (42, 824)),
+        },
+        # Fallback for any code path that still expects a single asset.
+        "socket_asset": None,
+    },
+}
+FED_CFG = AFFIL_CFG["Federation"]
+
+
+def affil_cfg(row: dict) -> dict:
+    """Pick the per-affiliation asset config for a personnel/ship row.
+    Defaults to Federation when the row's affiliation isn't supported yet."""
+    return AFFIL_CFG.get(row.get("Affiliation", "").strip(), FED_CFG)
+
+
 # Icon sockets for slots 1 & 3 — only drawn under slots that actually have an
-# icon. (Slot 2's socket is baked into Layer_11.)
+# icon. (Slot 2's socket is baked into Layer_11.) Federation-only; Non-Aligned
+# bakes its sockets into the card background.
 SOCKET_ASSET = ASSETS / "Card_Background/Icon_Socket.png"
 SOCKET_CENTRE = (30, 30)
 
@@ -292,8 +344,13 @@ ICON_MAP = {
     'Maq':  ('slot2', "Personnel/Staffing/Slot_2/Maquis.png"),
     'E':    ('slot2', "Personnel/Staffing/Slot_2/Earth.png"),
     'Fut':  ('slot3', "Personnel/Staffing/Slot_3/Future.png"),
-    'AU':   ('slot3', "Personnel/Staffing/Slot_3/AU.png"),
     'Past': ('slot3', "Personnel/Staffing/Slot_3/Past.png"),
+    'Pa':   ('slot3', "Personnel/Staffing/Slot_3/Past.png"),   # alias used in data
+    # AU defaults to slot 3 (e.g. Vina [AU] shows it in the third position on
+    # the printed card). render_icons promotes AU to slot 4 only when slot 3
+    # is already filled by another icon (Past / Future). Asset path still
+    # references Slot_3/AU.png — that's where the baked glyph is saved.
+    'AU':   ('slot3', "Personnel/Staffing/Slot_3/AU.png"),
 }
 
 # Each slot's ring CENTRE on the card canvas (47px ring → centre is paste+23).
@@ -303,38 +360,65 @@ ICON_MAP = {
 SLOT_RING_CENTRE = {
     'slot1': (72, 653),   # was paste (49, 630) + 23
     'slot2': (72, 720),   # was paste (49, 697) + 23
-    'slot3': (72, 797),   # was paste (49, 774) + 23
+    # Slot 3/4 measured from the NA Slot 3 Base disc centre (canvas y=790).
+    # Slot 4 is the Slot 3 asset shifted +67px, so its disc centre is +67px.
+    'slot3': (72, 790),
+    'slot4': (72, 857),   # 67px below slot 3; AU sits here, bottom-aligned
+                          # with the skills/text-area bottom on the printed card
 }
 
 
-def render_icons(canvas, icons_str):
-    """Paste sockets (slots 1 & 3) and icons. Slot 2's socket is in Layer_11."""
-    filled_slots = set()
-    for abbrev in re.findall(r'\[([^\]]+)\]', icons_str):
+def render_icons(canvas, icons_str, cfg=FED_CFG):
+    """Paste sockets (slots 1 & 3) and icons. Slot 2's socket is baked into the
+    card background. Non-Aligned bakes ALL three sockets into Layer_13, so for
+    affiliations with `socket_asset=None` only the icons are pasted."""
+    # Resolve each abbrev to (slot, asset_rel). AU defaults to slot 3 but is
+    # promoted to slot 4 if slot 3 is already claimed by Past/Future on the
+    # same card (printed cards e.g. Vina [AU] keep AU in slot 3; Slar Gorn
+    # [Cmd][Pa][AU] pushes AU down to slot 4).
+    abbrevs = re.findall(r'\[([^\]]+)\]', icons_str)
+    resolved = []
+    slot3_claimed_by_non_AU = any(
+        ICON_MAP.get(a, (None,))[0] == 'slot3' and a != 'AU'
+        for a in abbrevs
+    )
+    for abbrev in abbrevs:
         entry = ICON_MAP.get(abbrev)
         if not entry:
             print(f"  ! unknown icon: [{abbrev}]")
             continue
-        slot, _ = entry
-        filled_slots.add(slot)
+        slot, rel = entry
+        if abbrev == 'AU' and slot3_claimed_by_non_AU:
+            slot = 'slot4'
+        resolved.append((abbrev, slot, rel))
+    filled_slots = {s for _, s, _ in resolved}
 
     # The socket plate's bright chrome connector sits on its top edge only;
     # slot 2's baked socket connects both up and down. Mirror the plate onto
     # itself (pixel-wise lighten) so slots 1 & 3 get a bright connector at top
     # and bottom to match the middle slot.
-    socket = scale_asset(Image.open(SOCKET_ASSET).convert("RGBA"))
-    socket = ImageChops.lighter(socket, ImageOps.flip(socket))
-    for slot in ("slot1", "slot3"):
-        if slot in filled_slots:
-            cx, cy = SLOT_RING_CENTRE[slot]
-            canvas.alpha_composite(socket, dest=(S(cx) - S(SOCKET_CENTRE[0]), S(cy) - S(SOCKET_CENTRE[1])))
+    per_slot = cfg.get("per_slot_sockets")
+    if per_slot is not None:
+        # Per-slot Base assets, each pasted at its own native canvas position
+        # (because each Base is a chunk of the cardbg, not just a disc).
+        for slot in per_slot:
+            if slot not in filled_slots:
+                continue
+            rel, (px, py) = per_slot[slot]
+            asset = scale_asset(Image.open(cfg["assets"] / rel).convert("RGBA"))
+            canvas.alpha_composite(asset, dest=(S(px), S(py)))
+    elif cfg["socket_asset"] is not None:
+        socket = scale_asset(Image.open(cfg["socket_asset"]).convert("RGBA"))
+        if cfg.get("socket_mirror", True):
+            socket = ImageChops.lighter(socket, ImageOps.flip(socket))
+        sc_x, sc_y = cfg.get("socket_centre", SOCKET_CENTRE)
+        for slot in cfg.get("socket_slots", ("slot1", "slot3")):
+            if slot in filled_slots:
+                cx, cy = SLOT_RING_CENTRE[slot]
+                canvas.alpha_composite(socket, dest=(S(cx) - S(sc_x), S(cy) - S(sc_y)))
 
-    for abbrev in re.findall(r'\[([^\]]+)\]', icons_str):
-        entry = ICON_MAP.get(abbrev)
-        if not entry:
-            continue
-        slot, rel = entry
-        asset_path = ASSETS / "Staffing_and_Attributes" / rel
+    for _abbrev, slot, rel in resolved:
+        asset_path = cfg["assets"] / "Staffing_and_Attributes" / rel
         cx, cy = SLOT_RING_CENTRE[slot]
         meta_path = asset_path.with_suffix(".json")
         src = scale_asset(Image.open(asset_path).convert("RGBA"))
@@ -352,22 +436,15 @@ def render_icons(canvas, icons_str):
 # top-to-bottom down the left edge (up to 5 slots). Personnel use a different
 # (3-slot) staffing layout handled by render_icons().
 # ---------------------------------------------------------------------------
-SHIP_STAFF_ASSETS = ASSETS / "Staffing_and_Attributes/Ship/Staffing"
-# The template only carries a populated icon for the slots that were filled on
-# the source PSD's example ship (Command in slot 1, Staff in slots 2-4); the
-# other per-slot layers are empty. Since the staffing column sits *inside* the
-# photo window, an empty slot lets the low-res scan's own printed icon show
-# through (blurry, no socket ring, misaligned). So use one canonical crisp icon
-# per kind for every slot — it fully occludes the photo and stays aligned.
-SHIP_STAFF_ICON = {
-    'Cmd': SHIP_STAFF_ASSETS / "Slot_1/Command.png",
-    'Stf': SHIP_STAFF_ASSETS / "Slot_2/Staff.png",
+SHIP_STAFF_REL = {
+    'Cmd': "Ship/Staffing/Slot_1/Command.png",
+    'Stf': "Ship/Staffing/Slot_2/Staff.png",
 }
 # Design-space top-left of each slot's 49x49 socket (from spec.json bboxes).
 SHIP_STAFF_SLOT_XY = [(48, 168), (48, 223), (48, 279), (48, 334), (48, 389)]
 
 
-def render_ship_staffing(canvas, staff_str):
+def render_ship_staffing(canvas, staff_str, cfg=FED_CFG):
     """Paste the vertical staffing-requirement icons for a ship from its Staff
     field. Brackets map top-to-bottom onto slots 1..5.
 
@@ -375,17 +452,18 @@ def render_ship_staffing(canvas, staff_str):
     dark button behind each star, see the source scans), which also occludes the
     low-res scan's own printed star beneath. A transparent-disc star would let
     that scan star ghost through, slightly offset, so the disc stays."""
+    base = cfg["assets"] / "Staffing_and_Attributes"
     abbrevs = re.findall(r'\[([^\]]+)\]', staff_str)
     for idx, abbrev in enumerate(abbrevs):
         if idx >= len(SHIP_STAFF_SLOT_XY):
             print(f"  ! more than {len(SHIP_STAFF_SLOT_XY)} staffing icons; ignoring extras")
             break
-        asset_path = SHIP_STAFF_ICON.get(abbrev)
-        if not asset_path:
+        rel = SHIP_STAFF_REL.get(abbrev)
+        if not rel:
             print(f"  ! unknown ship staffing icon: [{abbrev}]")
             continue
         x, y = SHIP_STAFF_SLOT_XY[idx]
-        paste_rgba(canvas, asset_path, S(x), S(y))
+        paste_rgba(canvas, base / rel, S(x), S(y))
 
 
 # ---------------------------------------------------------------------------
@@ -508,13 +586,30 @@ def gametext_runs(text):
 
 
 def keyword_runs(text):
-    """Styled runs for the lore/keyword line: type before ': ' is bold, the
-    value after it is italic."""
+    """Styled runs for the keyword line. A keyword phrase is "<Type>" or
+    "<Type>: <value>" and the line may chain several phrases separated by
+    ". " — e.g. "Commander: Fortune. Thief." → Commander+Fortune in one
+    bold/italic pair, then Thief in bold.
+
+    A ". " is treated as a phrase boundary only when the period is NOT
+    preceded by an uppercase letter — that exempts abbreviations and Roman
+    numerals like "U.S.S. Defiant" or "Bajor VIII" that would otherwise
+    fragment mid-value."""
     text = strip_braces(text.strip())
-    if ': ' in text:
-        head, tail = text.split(': ', 1)
-        return [(head + ': ', 'bold'), (tail, 'italic')]
-    return [(text, 'bold')]
+    # Split at ". " when the character before the period is lowercase/digit/punct
+    # (not an A–Z letter, which would mean an abbreviation or Roman numeral).
+    splits = re.split(r'(?<=[^A-Z])\. (?=\S)', text)
+    phrases = [(p + '. ') for p in splits[:-1]] + [splits[-1]]
+
+    runs = []
+    for phrase in phrases:
+        if ': ' in phrase:
+            head, tail = phrase.split(': ', 1)
+            runs.append((head + ': ', 'bold'))
+            runs.append((tail, 'italic'))
+        else:
+            runs.append((phrase, 'bold'))
+    return runs
 
 
 def _flow_tokens(styled_runs, size):
@@ -629,11 +724,13 @@ def draw_textflow(canvas, draw, styled_runs, box, fill, base_size, min_size=None
 
 def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     is_ship = ROW["Type"].strip().lower() == "ship"
+    cfg = affil_cfg(ROW)
+    assets = cfg["assets"]
 
     canvas = Image.new("RGBA", (S(BASE_W), S(BASE_H)), (0, 0, 0, 0))
 
     # 1. Black Border — background, provides outer card colour
-    paste_rgba(canvas, ASSETS / "Black_Border.png", S(-2), S(-2))
+    paste_rgba(canvas, assets / "Black_Border.png", S(-2), S(-2))
 
     # 2. Character art: scale original low-res card to canvas, crop to photo window
     photo_src = Image.open(find_photo(ROW)).convert("RGBA")
@@ -646,20 +743,20 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # not normal compositing — pasting it as opaque produces solid black teeth instead
     # of the partly-transparent look the original card has. Apply Difference blend
     # (|base - top| per RGB channel, masked by the layer's alpha) instead.
-    layer4 = scale_asset(Image.open(ASSETS / "Card_Background/Layer_4.png").convert("RGBA"))
+    layer4 = scale_asset(Image.open(assets / "Card_Background/Layer_4.png").convert("RGBA"))
     apply_difference(canvas, layer4, (S(32), S(140)))
-    paste_rgba(canvas, ASSETS / "Card_Background/Layer_11.png", S(27), S(26))
+    paste_rgba(canvas, assets / cfg["cardbg_layer"], S(27), S(26))
 
     # 4. Staffing / affiliation icons — data-driven from the card's fields.
     if is_ship:
         # Ships: vertical staffing-requirement column (Staff field) plus the
         # affiliation/era icon (Icons field) reusing the slot 2/3 sockets.
-        render_ship_staffing(canvas, ROW["Staff"])
-        render_icons(canvas, ROW["Icons"])
+        render_ship_staffing(canvas, ROW["Staff"], cfg)
+        render_icons(canvas, ROW["Icons"], cfg)
     else:
         # Personnel: staffing icons come entirely from the Icons field
         # e.g. "[Stf][TNG][Fut]"
-        render_icons(canvas, ROW["Icons"])
+        render_icons(canvas, ROW["Icons"], cfg)
 
     # 5. Attribute labels bar background (asset is transparent; labels rendered as text below)
 
@@ -700,7 +797,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
         SKILLS = reflow_skills(ROW["Skills"].split())
         font_skill = gfont(F_FUTURA_BOLD, PT_SKILL)
         skills = SKILLS
-        dot_path = ASSETS / "Skills_and_Flavor_Text/Personnel/Skill_1/Dot.png"
+        dot_path = assets / "Skills_and_Flavor_Text/Personnel/Skill_1/Dot.png"
         DOT_W, DOT_TEXT_GAP, INTER_GAP = S(21), S(4), S(12)
         SKILL_LEFT, SKILL_RIGHT = S(126), S(646)
         ROW0_TEXT_Y, ROW_SPACING = S(644), S(33)
