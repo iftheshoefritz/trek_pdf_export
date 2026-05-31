@@ -287,14 +287,19 @@ AFFIL_CFG = {
     "Federation": {
         "assets": ASSETS,
         "cardbg_layer": "Card_Background/Layer_11.png",
-        # Federation bakes slot 2's socket into Layer_11, so the shared
-        # Icon_Socket is only pasted under slots 1 & 3. The PSD asset's
-        # connector tab points up only; mirror=True lightens it onto its own
-        # flip to also draw a tab pointing down.
+        # Federation bakes slot 2's socket into Layer_11, and slots 1 & 3
+        # reuse the same Icon_Socket (a crop of slot 2 from Layer_11). The
+        # asset's connector tab points up only; mirror=True lightens it onto
+        # its own flip to also draw a tab pointing down.
+        # Slot 4 has its own Base layer in the PSD (separate Photopea bake)
+        # so it lives in per_slot_sockets instead of reusing Icon_Socket.
         "socket_asset": ASSETS / "Card_Background/Icon_Socket.png",
-        "socket_slots": ("slot1", "slot3", "slot4"),
+        "socket_slots": ("slot1", "slot3"),
         "socket_mirror": True,
         "socket_centre": (30, 30),
+        "per_slot_sockets": {
+            "slot4": ("Card_Background/Slot_4_Base.png", (40, 825)),
+        },
     },
     "Non-Aligned": {
         "assets": NONALIGNED_ASSETS,
@@ -397,23 +402,25 @@ def render_icons(canvas, icons_str, cfg=FED_CFG):
     # slot 2's baked socket connects both up and down. Mirror the plate onto
     # itself (pixel-wise lighten) so slots 1 & 3 get a bright connector at top
     # and bottom to match the middle slot.
-    per_slot = cfg.get("per_slot_sockets")
-    if per_slot is not None:
-        # Per-slot Base assets, each pasted at its own native canvas position
-        # (because each Base is a chunk of the cardbg, not just a disc).
-        for slot in per_slot:
-            if slot not in filled_slots:
-                continue
-            rel, (px, py) = per_slot[slot]
-            asset = scale_asset(Image.open(cfg["assets"] / rel).convert("RGBA"))
-            canvas.alpha_composite(asset, dest=(S(px), S(py)))
-    elif cfg["socket_asset"] is not None:
+    # Two socket models, each handling a (potentially overlapping) subset of
+    # slots. Per-slot Bases (NA-style: self-contained cardbg chunks pasted at
+    # native positions) win over the shared socket_asset for the slots they
+    # cover; the shared socket is pasted under the remaining socket_slots.
+    per_slot = cfg.get("per_slot_sockets") or {}
+    handled = set()
+    for slot, (rel, (px, py)) in per_slot.items():
+        if slot not in filled_slots:
+            continue
+        asset = scale_asset(Image.open(cfg["assets"] / rel).convert("RGBA"))
+        canvas.alpha_composite(asset, dest=(S(px), S(py)))
+        handled.add(slot)
+    if cfg["socket_asset"] is not None:
         socket = scale_asset(Image.open(cfg["socket_asset"]).convert("RGBA"))
         if cfg.get("socket_mirror", True):
             socket = ImageChops.lighter(socket, ImageOps.flip(socket))
         sc_x, sc_y = cfg.get("socket_centre", SOCKET_CENTRE)
         for slot in cfg.get("socket_slots", ("slot1", "slot3")):
-            if slot in filled_slots:
+            if slot in filled_slots and slot not in handled:
                 cx, cy = SLOT_RING_CENTRE[slot]
                 canvas.alpha_composite(socket, dest=(S(cx) - S(sc_x), S(cy) - S(sc_y)))
 
