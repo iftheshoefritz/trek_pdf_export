@@ -324,18 +324,6 @@ AFFIL_CFG = {
             # down 67px the way NA does (matched ring rhythm).
         },
         "socket_asset": None,
-        # Klingon Bases have a chrome connector tab above the disc that's
-        # taller than NA's, so the disc itself sits lower in each Base chunk.
-        # These are the canvas coordinates of the actual empty-disc centre,
-        # measured by detecting the dark interior of the chrome ring in
-        # each baked Base PNG (the bright-ring centroid was thrown off by
-        # the connector tab and overshot upward by ~10px).
-        "slot_ring_centres": {
-            "slot1": (74, 653),
-            "slot2": (73, 720),
-            "slot3": (72, 790),
-            "slot4": (72, 857),  # slot3 + 67px (NA-style fallback rhythm)
-        },
     },
     "Non-Aligned": {
         "assets": NONALIGNED_ASSETS,
@@ -394,18 +382,15 @@ ICON_MAP = {
     'AU':   ('slot3', "Personnel/Staffing/Slot_3/AU.png"),
 }
 
-# Each slot's ring CENTRE on the card canvas (47px ring → centre is paste+23).
-# Slot 2 was historically pasted as a 47×47 image at (49, 697), so its ring
-# centre is (49+23, 697+23) = (72, 720). The other slots match the same
-# vertical rhythm (67px apart from slot 2 ring centre, per spec measurements).
+# Each slot's ring CENTRE on the card canvas. Calibrated visually against
+# Klingon, Federation, and Non-Aligned scans — the x values are 2px right
+# of the original psd-tools-derived positions (74 vs 72 for slot 1, 73 vs 72
+# for slot 2) which improves icon centering across all affiliations.
 SLOT_RING_CENTRE = {
-    'slot1': (72, 653),   # was paste (49, 630) + 23
-    'slot2': (72, 720),   # was paste (49, 697) + 23
-    # Slot 3/4 measured from the NA Slot 3 Base disc centre (canvas y=790).
-    # Slot 4 is the Slot 3 asset shifted +67px, so its disc centre is +67px.
+    'slot1': (74, 653),
+    'slot2': (73, 720),
     'slot3': (72, 790),
-    'slot4': (72, 857),   # 67px below slot 3; AU sits here, bottom-aligned
-                          # with the skills/text-area bottom on the printed card
+    'slot4': (72, 857),   # 67px below slot 3; AU sits here
 }
 
 
