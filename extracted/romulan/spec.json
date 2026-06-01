@@ -1,0 +1,2171 @@
+{
+  "source_psd": "2e HD Romulan v1.psd",
+  "canvas": {
+    "width": 736,
+    "height": 1029,
+    "dpi": [
+      300.0,
+      300.0
+    ],
+    "size_inches": [
+      2.453333333333333,
+      3.43
+    ]
+  },
+  "fonts_required": [
+    "CrilleeBT-Italic",
+    "FuturaLT-Condensed",
+    "FuturaLT-CondensedBold",
+    "FuturaLT-CondensedBoldOblique",
+    "FuturaLT-CondensedLightObl",
+    "FuturiCondensedBoldSWFTE",
+    "FuturiCondensedLightObliqueSWFTE"
+  ],
+  "layers": [
+    {
+      "name": "Black Border",
+      "path": "Black Border",
+      "kind": "pixel",
+      "visible": true,
+      "bbox": [
+        -2,
+        -2,
+        740,
+        1033
+      ],
+      "size": [
+        742,
+        1035
+      ],
+      "asset_file": "assets/Black_Border.png"
+    },
+    {
+      "name": "Card Image",
+      "path": "Card Image",
+      "kind": "group",
+      "visible": true,
+      "children": [
+        {
+          "name": "Place Image Here",
+          "path": "Card Image > Place Image Here",
+          "kind": "pixel",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "name": "Card Background",
+      "path": "Card Background",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        27,
+        26,
+        708,
+        1002
+      ],
+      "size": [
+        681,
+        976
+      ],
+      "children": [
+        {
+          "name": "Layer 4",
+          "path": "Card Background > Layer 4",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            32,
+            140,
+            672,
+            574
+          ],
+          "size": [
+            640,
+            434
+          ],
+          "asset_file": "assets/Card_Background/Layer_4.png"
+        },
+        {
+          "name": "Layer 12",
+          "path": "Card Background > Layer 12",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            27,
+            26,
+            708,
+            1002
+          ],
+          "size": [
+            681,
+            976
+          ],
+          "asset_file": "assets/Card_Background/Layer_12.png"
+        }
+      ]
+    },
+    {
+      "name": "Staffing and Attributes",
+      "path": "Staffing and Attributes",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        48,
+        168,
+        662,
+        939
+      ],
+      "size": [
+        614,
+        771
+      ],
+      "children": [
+        {
+          "name": "Ship",
+          "path": "Staffing and Attributes > Ship",
+          "kind": "group",
+          "visible": true,
+          "bbox": [
+            48,
+            168,
+            662,
+            939
+          ],
+          "size": [
+            614,
+            771
+          ],
+          "children": [
+            {
+              "name": "Attributes",
+              "path": "Staffing and Attributes > Ship > Attributes",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                126,
+                918,
+                662,
+                939
+              ],
+              "size": [
+                536,
+                21
+              ],
+              "children": [
+                {
+                  "name": "Range",
+                  "path": "Staffing and Attributes > Ship > Attributes > Range",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    126,
+                    918,
+                    182,
+                    939
+                  ],
+                  "size": [
+                    56,
+                    21
+                  ],
+                  "text": "Range",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "Weapons",
+                  "path": "Staffing and Attributes > Ship > Attributes > Weapons",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    335,
+                    918,
+                    420,
+                    939
+                  ],
+                  "size": [
+                    85,
+                    21
+                  ],
+                  "text": "Weapons",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "Shields",
+                  "path": "Staffing and Attributes > Ship > Attributes > Shields",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    548,
+                    918,
+                    611,
+                    939
+                  ],
+                  "size": [
+                    63,
+                    21
+                  ],
+                  "text": "Shields",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": -25
+                },
+                {
+                  "name": "SHIELDS",
+                  "path": "Staffing and Attributes > Ship > Attributes > SHIELDS",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    650,
+                    918,
+                    662,
+                    939
+                  ],
+                  "size": [
+                    12,
+                    21
+                  ],
+                  "text": "9",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "right",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "WEAPONS",
+                  "path": "Staffing and Attributes > Ship > Attributes > WEAPONS",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    438,
+                    918,
+                    450,
+                    939
+                  ],
+                  "size": [
+                    12,
+                    21
+                  ],
+                  "text": "8",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "right",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "RANGE",
+                  "path": "Staffing and Attributes > Ship > Attributes > RANGE",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    225,
+                    918,
+                    237,
+                    939
+                  ],
+                  "size": [
+                    12,
+                    21
+                  ],
+                  "text": "8",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "right",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "No Shields",
+                  "path": "Staffing and Attributes > Ship > Attributes > No Shields",
+                  "kind": "pixel",
+                  "visible": false,
+                  "bbox": [
+                    557,
+                    918,
+                    652,
+                    939
+                  ],
+                  "size": [
+                    95,
+                    21
+                  ],
+                  "asset_file": "assets/Staffing_and_Attributes/Ship/Attributes/No_Shields.png"
+                },
+                {
+                  "name": "No Weapons",
+                  "path": "Staffing and Attributes > Ship > Attributes > No Weapons",
+                  "kind": "pixel",
+                  "visible": false,
+                  "bbox": [
+                    335,
+                    918,
+                    453,
+                    939
+                  ],
+                  "size": [
+                    118,
+                    21
+                  ],
+                  "asset_file": "assets/Staffing_and_Attributes/Ship/Attributes/No_Weapons.png"
+                },
+                {
+                  "name": "No Range",
+                  "path": "Staffing and Attributes > Ship > Attributes > No Range",
+                  "kind": "pixel",
+                  "visible": false,
+                  "bbox": [
+                    134,
+                    919,
+                    225,
+                    940
+                  ],
+                  "size": [
+                    91,
+                    21
+                  ],
+                  "asset_file": "assets/Staffing_and_Attributes/Ship/Attributes/No_Range.png"
+                }
+              ]
+            },
+            {
+              "name": "Icons",
+              "path": "Staffing and Attributes > Ship > Icons",
+              "kind": "group",
+              "visible": true,
+              "children": [
+                {
+                  "name": "Slot 2",
+                  "path": "Staffing and Attributes > Ship > Icons > Slot 2",
+                  "kind": "group",
+                  "visible": false,
+                  "children": [
+                    {
+                      "name": "Base",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > Base",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        42,
+                        689,
+                        108,
+                        770
+                      ],
+                      "size": [
+                        66,
+                        81
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/Base.png"
+                    },
+                    {
+                      "name": "Maquis",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > Maquis",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/Maquis.png"
+                    },
+                    {
+                      "name": "Terok Nor",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > Terok Nor",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        699,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        46,
+                        46
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/Terok_Nor.png"
+                    },
+                    {
+                      "name": "Earth",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > Earth",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        699,
+                        96,
+                        746
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/Earth.png"
+                    },
+                    {
+                      "name": "Voyager",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > Voyager",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/Voyager.png"
+                    },
+                    {
+                      "name": "DS9",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > DS9",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/DS9.png"
+                    },
+                    {
+                      "name": "TNG",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > TNG",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/TNG.png"
+                    },
+                    {
+                      "name": "TOS",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 2 > TOS",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_2/TOS.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 3",
+                  "path": "Staffing and Attributes > Ship > Icons > Slot 3",
+                  "kind": "group",
+                  "visible": false,
+                  "children": [
+                    {
+                      "name": "Base",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 3 > Base",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        43,
+                        756,
+                        109,
+                        840
+                      ],
+                      "size": [
+                        66,
+                        84
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_3/Base.png"
+                    },
+                    {
+                      "name": "Future",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 3 > Future",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        767,
+                        95,
+                        812
+                      ],
+                      "size": [
+                        45,
+                        45
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_3/Future.png"
+                    },
+                    {
+                      "name": "AU",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 3 > AU",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        767,
+                        95,
+                        812
+                      ],
+                      "size": [
+                        45,
+                        45
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_3/AU.png"
+                    },
+                    {
+                      "name": "Past",
+                      "path": "Staffing and Attributes > Ship > Icons > Slot 3 > Past",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        767,
+                        95,
+                        812
+                      ],
+                      "size": [
+                        45,
+                        45
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Icons/Slot_3/Past.png"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Staffing",
+              "path": "Staffing and Attributes > Ship > Staffing",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                48,
+                168,
+                97,
+                383
+              ],
+              "size": [
+                49,
+                215
+              ],
+              "children": [
+                {
+                  "name": "Slot 5",
+                  "path": "Staffing and Attributes > Ship > Staffing > Slot 5",
+                  "kind": "group",
+                  "visible": false,
+                  "children": [
+                    {
+                      "name": "Staff",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 5 > Staff",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        48,
+                        389,
+                        97,
+                        438
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_5/Staff.png"
+                    },
+                    {
+                      "name": "Command",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 5 > Command",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        48,
+                        389,
+                        97,
+                        438
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_5/Command.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 4",
+                  "path": "Staffing and Attributes > Ship > Staffing > Slot 4",
+                  "kind": "group",
+                  "visible": true,
+                  "bbox": [
+                    48,
+                    334,
+                    97,
+                    383
+                  ],
+                  "size": [
+                    49,
+                    49
+                  ],
+                  "children": [
+                    {
+                      "name": "Staff",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 4 > Staff",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        48,
+                        334,
+                        97,
+                        383
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_4/Staff.png"
+                    },
+                    {
+                      "name": "Command",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 4 > Command",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        48,
+                        334,
+                        97,
+                        383
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_4/Command.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 3",
+                  "path": "Staffing and Attributes > Ship > Staffing > Slot 3",
+                  "kind": "group",
+                  "visible": true,
+                  "bbox": [
+                    48,
+                    279,
+                    97,
+                    328
+                  ],
+                  "size": [
+                    49,
+                    49
+                  ],
+                  "children": [
+                    {
+                      "name": "Staff",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 3 > Staff",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        48,
+                        279,
+                        97,
+                        328
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_3/Staff.png"
+                    },
+                    {
+                      "name": "Command",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 3 > Command",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        48,
+                        279,
+                        97,
+                        328
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_3/Command.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 2",
+                  "path": "Staffing and Attributes > Ship > Staffing > Slot 2",
+                  "kind": "group",
+                  "visible": true,
+                  "bbox": [
+                    48,
+                    223,
+                    97,
+                    272
+                  ],
+                  "size": [
+                    49,
+                    49
+                  ],
+                  "children": [
+                    {
+                      "name": "Staff",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 2 > Staff",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        48,
+                        223,
+                        97,
+                        272
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_2/Staff.png"
+                    },
+                    {
+                      "name": "Command",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 2 > Command",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        48,
+                        223,
+                        97,
+                        272
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_2/Command.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 1",
+                  "path": "Staffing and Attributes > Ship > Staffing > Slot 1",
+                  "kind": "group",
+                  "visible": true,
+                  "bbox": [
+                    48,
+                    168,
+                    97,
+                    217
+                  ],
+                  "size": [
+                    49,
+                    49
+                  ],
+                  "children": [
+                    {
+                      "name": "Staff",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 1 > Staff",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        48,
+                        168,
+                        97,
+                        217
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_1/Staff.png"
+                    },
+                    {
+                      "name": "Command",
+                      "path": "Staffing and Attributes > Ship > Staffing > Slot 1 > Command",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        48,
+                        168,
+                        97,
+                        217
+                      ],
+                      "size": [
+                        49,
+                        49
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Ship/Staffing/Slot_1/Command.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Personnel",
+          "path": "Staffing and Attributes > Personnel",
+          "kind": "group",
+          "visible": false,
+          "children": [
+            {
+              "name": "Attributes",
+              "path": "Staffing and Attributes > Personnel > Attributes",
+              "kind": "group",
+              "visible": true,
+              "children": [
+                {
+                  "name": "Attribute Labels",
+                  "path": "Staffing and Attributes > Personnel > Attributes > Attribute Labels",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    125,
+                    916,
+                    631,
+                    939
+                  ],
+                  "size": [
+                    506,
+                    23
+                  ],
+                  "asset_file": "assets/Staffing_and_Attributes/Personnel/Attributes/Attribute_Labels.png"
+                },
+                {
+                  "name": "Strength",
+                  "path": "Staffing and Attributes > Personnel > Attributes > Strength",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    650,
+                    916,
+                    662,
+                    938
+                  ],
+                  "size": [
+                    12,
+                    22
+                  ],
+                  "text": "6",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "right",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "Cunning",
+                  "path": "Staffing and Attributes > Personnel > Attributes > Cunning",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    437,
+                    916,
+                    449,
+                    938
+                  ],
+                  "size": [
+                    12,
+                    22
+                  ],
+                  "text": "6",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "right",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "Integrity",
+                  "path": "Staffing and Attributes > Personnel > Attributes > Integrity",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    225,
+                    916,
+                    237,
+                    937
+                  ],
+                  "size": [
+                    12,
+                    21
+                  ],
+                  "text": "5",
+                  "font": "FuturiCondensedBoldSWFTE",
+                  "font_size": 14.0,
+                  "color": [
+                    255,
+                    255,
+                    255,
+                    255
+                  ],
+                  "justification": "right",
+                  "font_caps": "all_caps",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0
+                },
+                {
+                  "name": "No Integrity",
+                  "path": "Staffing and Attributes > Personnel > Attributes > No Integrity",
+                  "kind": "pixel",
+                  "visible": false,
+                  "bbox": [
+                    125,
+                    917,
+                    239,
+                    938
+                  ],
+                  "size": [
+                    114,
+                    21
+                  ],
+                  "asset_file": "assets/Staffing_and_Attributes/Personnel/Attributes/No_Integrity.png"
+                }
+              ]
+            },
+            {
+              "name": "Staffing",
+              "path": "Staffing and Attributes > Personnel > Staffing",
+              "kind": "group",
+              "visible": true,
+              "children": [
+                {
+                  "name": "Slot 1",
+                  "path": "Staffing and Attributes > Personnel > Staffing > Slot 1",
+                  "kind": "group",
+                  "visible": false,
+                  "children": [
+                    {
+                      "name": "Base",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 1 > Base",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        43,
+                        618,
+                        110,
+                        703
+                      ],
+                      "size": [
+                        67,
+                        85
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_1/Base.png"
+                    },
+                    {
+                      "name": "Staff",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 1 > Staff",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        629,
+                        95,
+                        675
+                      ],
+                      "size": [
+                        46,
+                        46
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_1/Staff.png"
+                    },
+                    {
+                      "name": "Command",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 1 > Command",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        629,
+                        95,
+                        675
+                      ],
+                      "size": [
+                        46,
+                        46
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_1/Command.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 2",
+                  "path": "Staffing and Attributes > Personnel > Staffing > Slot 2",
+                  "kind": "group",
+                  "visible": false,
+                  "children": [
+                    {
+                      "name": "Base",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > Base",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        42,
+                        689,
+                        108,
+                        770
+                      ],
+                      "size": [
+                        66,
+                        81
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/Base.png"
+                    },
+                    {
+                      "name": "Maquis",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > Maquis",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/Maquis.png"
+                    },
+                    {
+                      "name": "Terok Nor",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > Terok Nor",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        699,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        46,
+                        46
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/Terok_Nor.png"
+                    },
+                    {
+                      "name": "Earth",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > Earth",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        699,
+                        96,
+                        746
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/Earth.png"
+                    },
+                    {
+                      "name": "Voyager",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > Voyager",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/Voyager.png"
+                    },
+                    {
+                      "name": "DS9",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > DS9",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/DS9.png"
+                    },
+                    {
+                      "name": "TNG",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > TNG",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/TNG.png"
+                    },
+                    {
+                      "name": "TOS",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 2 > TOS",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        49,
+                        698,
+                        96,
+                        745
+                      ],
+                      "size": [
+                        47,
+                        47
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_2/TOS.png"
+                    }
+                  ]
+                },
+                {
+                  "name": "Slot 3",
+                  "path": "Staffing and Attributes > Personnel > Staffing > Slot 3",
+                  "kind": "group",
+                  "visible": false,
+                  "children": [
+                    {
+                      "name": "Base",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 3 > Base",
+                      "kind": "pixel",
+                      "visible": true,
+                      "bbox": [
+                        43,
+                        756,
+                        109,
+                        840
+                      ],
+                      "size": [
+                        66,
+                        84
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_3/Base.png"
+                    },
+                    {
+                      "name": "Future",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 3 > Future",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        767,
+                        95,
+                        812
+                      ],
+                      "size": [
+                        45,
+                        45
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_3/Future.png"
+                    },
+                    {
+                      "name": "AU",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 3 > AU",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        767,
+                        95,
+                        812
+                      ],
+                      "size": [
+                        45,
+                        45
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_3/AU.png"
+                    },
+                    {
+                      "name": "Past",
+                      "path": "Staffing and Attributes > Personnel > Staffing > Slot 3 > Past",
+                      "kind": "pixel",
+                      "visible": false,
+                      "bbox": [
+                        50,
+                        767,
+                        95,
+                        812
+                      ],
+                      "size": [
+                        45,
+                        45
+                      ],
+                      "asset_file": "assets/Staffing_and_Attributes/Personnel/Staffing/Slot_3/Past.png"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Skills and Flavor Text",
+      "path": "Skills and Flavor Text",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        126,
+        642,
+        632,
+        840
+      ],
+      "size": [
+        506,
+        198
+      ],
+      "children": [
+        {
+          "name": "Ship",
+          "path": "Skills and Flavor Text > Ship",
+          "kind": "group",
+          "visible": false,
+          "children": [
+            {
+              "name": "Flavor Text",
+              "path": "Skills and Flavor Text > Ship > Flavor Text",
+              "kind": "text",
+              "visible": true,
+              "bbox": [
+                138,
+                706,
+                544,
+                735
+              ],
+              "size": [
+                406,
+                29
+              ],
+              "text": "\r\r  \u201cRunabouts: break formation. Attack pattern Delta.\u201d",
+              "font": "FuturiCondensedLightObliqueSWFTE",
+              "font_size": 29.16667,
+              "color": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "justification": "left",
+              "font_caps": "normal",
+              "faux_bold": false,
+              "faux_italic": false,
+              "tracking": -15,
+              "leading": 31.25
+            },
+            {
+              "name": "Skill Text",
+              "path": "Skills and Flavor Text > Ship > Skill Text",
+              "kind": "text",
+              "visible": true,
+              "bbox": [
+                125,
+                642,
+                646,
+                704
+              ],
+              "size": [
+                521,
+                62
+              ],
+              "text": "While this ship is at a       mission, your Danube-class ships are attributes +1 and you may play them at cost \u20131.",
+              "font": "FuturaLT-Condensed",
+              "font_size": 29.16667,
+              "color": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "justification": "left",
+              "font_caps": "normal",
+              "faux_bold": false,
+              "faux_italic": false,
+              "tracking": 0,
+              "leading": 31.25
+            }
+          ]
+        },
+        {
+          "name": "Personnel",
+          "path": "Skills and Flavor Text > Personnel",
+          "kind": "group",
+          "visible": true,
+          "bbox": [
+            126,
+            642,
+            632,
+            840
+          ],
+          "size": [
+            506,
+            198
+          ],
+          "children": [
+            {
+              "name": "Lore Text",
+              "path": "Skills and Flavor Text > Personnel > Lore Text",
+              "kind": "text",
+              "visible": true,
+              "bbox": [
+                139,
+                779,
+                618,
+                840
+              ],
+              "size": [
+                479,
+                61
+              ],
+              "text": "\r\r\r  \u201cAll the Maquis had were a pair of lightly armed shuttlecraft.  \r  I expect the Dominion to have sharper teeth.\u201d",
+              "font": "FuturaLT-CondensedLightObl",
+              "font_size": 28.70833,
+              "color": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "justification": "left",
+              "font_caps": "normal",
+              "faux_bold": false,
+              "faux_italic": false,
+              "tracking": -10,
+              "leading": 31.25
+            },
+            {
+              "name": "Game Text",
+              "path": "Skills and Flavor Text > Personnel > Game Text",
+              "kind": "text",
+              "visible": true,
+              "bbox": [
+                126,
+                681,
+                632,
+                775
+              ],
+              "size": [
+                506,
+                94
+              ],
+              "text": "Commander: U.S.S. Odyssey. While this personnel is\raboard your ship at a       mission, each of your non-\runique       personnel present is attributes +1.",
+              "font": "FuturaLT-CondensedBold",
+              "font_size": 29.16667,
+              "color": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "justification": "left",
+              "font_caps": "normal",
+              "faux_bold": false,
+              "faux_italic": false,
+              "tracking": 0,
+              "leading": 31.25
+            },
+            {
+              "name": "Skill 5",
+              "path": "Skills and Flavor Text > Personnel > Skill 5",
+              "kind": "group",
+              "visible": false,
+              "children": [
+                {
+                  "name": "Skill 1",
+                  "path": "Skills and Flavor Text > Personnel > Skill 5 > Skill 1",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    155,
+                    677,
+                    287,
+                    700
+                  ],
+                  "size": [
+                    132,
+                    23
+                  ],
+                  "text": "Astrometrics\r",
+                  "font": "FuturaLT-CondensedBold",
+                  "font_size": 29.16667,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0,
+                  "leading": 30.79167
+                },
+                {
+                  "name": "Dot",
+                  "path": "Skills and Flavor Text > Personnel > Skill 5 > Dot",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    130,
+                    679,
+                    151,
+                    700
+                  ],
+                  "size": [
+                    21,
+                    21
+                  ],
+                  "asset_file": "assets/Skills_and_Flavor_Text/Personnel/Skill_5/Dot.png"
+                }
+              ]
+            },
+            {
+              "name": "Skill 4",
+              "path": "Skills and Flavor Text > Personnel > Skill 4",
+              "kind": "group",
+              "visible": false,
+              "children": [
+                {
+                  "name": "Skill 1",
+                  "path": "Skills and Flavor Text > Personnel > Skill 4 > Skill 1",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    560,
+                    644,
+                    603,
+                    667
+                  ],
+                  "size": [
+                    43,
+                    23
+                  ],
+                  "text": "Law",
+                  "font": "FuturaLT-CondensedBold",
+                  "font_size": 29.16667,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0,
+                  "leading": 30.79167
+                },
+                {
+                  "name": "Dot",
+                  "path": "Skills and Flavor Text > Personnel > Skill 4 > Dot",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    534,
+                    646,
+                    555,
+                    667
+                  ],
+                  "size": [
+                    21,
+                    21
+                  ],
+                  "asset_file": "assets/Skills_and_Flavor_Text/Personnel/Skill_4/Dot.png"
+                }
+              ]
+            },
+            {
+              "name": "Skill 3",
+              "path": "Skills and Flavor Text > Personnel > Skill 3",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                422,
+                642,
+                523,
+                674
+              ],
+              "size": [
+                101,
+                32
+              ],
+              "children": [
+                {
+                  "name": "Skill 1",
+                  "path": "Skills and Flavor Text > Personnel > Skill 3 > Skill 1",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    448,
+                    642,
+                    523,
+                    674
+                  ],
+                  "size": [
+                    75,
+                    32
+                  ],
+                  "text": "Physics",
+                  "font": "FuturaLT-CondensedBold",
+                  "font_size": 29.16667,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0,
+                  "leading": 30.79167
+                },
+                {
+                  "name": "Dot",
+                  "path": "Skills and Flavor Text > Personnel > Skill 3 > Dot",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    422,
+                    646,
+                    443,
+                    667
+                  ],
+                  "size": [
+                    21,
+                    21
+                  ],
+                  "asset_file": "assets/Skills_and_Flavor_Text/Personnel/Skill_3/Dot.png"
+                }
+              ]
+            },
+            {
+              "name": "Skill 2",
+              "path": "Skills and Flavor Text > Personnel > Skill 2",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                299,
+                642,
+                410,
+                674
+              ],
+              "size": [
+                111,
+                32
+              ],
+              "children": [
+                {
+                  "name": "Skill 1",
+                  "path": "Skills and Flavor Text > Personnel > Skill 2 > Skill 1",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    324,
+                    642,
+                    410,
+                    674
+                  ],
+                  "size": [
+                    86,
+                    32
+                  ],
+                  "text": "Geology",
+                  "font": "FuturaLT-CondensedBold",
+                  "font_size": 29.16667,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0,
+                  "leading": 30.79167
+                },
+                {
+                  "name": "Dot",
+                  "path": "Skills and Flavor Text > Personnel > Skill 2 > Dot",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    299,
+                    646,
+                    320,
+                    667
+                  ],
+                  "size": [
+                    21,
+                    21
+                  ],
+                  "asset_file": "assets/Skills_and_Flavor_Text/Personnel/Skill_2/Dot.png"
+                }
+              ]
+            },
+            {
+              "name": "Skill 1",
+              "path": "Skills and Flavor Text > Personnel > Skill 1",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                130,
+                644,
+                287,
+                667
+              ],
+              "size": [
+                157,
+                23
+              ],
+              "children": [
+                {
+                  "name": "Skill 1",
+                  "path": "Skills and Flavor Text > Personnel > Skill 1 > Skill 1",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    155,
+                    644,
+                    287,
+                    667
+                  ],
+                  "size": [
+                    132,
+                    23
+                  ],
+                  "text": "Astrometrics\r",
+                  "font": "FuturaLT-CondensedBold",
+                  "font_size": 29.16667,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 0,
+                  "leading": 30.79167
+                },
+                {
+                  "name": "Dot",
+                  "path": "Skills and Flavor Text > Personnel > Skill 1 > Dot",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    130,
+                    646,
+                    151,
+                    667
+                  ],
+                  "size": [
+                    21,
+                    21
+                  ],
+                  "asset_file": "assets/Skills_and_Flavor_Text/Personnel/Skill_1/Dot.png"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cost, Name, Title, and Class/Race",
+      "path": "Cost, Name, Title, and Class/Race",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        143,
+        56,
+        669,
+        996
+      ],
+      "size": [
+        526,
+        940
+      ],
+      "children": [
+        {
+          "name": "Rarity",
+          "path": "Cost, Name, Title, and Class/Race > Rarity",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            619,
+            984,
+            669,
+            996
+          ],
+          "size": [
+            50,
+            12
+          ],
+          "text": "32 V 18",
+          "font": "FuturiCondensedBoldSWFTE",
+          "font_size": 9.0,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0
+        },
+        {
+          "name": "Class/Race",
+          "path": "Cost, Name, Title, and Class/Race > Class/Race",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            287,
+            552,
+            440,
+            588
+          ],
+          "size": [
+            153,
+            36
+          ],
+          "text": "Galaxy Class",
+          "font": "FuturaLT-CondensedBoldOblique",
+          "font_size": 16.24549,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 3
+        },
+        {
+          "name": "Title",
+          "path": "Cost, Name, Title, and Class/Race > Title",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            210,
+            93,
+            549,
+            115
+          ],
+          "size": [
+            339,
+            22
+          ],
+          "text": "Gamma Quadrant Vanguard",
+          "font": "CrilleeBT-Italic",
+          "font_size": 10.15343,
+          "color": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 3
+        },
+        {
+          "name": "Card Name",
+          "path": "Cost, Name, Title, and Class/Race > Card Name",
+          "kind": "group",
+          "visible": true,
+          "bbox": [
+            196,
+            56,
+            439,
+            86
+          ],
+          "size": [
+            243,
+            30
+          ],
+          "children": [
+            {
+              "name": "Normal",
+              "path": "Cost, Name, Title, and Class/Race > Card Name > Normal",
+              "kind": "group",
+              "visible": false,
+              "children": [
+                {
+                  "name": "Name copy",
+                  "path": "Cost, Name, Title, and Class/Race > Card Name > Normal > Name copy",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    196,
+                    56,
+                    424,
+                    86
+                  ],
+                  "size": [
+                    228,
+                    30
+                  ],
+                  "text": "U.S.S. Odyssey",
+                  "font": "CrilleeBT-Italic",
+                  "font_size": 16.24549,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 30
+                }
+              ]
+            },
+            {
+              "name": "Unique",
+              "path": "Cost, Name, Title, and Class/Race > Card Name > Unique",
+              "kind": "group",
+              "visible": true,
+              "bbox": [
+                196,
+                56,
+                439,
+                86
+              ],
+              "size": [
+                243,
+                30
+              ],
+              "children": [
+                {
+                  "name": "Name",
+                  "path": "Cost, Name, Title, and Class/Race > Card Name > Unique > Name",
+                  "kind": "text",
+                  "visible": true,
+                  "bbox": [
+                    211,
+                    56,
+                    439,
+                    86
+                  ],
+                  "size": [
+                    228,
+                    30
+                  ],
+                  "text": "U.S.S. Odyssey",
+                  "font": "CrilleeBT-Italic",
+                  "font_size": 16.24549,
+                  "color": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ],
+                  "justification": "left",
+                  "font_caps": "normal",
+                  "faux_bold": false,
+                  "faux_italic": false,
+                  "tracking": 30
+                },
+                {
+                  "name": "Unique",
+                  "path": "Cost, Name, Title, and Class/Race > Card Name > Unique > Unique",
+                  "kind": "pixel",
+                  "visible": true,
+                  "bbox": [
+                    196,
+                    63,
+                    207,
+                    73
+                  ],
+                  "size": [
+                    11,
+                    10
+                  ],
+                  "asset_file": "assets/Cost__Name__Title__and_Class_Race/Card_Name/Unique/Unique.png"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Cost",
+          "path": "Cost, Name, Title, and Class/Race > Cost",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            143,
+            59,
+            162,
+            82
+          ],
+          "size": [
+            19,
+            23
+          ],
+          "text": "6",
+          "font": "CrilleeBT-Italic",
+          "font_size": 16.0,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "left",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0
+        }
+      ]
+    },
+    {
+      "name": "Intro",
+      "path": "Intro",
+      "kind": "group",
+      "visible": true,
+      "bbox": [
+        -168,
+        0,
+        909,
+        1029
+      ],
+      "size": [
+        1077,
+        1029
+      ],
+      "children": [
+        {
+          "name": "Layer 9",
+          "path": "Intro > Layer 9",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -168,
+            0,
+            909,
+            1029
+          ],
+          "size": [
+            1077,
+            1029
+          ],
+          "asset_file": "assets/Intro/Layer_9.png"
+        },
+        {
+          "name": "Logo",
+          "path": "Intro > Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            210,
+            73,
+            529,
+            291
+          ],
+          "size": [
+            319,
+            218
+          ],
+          "asset_file": "assets/Intro/Logo.png"
+        },
+        {
+          "name": "Dojo Logo",
+          "path": "Intro > Dojo Logo",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            321,
+            745,
+            410,
+            844
+          ],
+          "size": [
+            89,
+            99
+          ],
+          "asset_file": "assets/Intro/Dojo_Logo.png"
+        },
+        {
+          "name": "Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "path": "Intro > Welcome to the STAR TREK CCG SECOND EDITION High Resolution Car",
+          "kind": "text",
+          "visible": true,
+          "bbox": [
+            140,
+            416,
+            591,
+            985
+          ],
+          "size": [
+            451,
+            569
+          ],
+          "text": "Welcome to the STAR TREK CCG\rSECOND EDITION High Resolution Cardmaker!\r\rThis PSD includes the ROMULAN template\rVERSION 1.0\r\rCreated by:\rMWagner84\r\rExclusively available from:\r\r\r\r\rhttps://discord.gg/rsRy5GV\r\rTurn off this layer to get started, and...\rExpand your power in the universe!\r\r\r\r\r\r\r\r\r\r\r\r\r ",
+          "font": "FuturaLT-CondensedBold",
+          "font_size": 34.28211,
+          "color": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "justification": "center",
+          "font_caps": "normal",
+          "faux_bold": false,
+          "faux_italic": false,
+          "tracking": 0,
+          "leading": 39.71827
+        },
+        {
+          "name": "Border",
+          "path": "Intro > Border",
+          "kind": "pixel",
+          "visible": true,
+          "bbox": [
+            -1,
+            2,
+            735,
+            1029
+          ],
+          "size": [
+            736,
+            1027
+          ],
+          "asset_file": "assets/Intro/Border.png"
+        }
+      ]
+    }
+  ]
+}

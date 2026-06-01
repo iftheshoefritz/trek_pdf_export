@@ -51,6 +51,7 @@ def S(v):
 ASSETS = Path("extracted/federation/assets")
 NONALIGNED_ASSETS = Path("extracted/nonaligned/assets")
 KLINGON_ASSETS = Path("extracted/klingon/assets")
+ROMULAN_ASSETS = Path("extracted/romulan/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
@@ -306,6 +307,10 @@ AFFIL_CFG = {
         "per_slot_sockets": {
             "slot4": ("Card_Background/Slot_4_Base.png", (40, 825)),
         },
+        # Federation glyphs carry ring_cx/ring_cy sidecar metadata that
+        # already corrects for off-centre visual content, so no global offset
+        # is needed here. Slot 4 measured from spec.json AU bbox: delta=(0,+1).
+        "ring_centre_offsets": {"slot1": (0, 0), "slot2": (0, 0), "slot3": (0, 0), "slot4": (0, +1)},
     },
     "Klingon": {
         "assets": KLINGON_ASSETS,
@@ -329,6 +334,26 @@ AFFIL_CFG = {
             # down 67px the way NA does (matched ring rhythm).
         },
         "socket_asset": None,
+        # PSD disc centres from spec.json icon bboxes vs global SLOT_RING_CENTRE.
+        # Slot 4 not in PSD; mirrors slot 3 (slot 4 = slot 3 shifted down 67 px).
+        "ring_centre_offsets": {"slot1": (-1, 0), "slot2": (0, +2), "slot3": (+2, 0), "slot4": (+2, 0)},
+    },
+    "Romulan": {
+        "assets": ROMULAN_ASSETS,
+        # Romulan's chrome frame is Layer_12 (full inner card area at 27,26).
+        # Layer_4 is the photo-notch strip (same position/blend as Federation).
+        "cardbg_layer": "Card_Background/Layer_12.png",
+        "cardbg_paste": (27, 26),
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (43, 618)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (42, 689)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (43, 756)),
+        },
+        "socket_asset": None,
+        # Romulan PSD places disc centres 1-2 px left and 1 px above the
+        # Klingon/NA positions; corrected per spec.json icon bbox measurement.
+        # Slot 4 not in PSD; mirrors slot 3.
+        "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, +2), "slot3": (0, 0), "slot4": (0, 0)},
     },
     "Non-Aligned": {
         "assets": NONALIGNED_ASSETS,
@@ -351,6 +376,9 @@ AFFIL_CFG = {
         },
         # Fallback for any code path that still expects a single asset.
         "socket_asset": None,
+        # Identical disc positions to Klingon in the PSD.
+        # Slot 4 not in PSD; mirrors slot 3.
+        "ring_centre_offsets": {"slot1": (-1, 0), "slot2": (0, +2), "slot3": (+2, 0), "slot4": (+2, 0)},
     },
 }
 FED_CFG = AFFIL_CFG["Federation"]
@@ -450,7 +478,12 @@ def render_icons(canvas, icons_str, cfg=FED_CFG):
                 cx, cy = SLOT_RING_CENTRE[slot]
                 canvas.alpha_composite(socket, dest=(S(cx) - S(sc_x), S(cy) - S(sc_y)))
 
-    ring_centres = cfg.get("slot_ring_centres", SLOT_RING_CENTRE)
+    offsets = cfg.get("ring_centre_offsets", {})
+    ring_centres = {
+        slot: (SLOT_RING_CENTRE[slot][0] + offsets.get(slot, (0, 0))[0],
+               SLOT_RING_CENTRE[slot][1] + offsets.get(slot, (0, 0))[1])
+        for slot in SLOT_RING_CENTRE
+    }
     for _abbrev, slot, rel in resolved:
         asset_path = cfg["assets"] / "Staffing_and_Attributes" / rel
         cx, cy = ring_centres[slot]

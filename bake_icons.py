@@ -14,7 +14,7 @@ it when we want PSD-accurate renders (with layer effects applied) rather than
 the raw raster pixels psd-tools returns. See CLAUDE.md "Headless Photopea for
 layer-effect rendering" for the rationale.
 """
-import asyncio, base64, io, json
+import asyncio, base64, io, json, sys
 from pathlib import Path
 from playwright.async_api import async_playwright
 from PIL import Image
@@ -28,6 +28,7 @@ PSDS = {
     "Federation": ("2e HD Federation v1.psd", "federation"),
     "Non-Aligned": ("2e HD Non-Alligned v1.psd", "nonaligned"),
     "Klingon": ("2e HD Klingon v1.psd", "klingon"),
+    "Romulan": ("2e HD Romulan v1.psd", "romulan"),
 }
 
 # Asset families to try baking. Missing layer paths are skipped silently.
@@ -214,6 +215,8 @@ async def bake_for_psd(page, affil_name: str, psd_file: str, outdir_name: str):
 
 
 async def main():
+    only = {a.strip() for a in sys.argv[1].split(",")} if len(sys.argv) > 1 else None
+    targets = {k: v for k, v in PSDS.items() if only is None or k in only}
     Path("/tmp/pp_embed.html").write_text(EMBED_HTML)
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True, args=["--use-gl=swiftshader"])
@@ -224,7 +227,7 @@ async def main():
             if "done" in await page.evaluate("window._mm.slice()"):
                 break
         print("Photopea ready.")
-        for affil_name, (psd_file, outdir_name) in PSDS.items():
+        for affil_name, (psd_file, outdir_name) in targets.items():
             await bake_for_psd(page, affil_name, psd_file, outdir_name)
             # Close before next PSD
             await run_script(page, "app.activeDocument.close(false);", max_seconds=10)
