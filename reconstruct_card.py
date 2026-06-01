@@ -179,10 +179,15 @@ def infer_name_title(full_name: str, photo: Path, name_row_box=None):
     tokens = full_name.split()
     if len(tokens) <= 1:
         return full_name, "", 1.0, 1.0
+    # Prefixes that are never a complete name on their own — always absorb the
+    # following token (e.g. "I.K.S. Rotarran ...", "U.S.S. Enterprise ...").
+    MIN_NAME_TOKENS = 2 if tokens[0] in ("I.K.S.", "U.S.S.") else 1
+    if len(tokens) <= MIN_NAME_TOKENS:
+        return full_name, "", 1.0, 1.0
     ocr = " ".join(_norm_words(_ocr_name_row(photo, name_row_box)))
     scored = sorted(
         ((SequenceMatcher(None, " ".join(_norm_words(" ".join(tokens[:k]))), ocr).ratio(), k)
-         for k in range(1, len(tokens))),
+         for k in range(MIN_NAME_TOKENS, len(tokens))),
         reverse=True)
     best_score, best_k = scored[0]
     margin = best_score - (scored[1][0] if len(scored) > 1 else 0.0)
