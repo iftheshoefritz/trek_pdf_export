@@ -50,6 +50,7 @@ def S(v):
 
 ASSETS = Path("extracted/federation/assets")
 NONALIGNED_ASSETS = Path("extracted/nonaligned/assets")
+KLINGON_ASSETS = Path("extracted/klingon/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
@@ -301,6 +302,41 @@ AFFIL_CFG = {
             "slot4": ("Card_Background/Slot_4_Base.png", (40, 825)),
         },
     },
+    "Klingon": {
+        "assets": KLINGON_ASSETS,
+        # Klingon's PSD has no shared chrome-strip layer (Fed's Layer_11 /
+        # NA's Layer_13). Card_Border.png is the analogous frame: it covers
+        # the full inner card area (681x977 at offset 28,26) and provides
+        # the wood/copper trim that flanks the staffing column. Per-slot
+        # Bases are then dropped on top of it.
+        "cardbg_layer": "Card_Background/Card_Border.png",
+        "cardbg_paste": (28, 26),
+        # No Layer_4-style photo notch; Klingon uses a plain Image_Frame
+        # around the photo (rendered as a normal paste, not difference blend).
+        "photo_notch": None,
+        "image_frame": "Card_Background/Image_Frame.png",
+        "image_frame_paste": (32, 140),
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (44, 620)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (41, 688)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (44, 757)),
+            # Slot 4 not in PSD; if AU lands in slot 4 we reuse slot 3 shifted
+            # down 67px the way NA does (matched ring rhythm).
+        },
+        "socket_asset": None,
+        # Klingon Bases have a chrome connector tab above the disc that's
+        # taller than NA's, so the disc itself sits lower in each Base chunk.
+        # These are the canvas coordinates of the actual empty-disc centre,
+        # measured by detecting the dark interior of the chrome ring in
+        # each baked Base PNG (the bright-ring centroid was thrown off by
+        # the connector tab and overshot upward by ~10px).
+        "slot_ring_centres": {
+            "slot1": (74, 653),
+            "slot2": (73, 720),
+            "slot3": (72, 790),
+            "slot4": (72, 857),  # slot3 + 67px (NA-style fallback rhythm)
+        },
+    },
     "Non-Aligned": {
         "assets": NONALIGNED_ASSETS,
         "cardbg_layer": "Card_Background/Layer_13.png",
@@ -424,9 +460,10 @@ def render_icons(canvas, icons_str, cfg=FED_CFG):
                 cx, cy = SLOT_RING_CENTRE[slot]
                 canvas.alpha_composite(socket, dest=(S(cx) - S(sc_x), S(cy) - S(sc_y)))
 
+    ring_centres = cfg.get("slot_ring_centres", SLOT_RING_CENTRE)
     for _abbrev, slot, rel in resolved:
         asset_path = cfg["assets"] / "Staffing_and_Attributes" / rel
-        cx, cy = SLOT_RING_CENTRE[slot]
+        cx, cy = ring_centres[slot]
         meta_path = asset_path.with_suffix(".json")
         src = scale_asset(Image.open(asset_path).convert("RGBA"))
         if meta_path.exists():
@@ -750,9 +787,16 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # not normal compositing — pasting it as opaque produces solid black teeth instead
     # of the partly-transparent look the original card has. Apply Difference blend
     # (|base - top| per RGB channel, masked by the layer's alpha) instead.
-    layer4 = scale_asset(Image.open(assets / "Card_Background/Layer_4.png").convert("RGBA"))
-    apply_difference(canvas, layer4, (S(32), S(140)))
-    paste_rgba(canvas, assets / cfg["cardbg_layer"], S(27), S(26))
+    photo_notch = cfg.get("photo_notch", "Card_Background/Layer_4.png")
+    if photo_notch:
+        layer4 = scale_asset(Image.open(assets / photo_notch).convert("RGBA"))
+        apply_difference(canvas, layer4, (S(32), S(140)))
+    image_frame = cfg.get("image_frame")
+    if image_frame:
+        ifx, ify = cfg.get("image_frame_paste", (32, 140))
+        paste_rgba(canvas, assets / image_frame, S(ifx), S(ify))
+    cbx, cby = cfg.get("cardbg_paste", (27, 26))
+    paste_rgba(canvas, assets / cfg["cardbg_layer"], S(cbx), S(cby))
 
     # 4. Staffing / affiliation icons — data-driven from the card's fields.
     if is_ship:

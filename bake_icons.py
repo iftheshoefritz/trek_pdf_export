@@ -27,6 +27,7 @@ EXTRACTED = Path("extracted")
 PSDS = {
     "Federation": ("2e HD Federation v1.psd", "federation"),
     "Non-Aligned": ("2e HD Non-Alligned v1.psd", "nonaligned"),
+    "Klingon": ("2e HD Klingon v1.psd", "klingon"),
 }
 
 # Asset families to try baking. Missing layer paths are skipped silently.
@@ -172,6 +173,44 @@ async def bake_for_psd(page, affil_name: str, psd_file: str, outdir_name: str):
                 ok, info = await bake_layer(page, psd_path_parts, out_path, include_sidecar=False)
                 if ok:
                     pass  # print(f"  {branch}/Slot {slot_n}/{icon_name}: {info}")
+
+    # 3. Ship/Icons per-slot Bases (the affiliation/era socket discs on ships).
+    # These are separate from Personnel Slot N Base — different layer subtree.
+    for slot_n in (1, 2, 3, 4):
+        out_path = (base_out / "Staffing_and_Attributes" / "Ship" / "Icons"
+                    / f"Slot_{slot_n}" / "Base.png")
+        ok, info = await bake_layer(
+            page,
+            ["Staffing and Attributes", "Ship", "Icons", f"Slot {slot_n}", "Base"],
+            out_path, include_sidecar=True)
+        if ok:
+            print(f"  Ship Icons Slot {slot_n} Base   {info}")
+
+    # 4. Ship Staffing Command/Staff (ships have up to 5 staffing slots, e.g.
+    # Klingon battle cruiser staffing requirements). These layers use layer
+    # effects (gold stroke + emboss) and come out zero-alpha from psd-tools.
+    for slot_n in range(1, 6):
+        for icon_name in ("Command", "Staff"):
+            out_path = (base_out / "Staffing_and_Attributes" / "Ship" / "Staffing"
+                        / f"Slot_{slot_n}" / f"{icon_name}.png")
+            ok, info = await bake_layer(
+                page,
+                ["Staffing and Attributes", "Ship", "Staffing", f"Slot {slot_n}", icon_name],
+                out_path, include_sidecar=False)
+            if ok:
+                pass  # silent
+
+    # 5. Personnel skill-line "Dot" markers (Skill 1..5). Affiliation-tinted
+    # bullets — pure layer-effect circles in the PSD, zero-alpha from psd-tools.
+    for slot_n in range(1, 6):
+        out_path = (base_out / "Skills_and_Flavor_Text" / "Personnel"
+                    / f"Skill_{slot_n}" / "Dot.png")
+        ok, info = await bake_layer(
+            page,
+            ["Skills and Flavor Text", "Personnel", f"Skill {slot_n}", "Dot"],
+            out_path, include_sidecar=False)
+        if ok:
+            print(f"  Skill {slot_n} Dot   {info}")
 
 
 async def main():
