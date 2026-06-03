@@ -29,6 +29,9 @@ PSDS = {
     "Non-Aligned": ("2e HD Non-Alligned v1.psd", "nonaligned"),
     "Klingon": ("2e HD Klingon v1.psd", "klingon"),
     "Romulan": ("2e HD Romulan v1.psd", "romulan"),
+    "Borg": ("2e HD Borg v1.psd", "borg"),
+    "Starfleet": ("2e HD Starfleet v1.psd", "starfleet"),
+    "Vidiian": ("2e HD Vidiian v1.psd", "vidiian"),
 }
 
 # Asset families to try baking. Missing layer paths are skipped silently.
