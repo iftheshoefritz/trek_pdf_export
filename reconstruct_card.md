@@ -122,3 +122,41 @@ visible artifacts that took several rounds to track down.
 
 **`SHIP_STAFF_SLOT_XY`:** x=49 (one pixel clear of the notch's right edge at
 x=46). All five slots: `(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)`.
+
+## Ship Class oval italicisation
+
+The Class field reads like `K'Vort Class`, `Defiant Class`, `Scimitar Class`.
+On the printed card the **first part is italic** (the actual class name) and
+the trailing `Class` word is regular weight. Renderer currently draws the
+whole string in `F_FUTURA_BOLD`; this needs splitting on the last word so
+`<class name>` uses the italic/oblique cut and ` Class` stays upright.
+
+Edge case: `Flaxian Scout Vessel` and a small number of similar entries are
+all-title with no `Class` suffix — they aren't a "<X> Class" pattern. Detect
+by checking whether the field ends in the literal word `Class` (case
+sensitive); if it doesn't, draw the whole field in the upright cut.
+
+## Card name with no title
+
+Some cards (e.g. `I.K.S. Lukara`, `Flaxian Scout Vessel`) have an empty
+`Title` field — the entire name occupies the name bar and the subtitle bar
+is left blank. `draw_card_name` already handles this; just make sure not to
+introduce a forced split or fall-back title when none is in the data.
+
+## Borg renderer scope
+
+Sets 1–14 Borg data (audited 2026-06-03):
+
+- **Personnel** (50 cards): Icons field is always exactly `[Cmd]` or `[Stf]`.
+  No era / affiliation overlays, no stacking. The Borg PSD's Slot 1 has no
+  `Base` layer because none is needed — bake_sockets.py reports `NONE` for
+  Borg and that's expected.
+- **Ships**: Icons field always empty. Staff field is always a run of 4 or 5
+  `[Stf]` only.
+
+The Borg renderer therefore doesn't need per-slot socket discs, era-icon
+positioning, or any of the icon-stacking logic Federation needs. Paste Cmd
+or Stf directly at the slot 1 position (personnel) or down the staffing
+column (ships). Same simplification likely applies to whichever other
+affiliations the data shows as single-icon-only — re-audit per affiliation
+before assuming.
