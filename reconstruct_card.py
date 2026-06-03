@@ -321,11 +321,16 @@ AFFIL_CFG = {
         # Bases are then dropped on top of it.
         "cardbg_layer": "Card_Background/Card_Border.png",
         "cardbg_paste": (28, 26),
-        # No Layer_4-style photo notch; Klingon uses a plain Image_Frame
-        # around the photo (rendered as a normal paste, not difference blend).
-        "photo_notch": None,
-        "image_frame": "Card_Background/Image_Frame.png",
-        "image_frame_paste": (32, 140),
+        # Image_Frame is the comb-tooth photo notch strip — identical alpha
+        # channel to Romulan/NA Layer_4.  Apply via difference blend (not
+        # paste) so the starfield shows through, with solid-zone cutoff at
+        # col 15 (same as Romulan/NA — sparse zone starts at col 15).
+        # alpha=0.3: Klingon photo zones are darker than the notch pixels
+        # (~41 RGB), so difference blend brightens them too strongly at
+        # full alpha. Scale down to match the scan's subtle appearance.
+        "photo_notch": "Card_Background/Image_Frame.png",
+        "photo_notch_cutoff": 15,
+        "photo_notch_alpha": 0.3,
         "per_slot_sockets": {
             "slot1": ("Card_Background/Slot_1_Base.png", (44, 620)),
             "slot2": ("Card_Background/Slot_2_Base.png", (41, 688)),
@@ -341,9 +346,10 @@ AFFIL_CFG = {
     "Romulan": {
         "assets": ROMULAN_ASSETS,
         # Romulan's chrome frame is Layer_12 (full inner card area at 27,26).
-        # Layer_4 is the photo-notch strip (same position/blend as Federation).
+        # Layer_4 solid zone runs cols 0-14; sparse zone starts at col 15.
         "cardbg_layer": "Card_Background/Layer_12.png",
         "cardbg_paste": (27, 26),
+        "photo_notch_cutoff": 15,
         "per_slot_sockets": {
             "slot1": ("Card_Background/Slot_1_Base.png", (43, 618)),
             "slot2": ("Card_Background/Slot_2_Base.png", (42, 689)),
@@ -358,6 +364,8 @@ AFFIL_CFG = {
     "Non-Aligned": {
         "assets": NONALIGNED_ASSETS,
         "cardbg_layer": "Card_Background/Layer_13.png",
+        "photo_notch_cutoff": 15,
+        "photo_notch_alpha": 0.3,
         # NA's PSD ships each Slot N/Base layer as a self-contained chunk of
         # the cardbg chrome with the socket disc cut into it — gold trim
         # slice on the left, beige chrome slice on the right, disc + up/down
@@ -508,7 +516,7 @@ SHIP_STAFF_REL = {
     'Stf': "Ship/Staffing/Slot_2/Staff.png",
 }
 # Design-space top-left of each slot's 49x49 socket (from spec.json bboxes).
-SHIP_STAFF_SLOT_XY = [(48, 168), (48, 223), (48, 279), (48, 334), (48, 389)]
+SHIP_STAFF_SLOT_XY = [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)]
 
 
 def render_ship_staffing(canvas, staff_str, cfg=FED_CFG):
@@ -805,21 +813,53 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     photo_window = photo_full.crop((S(32), S(140), S(672), S(574)))
     canvas.alpha_composite(photo_window, dest=(S(32), S(140)))
 
+
     # 3. Card Background.
-    # Layer_4 is the notched photo-border strip. In the PSD it uses BlendMode.DIFFERENCE,
-    # not normal compositing — pasting it as opaque produces solid black teeth instead
-    # of the partly-transparent look the original card has. Apply Difference blend
-    # (|base - top| per RGB channel, masked by the layer's alpha) instead.
+    # Zero out partial-alpha chrome pixels inside the photo window before compositing.
+    # The chrome assets bleed partial-alpha staffing-column decoration into the photo
+    # area, which shows as a thin notch strip between the staffing column and the icons.
+    # The photo window in canvas space is x=32-672, y=140-574.
+    cbx, cby = cfg.get("cardbg_paste", (27, 26))
+    chrome_img = scale_asset(Image.open(assets / cfg["cardbg_layer"]).convert("RGBA"))
+    import numpy as _np
+    _ca = _np.array(chrome_img)
+    # Zero chrome's alpha inside the photo window so the photo shows through,
+    # but stop SHORT of the class/race strip (y=552+) and the top-left
+    # affiliation chrome (y<153 in the leftmost staffing column for ships).
+    # The chrome's opaque class band and top-left curls should remain visible.
+    _pw_x0 = S(32) - S(cbx)
+    _pw_y0 = S(140) - S(cby)
+    _pw_x1 = S(672) - S(cbx)
+    _pw_y1 = S(552) - S(cby)
+    _ca[max(0,_pw_y0):_pw_y1, max(0,_pw_x0):_pw_x1, 3] = 0
+    if is_ship:
+        # Re-zero the staffing strip x=32..49 from y=153 onwards (the curls at
+        # y=140..152 stay intact); covers the band from y=552 down to where
+        # the per-slot socket discs begin at y=620.
+        _ssy0 = max(0, S(153) - S(cby))
+        _ssy1 = S(620) - S(cby)
+        _ssx0 = max(0, S(32) - S(cbx))
+        _ssx1 = S(49) - S(cbx)
+        _ca[_ssy0:_ssy1, _ssx0:_ssx1, 3] = 0
+    chrome_img = Image.fromarray(_ca)
+    canvas.alpha_composite(chrome_img, dest=(S(cbx), S(cby)))
     photo_notch = cfg.get("photo_notch", "Card_Background/Layer_4.png")
     if photo_notch:
         layer4 = scale_asset(Image.open(assets / photo_notch).convert("RGBA"))
+        # Solid notch zones differ by affiliation (300-DPI col counts):
+        #   Federation: cols 0-7 solid, sparse tips at 8-14 → cutoff 8
+        #   Romulan / Non-Aligned / Klingon: cols 0-14 solid → cutoff 15
+        # photo_notch_alpha scales the layer alpha before the blend so the
+        # notch effect matches the scan's subtlety on the card's photo content.
+        notch_cutoff = cfg.get("photo_notch_cutoff", 8)
+        notch_alpha = cfg.get("photo_notch_alpha", 1.0)
+        import numpy as _np2
+        _l = _np2.array(layer4)
+        _l[:, S(notch_cutoff):, 3] = 0
+        if notch_alpha != 1.0:
+            _l[:, :, 3] = (_l[:, :, 3] * notch_alpha).astype(_np2.uint8)
+        layer4 = Image.fromarray(_l)
         apply_difference(canvas, layer4, (S(32), S(140)))
-    image_frame = cfg.get("image_frame")
-    if image_frame:
-        ifx, ify = cfg.get("image_frame_paste", (32, 140))
-        paste_rgba(canvas, assets / image_frame, S(ifx), S(ify))
-    cbx, cby = cfg.get("cardbg_paste", (27, 26))
-    paste_rgba(canvas, assets / cfg["cardbg_layer"], S(cbx), S(cby))
 
     # 4. Staffing / affiliation icons — data-driven from the card's fields.
     if is_ship:
