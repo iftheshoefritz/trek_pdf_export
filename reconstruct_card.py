@@ -52,6 +52,7 @@ ASSETS = Path("extracted/federation/assets")
 NONALIGNED_ASSETS = Path("extracted/nonaligned/assets")
 KLINGON_ASSETS = Path("extracted/klingon/assets")
 ROMULAN_ASSETS = Path("extracted/romulan/assets")
+BORG_ASSETS = Path("extracted/borg/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
@@ -388,6 +389,52 @@ AFFIL_CFG = {
         # Slot 4 not in PSD; mirrors slot 3.
         "ring_centre_offsets": {"slot1": (-1, 0), "slot2": (0, +2), "slot3": (+2, 0), "slot4": (+2, 0)},
     },
+    "Borg": {
+        # Borg PSD has two stacked chrome layers (Layer_12 and Layer_13) and a
+        # photo notch (Layer_4). Sets 1-14 Borg data: personnel Icons is always
+        # exactly [Cmd] or [Stf] (no era stacking, no slot 1 socket disc — the
+        # PSD has no Slot 1 Base); ships have empty Icons and 4-5 [Stf] in
+        # Staff. So no per-slot sockets, no socket_asset, no socket_slots.
+        "assets": BORG_ASSETS,
+        # Layer_13_no_labels is Layer_13 with the personnel attribute labels
+        # (INTEGRITY/CUNNING/STRENGTH) baked into the chrome painted out, so
+        # the renderer can draw the correct labels for the row's type on top.
+        # See bake_borg_chrome.py for the bake. Layer_12 is intentionally NOT
+        # stacked here — duplicating it produces a second visible attribute
+        # strip below the real one.
+        "cardbg_layer": "Card_Background/Layer_13_no_labels.png",
+        "cardbg_paste": (28, 26),
+        "photo_notch_cutoff": 15,
+        "per_slot_sockets": {},
+        "socket_asset": None,
+        # Borg slot 1 sits ~5 px right and ~3 px below Federation's
+        # (PSD bbox (48,622,110,689) vs Fed (42,618,110,689)).
+        "ring_centre_offsets": {"slot1": (+5, +3)},
+        # Borg cost disc centred at (156.5, 74.5) per the PSD's Cost text bbox
+        # (147,63,166,86) — about (+5,+4) from Federation's (152,71).
+        "cost_centre": (157, 75),
+        # Bottom attribute strip — Borg's bar sits at y=921 (vs Fed 916), height
+        # 24, with each column slightly shifted (label/value x's per PSD bboxes
+        # in the Ship.Attributes group: Range x=124, value-rt=237; Weapons
+        # x=336, value-rt=451; Shields x=551, value-rt=666).
+        "attr_label_x": (124, 336, 551),
+        "attr_value_x": (237, 451, 666),
+        "attr_bar_yh": (921, 24),
+        # Card-name bar (PSD Card_Name bbox 200,60,445,89) and title bar
+        # (PSD Title bbox 215,98,557,120) sit ~4 px right and ~5 px below
+        # Federation's; right-edge of name bar comes from the PSD Rarity x
+        # extent (676) to keep names from running into the chrome.
+        "name_bar": (200, 60, 676, 29),     # left, top, right, height
+        "title_bar": (215, 98, 22),         # x, top, height
+        # Collectors-info chrome bbox (PSD Rarity 620,988,676,1002).
+        "rarity_bbox": (620, 988, 676, 1002),
+        # Class/Race oval (PSD Class/Race 293,557..448,594).
+        "class_oval_bbox": (293, 557, 448, 594),
+        # Ship staffing column: Borg PSD slot 1 starts at (53,171), 56 px
+        # spacing down to slot 5 at (53,395) — shifted right and down vs
+        # Federation's (49,168)+55 spacing.
+        "ship_staff_slot_xy": [(53, 171), (53, 227), (53, 283), (53, 339), (53, 395)],
+    },
 }
 FED_CFG = AFFIL_CFG["Federation"]
 
@@ -528,16 +575,17 @@ def render_ship_staffing(canvas, staff_str, cfg=FED_CFG):
     low-res scan's own printed star beneath. A transparent-disc star would let
     that scan star ghost through, slightly offset, so the disc stays."""
     base = cfg["assets"] / "Staffing_and_Attributes"
+    slot_xy = cfg.get("ship_staff_slot_xy", SHIP_STAFF_SLOT_XY)
     abbrevs = re.findall(r'\[([^\]]+)\]', staff_str)
     for idx, abbrev in enumerate(abbrevs):
-        if idx >= len(SHIP_STAFF_SLOT_XY):
-            print(f"  ! more than {len(SHIP_STAFF_SLOT_XY)} staffing icons; ignoring extras")
+        if idx >= len(slot_xy):
+            print(f"  ! more than {len(slot_xy)} staffing icons; ignoring extras")
             break
         rel = SHIP_STAFF_REL.get(abbrev)
         if not rel:
             print(f"  ! unknown ship staffing icon: [{abbrev}]")
             continue
-        x, y = SHIP_STAFF_SLOT_XY[idx]
+        x, y = slot_xy[idx]
         paste_rgba(canvas, base / rel, S(x), S(y))
 
 
@@ -557,16 +605,19 @@ PT_ATTR_CAP, PT_ATTR_SC = 28, 21
 COST_CIRCLE_CX, COST_CIRCLE_CY = 152, 71
 
 
-def draw_cost(draw, cost_text):
+def draw_cost(draw, cost_text, centre=(COST_CIRCLE_CX, COST_CIRCLE_CY)):
     """Draw the white cost number centered on the black cost circle.
 
     Centering is by the glyph's visible bbox (not advance width) so italic
-    digits like '1' don't appear left-shifted.
+    digits like '1' don't appear left-shifted. `centre` is a per-affiliation
+    design-space (x, y) for the cost disc; Borg's chrome puts it ~5 px right
+    and ~4 px lower than Federation's.
     """
+    ccx, ccy = centre
     font = gfont(F_CRILEE, PT_COST)
     l, t, r, b = font.getbbox(cost_text)
-    cx = S(COST_CIRCLE_CX) - (l + r) // 2
-    cy = S(COST_CIRCLE_CY) - (t + b) // 2
+    cx = S(ccx) - (l + r) // 2
+    cy = S(ccy) - (t + b) // 2
     draw.text((cx, cy), cost_text, font=font, fill=(255, 255, 255, 255))
 
 
@@ -819,30 +870,37 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # The chrome assets bleed partial-alpha staffing-column decoration into the photo
     # area, which shows as a thin notch strip between the staffing column and the icons.
     # The photo window in canvas space is x=32-672, y=140-574.
-    cbx, cby = cfg.get("cardbg_paste", (27, 26))
-    chrome_img = scale_asset(Image.open(assets / cfg["cardbg_layer"]).convert("RGBA"))
+    # Affiliations may have one chrome layer (cardbg_layer + cardbg_paste) or
+    # several stacked (cardbg_layers: list of (rel, (x,y))). Borg stacks
+    # Layer_12 over Layer_13; both need the same photo-window alpha-zero.
+    if "cardbg_layers" in cfg:
+        chrome_layers = list(cfg["cardbg_layers"])
+    else:
+        chrome_layers = [(cfg["cardbg_layer"], cfg.get("cardbg_paste", (27, 26)))]
     import numpy as _np
-    _ca = _np.array(chrome_img)
-    # Zero chrome's alpha inside the photo window so the photo shows through,
-    # but stop SHORT of the class/race strip (y=552+) and the top-left
-    # affiliation chrome (y<153 in the leftmost staffing column for ships).
-    # The chrome's opaque class band and top-left curls should remain visible.
-    _pw_x0 = S(32) - S(cbx)
-    _pw_y0 = S(140) - S(cby)
-    _pw_x1 = S(672) - S(cbx)
-    _pw_y1 = S(552) - S(cby)
-    _ca[max(0,_pw_y0):_pw_y1, max(0,_pw_x0):_pw_x1, 3] = 0
-    if is_ship:
-        # Re-zero the staffing strip x=32..49 from y=153 onwards (the curls at
-        # y=140..152 stay intact); covers the band from y=552 down to where
-        # the per-slot socket discs begin at y=620.
-        _ssy0 = max(0, S(153) - S(cby))
-        _ssy1 = S(620) - S(cby)
-        _ssx0 = max(0, S(32) - S(cbx))
-        _ssx1 = S(49) - S(cbx)
-        _ca[_ssy0:_ssy1, _ssx0:_ssx1, 3] = 0
-    chrome_img = Image.fromarray(_ca)
-    canvas.alpha_composite(chrome_img, dest=(S(cbx), S(cby)))
+    for rel, (cbx, cby) in chrome_layers:
+        chrome_img = scale_asset(Image.open(assets / rel).convert("RGBA"))
+        _ca = _np.array(chrome_img)
+        # Zero chrome's alpha inside the photo window so the photo shows through,
+        # but stop SHORT of the class/race strip (y=552+) and the top-left
+        # affiliation chrome (y<153 in the leftmost staffing column for ships).
+        # The chrome's opaque class band and top-left curls should remain visible.
+        _pw_x0 = S(32) - S(cbx)
+        _pw_y0 = S(140) - S(cby)
+        _pw_x1 = S(672) - S(cbx)
+        _pw_y1 = S(552) - S(cby)
+        _ca[max(0,_pw_y0):_pw_y1, max(0,_pw_x0):_pw_x1, 3] = 0
+        if is_ship:
+            # Re-zero the staffing strip x=32..49 from y=153 onwards (the curls at
+            # y=140..152 stay intact); covers the band from y=552 down to where
+            # the per-slot socket discs begin at y=620.
+            _ssy0 = max(0, S(153) - S(cby))
+            _ssy1 = S(620) - S(cby)
+            _ssx0 = max(0, S(32) - S(cbx))
+            _ssx1 = S(49) - S(cbx)
+            _ca[_ssy0:_ssy1, _ssx0:_ssx1, 3] = 0
+        chrome_img = Image.fromarray(_ca)
+        canvas.alpha_composite(chrome_img, dest=(S(cbx), S(cby)))
     photo_notch = cfg.get("photo_notch", "Card_Background/Layer_4.png")
     if photo_notch:
         layer4 = scale_asset(Image.open(assets / photo_notch).convert("RGBA"))
@@ -883,25 +941,47 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     BLACK = (0, 0, 0, 255)
     WHITE = (255, 255, 255, 255)
 
-    draw_cost(draw, ROW["Cost"])
+    draw_cost(draw, ROW["Cost"], centre=cfg.get("cost_centre", (COST_CIRCLE_CX, COST_CIRCLE_CY)))
 
     # Name — black, wraps when long, unique dot when flagged.
+    # Bar bbox per-affil from PSD's Card_Name layer (Fed: 196,56,439,86;
+    # Borg: 200,60,445,89).
+    name_bar = cfg.get("name_bar", (196, 56, 670, 30))  # (left, top, right, h)
     draw_card_name(canvas, draw, NAME, ROW["Unique"].upper() == "Y",
-                   bar_top=56, bar_h=30, base_x=196, right_edge=670, color=BLACK)
+                   bar_top=name_bar[1], bar_h=name_bar[3],
+                   base_x=name_bar[0], right_edge=name_bar[2], color=BLACK)
 
-    # Title — vert-centred in 22px bbox at y=93
+    # Title — vert-centred in the title bar background (Fed: y=93..115;
+    # Borg: y=98..120).
     font_title = gfont(F_CRILEE, PT_TITLE)
-    title_y = vcenter_y(S(93), S(22), font_title, TITLE)
-    draw.text((S(210), title_y), TITLE, font=font_title, fill=BLACK)
+    title_bar = cfg.get("title_bar", (210, 93, 22))  # (x, top, h)
+    title_y = vcenter_y(S(title_bar[1]), S(title_bar[2]), font_title, TITLE)
+    draw.text((S(title_bar[0]), title_y), TITLE, font=font_title, fill=BLACK)
 
-    # Class/Race oval — centred in [287, 552, 440, 588]. Ships show their Class
-    # (e.g. "Defiant Class"); personnel show their Species.
+    # Class/Race oval — centred in the per-affil bbox (Fed 287,552..440,588;
+    # Borg 293,557..448,594). Ships show their Class (e.g. "Defiant Class");
+    # personnel show their Species. Ship Class fields ending in literal
+    # " Class" render the class name in italic and " Class" upright
+    # (e.g. *Defiant* Class). Fields without that suffix
+    # (e.g. "Flaxian Scout Vessel") render upright as a whole.
+    cr_l, cr_t, cr_r, cr_b = cfg.get("class_oval_bbox", (287, 552, 440, 588))
     font_species = gfont(F_FUTURA_BOLD, PT_SPECIES)
     species_text = ROW["Class"] if is_ship else ROW["Species"]
-    sp_tw = int(draw.textlength(species_text, font=font_species))
-    sp_y = vcenter_y(S(552), S(36), font_species, species_text)
-    cx = (S(287) + S(440)) // 2
-    draw.text((cx - sp_tw // 2, sp_y), species_text, font=font_species, fill=BLACK)
+    cx = (S(cr_l) + S(cr_r)) // 2
+    sp_y = vcenter_y(S(cr_t), S(cr_b - cr_t), font_species, species_text)
+    if is_ship and species_text.endswith(" Class"):
+        italic_part = species_text[:-len(" Class")]
+        upright_part = " Class"
+        font_italic = gfont(F_FUTURA_BOLDO, PT_SPECIES)
+        w_italic = int(draw.textlength(italic_part, font=font_italic))
+        w_upright = int(draw.textlength(upright_part, font=font_species))
+        total_w = w_italic + w_upright
+        x = cx - total_w // 2
+        draw.text((x, sp_y), italic_part, font=font_italic, fill=BLACK)
+        draw.text((x + w_italic, sp_y), upright_part, font=font_species, fill=BLACK)
+    else:
+        sp_tw = int(draw.textlength(species_text, font=font_species))
+        draw.text((cx - sp_tw // 2, sp_y), species_text, font=font_species, fill=BLACK)
 
     # Skills: flow layout — personnel only (ships have no skills line). Wrap at
     # the Skill Text right edge (spec: x=646), spacing from spec measurements.
@@ -977,40 +1057,58 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
 
     # Attribute labels — small-caps: first letter at 28px, remainder uppercase at 21px.
     # Ships show Range/Weapons/Shields; personnel show Integrity/Cunning/Strength.
-    # The three label/value x-positions are shared between both layouts.
+    # Bar geometry varies per affiliation (Borg's chrome puts the strip 5 px
+    # lower and shifts each column slightly), so the row of label x's,
+    # value-right-edge x's, and bar (top, height) are all read from cfg with
+    # Federation defaults.
+    label_x = cfg.get("attr_label_x", (126, 335, 548))
+    value_x = cfg.get("attr_value_x", (237, 449, 662))
+    bar_y, bar_h_ds = cfg.get("attr_bar_yh", (916, 23))
     if is_ship:
-        attr_labels = [("Range", S(126)), ("Weapons", S(335)), ("Shields", S(548))]
-        attr_values = [(ROW["Range"], S(237)), (ROW["Weapons"], S(449)), (ROW["Shields"], S(662))]
+        attr_labels = list(zip(("Range", "Weapons", "Shields"), [S(x) for x in label_x]))
+        attr_values = list(zip((ROW["Range"], ROW["Weapons"], ROW["Shields"]), [S(x) for x in value_x]))
     else:
-        attr_labels = [("Integrity", S(126)), ("Cunning", S(335)), ("Strength", S(548))]
-        attr_values = [(ROW["Integrity"], S(237)), (ROW["Cunning"], S(449)), (ROW["Strength"], S(662))]
+        attr_labels = list(zip(("Integrity", "Cunning", "Strength"), [S(x) for x in label_x]))
+        attr_values = list(zip((ROW["Integrity"], ROW["Cunning"], ROW["Strength"]), [S(x) for x in value_x]))
 
     font_attr_cap = gfont(F_FUTURI_BOLD, PT_ATTR_CAP)
     font_attr_sc = gfont(F_FUTURI_BOLD, PT_ATTR_SC)
+    bar_top, bar_h = S(bar_y), S(bar_h_ds)
+    # Anchor every label off a reference cap "H" (full-height, no descender)
+    # so caps share a baseline across labels regardless of which letter starts
+    # each word — using each glyph's own bbox here gives I/W/R/C/S different
+    # absolute y's and lands the middle column visibly out of line.
+    H_top_cap = font_attr_cap.getbbox("H")[1]
+    H_bot_cap = font_attr_cap.getbbox("H")[3]
+    H_h_cap = H_bot_cap - H_top_cap
+    cap_y = bar_top + (bar_h - H_h_cap) // 2 - H_top_cap
+    cap_baseline = cap_y + H_bot_cap
+    H_bot_sc = font_attr_sc.getbbox("H")[3]
+    rest_y = cap_baseline - H_bot_sc
     for label, lx in attr_labels:
         cap, rest = label[0], label[1:].upper()
-        # Vertically centre the larger cap in the bar, then align the small-caps bottom to it.
-        cap_y = vcenter_y(S(916), S(23), font_attr_cap, cap)
-        cap_bottom = cap_y + font_attr_cap.getbbox(cap)[3]
-        rest_y = cap_bottom - font_attr_sc.getbbox(rest)[3]
         draw.text((lx, cap_y), cap, font=font_attr_cap, fill=WHITE)
         cap_w = int(draw.textlength(cap, font=font_attr_cap))
         draw.text((lx + cap_w, rest_y), rest, font=font_attr_sc, fill=WHITE)
 
-    # Attribute values — right-aligned to spec right-edges x=237, 449, 662
+    # Attribute values — right-aligned to the per-affil value_x right-edges,
+    # vertically anchored to the same reference baseline so 1/8/12 don't drift.
     font_attr = gfont(F_FUTURI_BOLD, PT_ATTR)
-    bar_top, bar_h = S(916), S(23)
+    H_top_v = font_attr.getbbox("H")[1]
+    H_bot_v = font_attr.getbbox("H")[3]
+    vy = bar_top + (bar_h - (H_bot_v - H_top_v)) // 2 - H_top_v
     for val, rx in attr_values:
         tw = int(draw.textlength(val, font=font_attr))
-        vy = vcenter_y(bar_top, bar_h, font_attr, val)
         draw.text((rx - tw, vy), val, font=font_attr, fill=WHITE)
 
-    # Rarity — centred in [619, 984, 669, 996]
+    # Rarity / collectors info — centred in the small chrome bbox per-affil
+    # (Fed: 619..669 × 984..996; Borg: 620..676 × 988..1002).
+    rl, rt, rr, rb = cfg.get("rarity_bbox", (619, 984, 669, 996))
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
     rarity_text = format_rarity(ROW["CollectorsInfo"])
     tw = int(draw.textlength(rarity_text, font=font_rarity))
-    r_y = vcenter_y(S(984), S(12), font_rarity, rarity_text)
-    cx = (S(619) + S(669)) // 2
+    r_y = vcenter_y(S(rt), S(rb - rt), font_rarity, rarity_text)
+    cx = (S(rl) + S(rr)) // 2
     draw.text((cx - tw // 2, r_y), rarity_text, font=font_rarity, fill=BLACK)
 
     draw_disclaimer(canvas)

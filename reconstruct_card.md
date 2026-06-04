@@ -127,14 +127,14 @@ x=46). All five slots: `(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)`.
 
 The Class field reads like `K'Vort Class`, `Defiant Class`, `Scimitar Class`.
 On the printed card the **first part is italic** (the actual class name) and
-the trailing `Class` word is regular weight. Renderer currently draws the
-whole string in `F_FUTURA_BOLD`; this needs splitting on the last word so
-`<class name>` uses the italic/oblique cut and ` Class` stays upright.
+the trailing `Class` word is regular weight. `render_card` splits on the
+trailing ` Class` suffix and draws the class name in `F_FUTURA_BOLDO`
+(italic) and ` Class` in `F_FUTURA_BOLD` (upright), then centres the pair
+in the oval.
 
-Edge case: `Flaxian Scout Vessel` and a small number of similar entries are
-all-title with no `Class` suffix — they aren't a "<X> Class" pattern. Detect
-by checking whether the field ends in the literal word `Class` (case
-sensitive); if it doesn't, draw the whole field in the upright cut.
+Edge case: `Flaxian Scout Vessel` and similar entries don't end in `Class`
+— the whole field stays upright. Detection is a case-sensitive
+`endswith(" Class")` check.
 
 ## Card name with no title
 
@@ -160,3 +160,39 @@ or Stf directly at the slot 1 position (personnel) or down the staffing
 column (ships). Same simplification likely applies to whichever other
 affiliations the data shows as single-icon-only — re-audit per affiliation
 before assuming.
+
+**Borg AFFIL_CFG specifics** (wired in `reconstruct_card.py`):
+
+- `cardbg_layer="Card_Background/Layer_13.png"` at paste (28,26). The Borg
+  PSD's `Card_Background` group contains Layer_4 (photo notch) + Layer_12
+  + Layer_13. Layer_13 alone carries the visible chrome; Layer_12 is a
+  duplicate copper/bar overlay that, when stacked, produces a visible
+  *second* attribute strip below the real one. Don't paste both.
+  (`render_card` does support a new `cardbg_layers` list form for affils
+  that genuinely need stacked chrome, but Borg doesn't.)
+- `photo_notch_cutoff=15` (solid-zone cols 0-14, sparse 15+), same as
+  Romulan/Klingon/NA. `photo_notch_alpha` left at 1.0 default — not yet
+  tuned against scans; may need scaling down like Klingon's 0.3 if the
+  notch over-brightens dark Borg photo zones.
+- `per_slot_sockets={}` and `socket_asset=None`: no socket discs at all.
+- `ring_centre_offsets={"slot1": (+5,+3)}`: Borg's personnel Slot 1 PSD
+  bbox is (48,622,110,689) vs Fed's (42,618,...), so the Cmd/Stf glyph
+  shifts right 5 and down 3 from the shared `SLOT_RING_CENTRE` default.
+- `ship_staff_slot_xy` (new cfg field): per-affil override of the global
+  `SHIP_STAFF_SLOT_XY`. Borg: `[(53,171),(53,227),(53,283),(53,339),(53,395)]`
+  (PSD bboxes show +4 right, +3-6 down vs Federation's column).
+
+**Borg-chrome quirk — attribute labels baked into Layer_13.** Unlike
+Federation (whose Layer_11 chrome contains *only* the bars), Borg's
+Layer_13 has the personnel attribute labels INTEGRITY / CUNNING / STRENGTH
+baked into the bottom strip. The renderer draws the row-appropriate labels
+as text overlay, so on personnel the baked text ghosted under the rendered
+text (visibly doubled) and on ships the baked labels said the wrong thing
+(values were right, labels lied). The Borg PSD's intended fix is the Ship
+`No_Range.png` / `No_Weapons.png` / `No_Shields.png` overlays, but they
+extract as zero-alpha (PSD layer-effect layers — same problem as the slot
+bases). Rather than route this through Photopea, `bake_borg_chrome.py`
+paints the bright glyph pixels out of Layer_13's attribute band by
+per-column median replacement and writes `Layer_13_no_labels.png`. The
+Borg AFFIL_CFG points `cardbg_layer` at the cleaned asset. Re-run the
+bake if Layer_13.png is ever re-extracted from the PSD.
