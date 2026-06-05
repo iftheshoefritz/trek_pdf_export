@@ -245,6 +245,7 @@ F_CRILEE        = FONTS / "Crillee Italic BT.ttf"
 F_FUTURA_BOLD   = FONTS / "Futura LT Condensed Bold.ttf"
 F_FUTURA_BOLDO  = FONTS / "Futura LT Condensed Bold Oblique.ttf"
 F_FUTURA_MED    = FONTS / "Futura LT Condensed Medium.ttf"
+F_FUTURA_MEDO   = FONTS / "Futura LT Condensed Medium Oblique.ttf"
 F_FUTURI_BOLD   = FONTS / "FUTURCB.TTF"    # FuturiCondensedBoldSWFTE
 F_SWISS911_UCM  = FONTS / "Swiss911 UCm BT.ttf"  # ultra-compressed heavy display
 
@@ -1984,12 +1985,14 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
             _paste_affil_icon(canvas, stem, cx, MISSION_AFFIL_CY, scale)
     elif affil:
         # Plain text variant (e.g. "Any affiliation may attempt this mission.",
-        # "Federation Headquarters"). Italic bold, centred in the strip band.
-        # PSD strip bbox ≈ [80, 875, 655, 915]; the text wraps as one flow so
-        # long sentences fit.
-        runs = [(affil, 'italic')]
-        draw_textflow(canvas, draw, runs, [80, 870, 655, 915], WHITE,
-                      PT_MISSION_AFFIL_TEXT, center=True)
+        # "Federation Headquarters"). Medium-weight italic, light grey on the
+        # dark strip band. PSD strip bbox ≈ [80, 875, 655, 915].
+        font_aff = gfont(F_FUTURA_MEDO, PT_MISSION_AFFIL_TEXT)
+        tw = int(draw.textlength(affil, font=font_aff))
+        y = vcenter_y(S(875), S(40), font_aff, affil)
+        cx = (S(80) + S(655)) // 2
+        draw.text((cx - tw // 2, y), affil,
+                  font=font_aff, fill=(200, 200, 200, 255))
 
     # 11. Span — white digit centred in the small black disc at the bottom.
     # PSD bbox: [360, 953, 373, 982]. Same Futuri Condensed Bold face as Points.
