@@ -53,6 +53,7 @@ NONALIGNED_ASSETS = Path("extracted/nonaligned/assets")
 KLINGON_ASSETS = Path("extracted/klingon/assets")
 ROMULAN_ASSETS = Path("extracted/romulan/assets")
 BORG_ASSETS = Path("extracted/borg/assets")
+BAJORAN_ASSETS = Path("extracted/bajoran/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
@@ -434,6 +435,31 @@ AFFIL_CFG = {
         # spacing down to slot 5 at (53,395) — shifted right and down vs
         # Federation's (49,168)+55 spacing.
         "ship_staff_slot_xy": [(53, 171), (53, 227), (53, 283), (53, 339), (53, 395)],
+    },
+    "Bajoran": {
+        "assets": BAJORAN_ASSETS,
+        # Bajoran's chrome frame is Layer_12 (bbox 31,31,705,1000); photo notch
+        # is Layer_4 with the same solid-cols-0-14 zone as Romulan/NA/Klingon.
+        "cardbg_layer": "Card_Background/Layer_12.png",
+        "cardbg_paste": (31, 31),
+        "photo_notch_cutoff": 15,
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (40, 618)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (40, 687)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (40, 755)),
+            "slot4": ("Card_Background/Slot_4_Base.png", (40, 823)),
+        },
+        "socket_asset": None,
+        # Ring centres calibrated to the PSD's glyph bboxes (not the chrome disc
+        # bboxes) — the Bajoran PSD draws each Cmd/Staff/era glyph ~5 px left of
+        # its disc centre. PSD glyph centres: slot1 (72,652), slot2 (72.5,717.5),
+        # slot3 (72.5,786.5), slot4 (72,855) vs global SLOT_RING_CENTRE.
+        "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, -3), "slot3": (0, -4), "slot4": (0, -2)},
+        # Bajoran's printed cards use a wider skill / game-text band than the
+        # PSD's Skill Text bbox (646) and Game Text bbox (632) suggest — text
+        # extends out to the inner chrome edge (~660) on actual scans.
+        "skill_right": 660,
+        "text_right": 648,
     },
 }
 FED_CFG = AFFIL_CFG["Federation"]
@@ -993,7 +1019,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
         skills = SKILLS
         dot_path = assets / "Skills_and_Flavor_Text/Personnel/Skill_1/Dot.png"
         DOT_W, DOT_TEXT_GAP, INTER_GAP = S(21), S(4), S(12)
-        SKILL_LEFT, SKILL_RIGHT = S(126), S(646)
+        SKILL_LEFT, SKILL_RIGHT = S(126), S(cfg.get("skill_right", 646))
         ROW0_TEXT_Y, ROW_SPACING = S(644), S(33)
 
         DOT_H = S(21)
@@ -1025,7 +1051,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # to the bottom of the Skills and Flavor Text group (spec: y=840). The game
     # text auto-shrinks to fit rather than truncating. (Design-space coords;
     # draw_textflow scales them to the output space.)
-    TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, 632, 840
+    TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, cfg.get("text_right", 632), 840
     if is_ship:
         # No skills row; start the text band at the top of the Skills/Flavor group.
         block_top = 648

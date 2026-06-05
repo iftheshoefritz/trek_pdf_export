@@ -32,6 +32,7 @@ PSDS = {
     "Borg": ("2e HD Borg v1.psd", "borg"),
     "Starfleet": ("2e HD Starfleet v1.psd", "starfleet"),
     "Vidiian": ("2e HD Vidiian v1.psd", "vidiian"),
+    "Bajoran": ("2e_HD_Bajoran_v1.psd", "bajoran"),
 }
 
 # Asset families to try baking. Missing layer paths are skipped silently.
@@ -148,9 +149,13 @@ async def bake_for_psd(page, affil_name: str, psd_file: str, outdir_name: str):
     # 1. Per-slot Bases (if present in PSD). Try both layer-tree shapes.
     for slot_n in (1, 2, 3, 4):
         slot = f"Slot {slot_n}"
+        # Some PSDs (e.g. Bajoran) name the layer "Base copy N" instead of "Base"
+        # for slots 2-4 because the artist duplicated slot 1.
+        copy_suffix = "" if slot_n == 1 else (" copy" if slot_n == 2 else f" copy {slot_n - 1}")
         candidates = [
             ["Staffing and Attributes", "Personnel", "Staffing", slot, "Base"],
             ["Staffing and Attributes", "Icons", slot, "Base"],
+            ["Staffing and Attributes", "Icons", slot, f"Base{copy_suffix}"],
         ]
         out_path = base_out / "Card_Background" / f"Slot_{slot_n}_Base.png"
         baked = False
@@ -169,14 +174,24 @@ async def bake_for_psd(page, affil_name: str, psd_file: str, outdir_name: str):
         for icon_name in icon_names:
             for branch in ("Personnel/Staffing", "Ship/Icons"):
                 # Skip Personnel/Staffing on Slot 4 / Earth — same as personnel
-                psd_path_parts = ["Staffing and Attributes"] + branch.split("/") + [slot_label, icon_name]
+                # Some PSDs (e.g. Bajoran) flatten the personnel staffing tree:
+                # icons sit directly under "Icons/Slot N/..." with no
+                # Personnel/Staffing intermediate. Try that as a fallback.
+                psd_candidates = [
+                    ["Staffing and Attributes"] + branch.split("/") + [slot_label, icon_name],
+                ]
+                if branch == "Personnel/Staffing":
+                    psd_candidates.append(
+                        ["Staffing and Attributes", "Icons", slot_label, icon_name]
+                    )
                 out_path = (base_out / "Staffing_and_Attributes"
                             / branch.replace("/", "_").replace("Personnel_Staffing", "Personnel/Staffing").replace("Ship_Icons", "Ship/Icons")
                             / f"Slot_{slot_n}"
                             / f"{icon_name.replace(' ', '_')}.png")
-                ok, info = await bake_layer(page, psd_path_parts, out_path, include_sidecar=False)
-                if ok:
-                    pass  # print(f"  {branch}/Slot {slot_n}/{icon_name}: {info}")
+                for psd_path_parts in psd_candidates:
+                    ok, info = await bake_layer(page, psd_path_parts, out_path, include_sidecar=False)
+                    if ok:
+                        break
 
     # 3. Ship/Icons per-slot Bases (the affiliation/era socket discs on ships).
     # These are separate from Personnel Slot N Base — different layer subtree.
