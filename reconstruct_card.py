@@ -1986,9 +1986,10 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
             _paste_affil_icon(canvas, stem, cx, MISSION_AFFIL_CY, scale)
     elif affil:
         # Plain text variant (e.g. "Any affiliation may attempt this mission.",
-        # "Federation Headquarters"). Medium-weight italic, light grey on the
-        # dark strip band; goes through draw_textflow so inline [Xyz] icons
-        # (e.g. "except [Bor]") render as glyphs. PSD strip bbox ≈ [80,875,655,915].
+        # "Federation Headquarters"). Printed cards paint the strip black behind
+        # the prose; text is medium-weight italic, white. Inline [Xyz] icons
+        # (e.g. "except [Bor]") render via draw_textflow.
+        draw.rectangle([S(80), S(870), S(655), S(915)], fill=BLACK)
         draw_textflow(canvas, draw, [(affil, 'medital')],
                       [80, 870, 655, 915], WHITE,
                       PT_MISSION_AFFIL_TEXT, center=True)
