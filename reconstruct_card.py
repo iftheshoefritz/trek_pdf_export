@@ -853,7 +853,8 @@ def draw_cost(draw, cost_text, centre=(COST_CIRCLE_CX, COST_CIRCLE_CY)):
 # height (always room for an icon), and auto-shrink to fit the box without
 # truncating (Decipher cards likewise shrink dense game text to fit).
 # ---------------------------------------------------------------------------
-STYLE_FONT = {'bold': F_FUTURA_BOLD, 'med': F_FUTURA_MED, 'italic': F_FUTURA_BOLDO}
+STYLE_FONT = {'bold': F_FUTURA_BOLD, 'med': F_FUTURA_MED, 'italic': F_FUTURA_BOLDO,
+              'medital': F_FUTURA_MEDO}
 
 INLINE_ICON_DIR = Path("extracted/icons/inline")
 # Text icon abbreviation -> inline icon file stem (extracted/icons/inline/<stem>.png)
@@ -1986,13 +1987,11 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     elif affil:
         # Plain text variant (e.g. "Any affiliation may attempt this mission.",
         # "Federation Headquarters"). Medium-weight italic, light grey on the
-        # dark strip band. PSD strip bbox ≈ [80, 875, 655, 915].
-        font_aff = gfont(F_FUTURA_MEDO, PT_MISSION_AFFIL_TEXT)
-        tw = int(draw.textlength(affil, font=font_aff))
-        y = vcenter_y(S(875), S(40), font_aff, affil)
-        cx = (S(80) + S(655)) // 2
-        draw.text((cx - tw // 2, y), affil,
-                  font=font_aff, fill=(200, 200, 200, 255))
+        # dark strip band; goes through draw_textflow so inline [Xyz] icons
+        # (e.g. "except [Bor]") render as glyphs. PSD strip bbox ≈ [80,875,655,915].
+        draw_textflow(canvas, draw, [(affil, 'medital')],
+                      [80, 870, 655, 915], (200, 200, 200, 255),
+                      PT_MISSION_AFFIL_TEXT, center=True)
 
     # 11. Span — white digit centred in the small black disc at the bottom.
     # PSD bbox: [360, 953, 373, 982]. Same Futuri Condensed Bold face as Points.
