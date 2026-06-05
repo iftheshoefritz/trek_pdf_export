@@ -79,6 +79,16 @@ GAMETEXT_MARKUP = Path("fixture/gametext_bold.tsv")
 DEFAULT_INPUT  = Path("fixture/federation_personnel_fixture.txt")
 OUTDIR = Path("fixture/reconstructed")
 
+_CID_RE = re.compile(r"^(\d+)([A-Z])(\d+)")
+
+def cid_to_filename(cid: str) -> str:
+    """Map CollectorsInfo like '1C008' to a sortable '1-008'. Falls back to cid."""
+    m = _CID_RE.match(cid.strip())
+    if not m:
+        return cid
+    set_no, _rarity, num = m.groups()
+    return f"{set_no}-{int(num):03d}"
+
 # NAME/TITLE split inference via OCR of the card's top (name) row.
 NAME_ROW_BOX = (92, 26, 340, 46)   # name-row band in the ~357x499 Decipher scan
 # Missions: location names ("Second Moon of Bajor VIII") run longer than
@@ -1943,7 +1953,7 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
 def parse_args(argv):
     """Minimal parser: optional positional INPUT and `--dpi N` (default 300)."""
     global SCALE
-    input_path, dpi = DEFAULT_INPUT, BASE_DPI
+    input_path, dpi, out_override = DEFAULT_INPUT, BASE_DPI, None
     i = 0
     while i < len(argv):
         a = argv[i]
@@ -1952,17 +1962,22 @@ def parse_args(argv):
             dpi = int(argv[i])
         elif a.startswith("--dpi="):
             dpi = int(a.split("=", 1)[1])
+        elif a == "--out":
+            i += 1
+            out_override = Path(argv[i])
+        elif a.startswith("--out="):
+            out_override = Path(a.split("=", 1)[1])
         else:
             input_path = Path(a)
         i += 1
     if dpi not in SUPPORTED_DPI:
         print(f"Note: --dpi {dpi} is outside the tested set {SUPPORTED_DPI}; rendering anyway.")
     SCALE = dpi / BASE_DPI
-    return input_path, dpi
+    return input_path, dpi, out_override
 
 
 def main():
-    input_path, dpi = parse_args(sys.argv[1:])
+    input_path, dpi, out_override = parse_args(sys.argv[1:])
     if not input_path.exists():
         raise SystemExit(f"Input file not found: {input_path}")
 
@@ -1972,7 +1987,10 @@ def main():
     for row in rows:
         if row["CollectorsInfo"] in bold_markup:
             row["gametext"] = bold_markup[row["CollectorsInfo"]]
-    outdir = OUTDIR if dpi == BASE_DPI else OUTDIR / f"{dpi}dpi"
+    if out_override is not None:
+        outdir = out_override
+    else:
+        outdir = OUTDIR if dpi == BASE_DPI else OUTDIR / f"{dpi}dpi"
     outdir.mkdir(parents=True, exist_ok=True)
 
     # OCR (NAME/TITLE split) is only needed for non-dilemma cards without a
@@ -1994,7 +2012,7 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: dilemma NAME={name!r}")
                 canvas = render_dilemma(row, name)
-                out = outdir / f"{cid}.png"
+                out = outdir / f"{cid_to_filename(cid)}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
                 continue
@@ -2002,7 +2020,7 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: event NAME={name!r}")
                 canvas = render_event(row, name)
-                out = outdir / f"{cid}.png"
+                out = outdir / f"{cid_to_filename(cid)}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
                 continue
@@ -2010,7 +2028,7 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: interrupt NAME={name!r}")
                 canvas = render_interrupt(row, name)
-                out = outdir / f"{cid}.png"
+                out = outdir / f"{cid_to_filename(cid)}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
                 continue
@@ -2018,7 +2036,7 @@ def main():
                 name = clean_dilemma_name(row["Name"])
                 print(f"  {cid}: equipment NAME={name!r}")
                 canvas = render_equipment(row, name)
-                out = outdir / f"{cid}.png"
+                out = outdir / f"{cid_to_filename(cid)}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
                 continue
@@ -2038,7 +2056,7 @@ def main():
                     print(f"  {cid}: mission NAME={name!r} TITLE={title!r} "
                           f"(OCR score {score:.2f}, margin {margin:.2f}){flag}")
                 canvas = render_mission(row, name, title)
-                out = outdir / f"{cid}.png"
+                out = outdir / f"{cid_to_filename(cid)}.png"
                 canvas.save(out, dpi=(dpi, dpi))
                 rendered += 1
                 continue
@@ -2058,7 +2076,7 @@ def main():
         except SystemExit as e:
             print(f"  ! skipping {cid}: {e}")
             continue
-        out = outdir / f"{cid}.png"
+        out = outdir / f"{cid_to_filename(cid)}.png"
         canvas.save(out, dpi=(dpi, dpi))
         rendered += 1
 
