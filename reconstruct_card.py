@@ -1988,7 +1988,7 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
         # PSD strip bbox ≈ [80, 875, 655, 915]; the text wraps as one flow so
         # long sentences fit.
         runs = [(affil, 'italic')]
-        draw_textflow(canvas, draw, runs, [80, 870, 655, 915], BLACK,
+        draw_textflow(canvas, draw, runs, [80, 870, 655, 915], WHITE,
                       PT_MISSION_AFFIL_TEXT, center=True)
 
     # 11. Span — white digit centred in the small black disc at the bottom.
