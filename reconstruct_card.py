@@ -25,6 +25,7 @@ wrong; it is empty by default. Requires the `tesseract` CLI on PATH.
 """
 
 import csv
+import html
 import json
 import re
 import shutil
@@ -121,7 +122,11 @@ def load_rows(path: Path) -> list[dict]:
         for parts in csv.reader(f, delimiter="\t", quotechar='"'):
             if len(parts) < 6 or parts[5] in ("", "CollectorsInfo"):
                 continue  # header or blank line
-            rows.append(dict(zip(COLUMNS, parts)))
+            row = dict(zip(COLUMNS, parts))
+            for k in ("Keywords", "Skills", "gametext", "Name", "Affiliation"):
+                if k in row and row[k]:
+                    row[k] = html.unescape(row[k])
+            rows.append(row)
     return rows
 
 
@@ -927,7 +932,7 @@ def gametext_runs(text):
         return parse_markup_runs(text, default='med')
     m = re.match(r'^([A-Z][A-Za-z]+ -)(.*)$', text)
     if m:
-        return [(m.group(1), 'bold'), (m.group(2), 'med')]
+        return [('\n' + m.group(1), 'bold'), (m.group(2), 'med')]
     return [(text, 'med')]
 
 
@@ -970,10 +975,12 @@ def _flow_tokens(styled_runs, size):
     tokens = []
     for text, style in styled_runs:
         font = load_font(STYLE_FONT[style], size)
-        for piece in re.split(r'(\[[^\]]+\]|\s+)', text):
+        for piece in re.split(r'(\[[^\]]+\]|\n|\s+)', text):
             if not piece:
                 continue
-            if piece.isspace():
+            if piece == '\n':
+                tokens.append(('newline', None, 0, None))
+            elif piece.isspace():
                 tokens.append(('space', None, space_w, None))
             elif re.fullmatch(r'\[[^\]]+\]', piece):
                 icon = inline_icon(piece[1:-1], icon_h)
@@ -1004,7 +1011,13 @@ def _wrap_tokens(tokens, max_w):
     lines, cur, w = [], [], 0
     for tok in tokens:
         kind, _, tw, _ = tok
-        if kind == 'space':
+        if kind == 'newline':
+            if cur:
+                while cur and cur[-1][0] == 'space':
+                    w -= cur[-1][2]; cur.pop()
+                lines.append(cur)
+                cur, w = [], 0
+        elif kind == 'space':
             if cur:
                 cur.append(tok); w += tw
         else:
@@ -1022,7 +1035,7 @@ def _wrap_tokens(tokens, max_w):
     return lines
 
 
-def draw_textflow(canvas, draw, styled_runs, box, fill, base_size, min_size=None):
+def draw_textflow(canvas, draw, styled_runs, box, fill, base_size, min_size=None, center=False):
     """Lay out styled_runs in design-space box=[l,t,r,b], shrinking the font from
     base_size down to min_size (design-space point sizes) until every wrapped line
     fits the box height. Box and sizes are scaled to the output space internally.
@@ -1048,7 +1061,11 @@ def draw_textflow(canvas, draw, styled_runs, box, fill, base_size, min_size=None
 
     y = top
     for line in lines:
-        x = left
+        if center:
+            line_w = sum(tw for _, _, tw, _ in line)
+            x = left + (max_w - line_w) / 2
+        else:
+            x = left
         cap_mid = y + cap_mid_off
         for kind, payload, tw, font in line:
             if kind == 'word':
@@ -1264,7 +1281,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     if keywords_text and not is_order:
         combined = keyword_runs(keywords_text) + [(" ", "med")] + game_runs
         draw_textflow(canvas, draw, combined,
-                      [TEXT_LEFT, block_top, TEXT_RIGHT, TEXT_BOTTOM], BLACK, PT_GAME, min_size=15)
+                      [TEXT_LEFT, block_top, TEXT_RIGHT, TEXT_BOTTOM], BLACK, PT_GAME)
     else:
         if keywords_text:
             draw_textflow(canvas, draw, keyword_runs(keywords_text),
@@ -1273,7 +1290,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
         else:
             game_top = block_top
         draw_textflow(canvas, draw, game_runs,
-                      [TEXT_LEFT, game_top, TEXT_RIGHT, TEXT_BOTTOM], BLACK, PT_GAME, min_size=15)
+                      [TEXT_LEFT, game_top, TEXT_RIGHT, TEXT_BOTTOM], BLACK, PT_GAME)
 
     # Attribute labels — small-caps: first letter at 28px, remainder uppercase at 21px.
     # Ships show Range/Weapons/Shields; personnel show Integrity/Cunning/Strength.
@@ -1425,7 +1442,7 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
 
     # Game text — flows in the text band; auto-shrinks to fit. No keyword line.
     draw_textflow(canvas, draw, gametext_runs(ROW["gametext"]),
-                  [120, 670, 635, 797], BLACK, PT_GAME, min_size=15)
+                  [120, 670, 635, 797], BLACK, PT_GAME)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
@@ -1480,7 +1497,8 @@ def _wrap_name_lines(name: str, font, max_w: int) -> list[str]:
 
 def draw_card_name(canvas, draw, NAME: str, unique: bool,
                    bar_top: int, bar_h: int, base_x: int, right_edge: int,
-                   color, base_size: int = PT_NAME, min_size: int = 22):
+                   color, base_size: int = PT_NAME, min_size: int = 22,
+                   max_lines: int = 2):
     """Draw the card name in the Crillee italic font, wrapping to additional
     lines when long (printed cards do this on titles like 'How Would You Like
     a Trip to Romulus?'). Shrinks to min_size before allowing >2 lines. Bar
@@ -1498,12 +1516,14 @@ def draw_card_name(canvas, draw, NAME: str, unique: bool,
     while size > min_size:
         font_name = gfont(F_CRILEE, size)
         lines = _wrap_name_lines(NAME, font_name, max_w)
-        if len(lines) <= 2 and all(font_name.getlength(l) <= max_w for l in lines):
+        if len(lines) <= max_lines and all(font_name.getlength(l) <= max_w for l in lines):
             break
         size -= 1
     else:
         font_name = gfont(F_CRILEE, size)
         lines = _wrap_name_lines(NAME, font_name, max_w)
+        if max_lines == 1 and len(lines) > 1:
+            lines = [NAME]
 
     if len(lines) == 1:
         name_y = vcenter_y(S(bar_top), S(bar_h), font_name, lines[0])
@@ -1568,7 +1588,7 @@ def render_event(ROW: dict, NAME: str) -> Image.Image:
     runs = gametext_runs(ROW["gametext"])
     if keywords_text:
         runs = [(keywords_text + " ", 'bold')] + runs
-    draw_textflow(canvas, draw, runs, [120, 672, 639, 828], BLACK, PT_GAME, min_size=15)
+    draw_textflow(canvas, draw, runs, [120, 672, 639, 828], BLACK, PT_GAME)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
@@ -1626,7 +1646,7 @@ def render_interrupt(ROW: dict, NAME: str) -> Image.Image:
     runs = gametext_runs(ROW["gametext"])
     if keywords_text:
         runs = [(keywords_text + " ", 'bold')] + runs
-    draw_textflow(canvas, draw, runs, [120, 672, 639, 796], BLACK, PT_GAME, min_size=15)
+    draw_textflow(canvas, draw, runs, [120, 672, 639, 796], BLACK, PT_GAME)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
@@ -1687,7 +1707,7 @@ def render_equipment(ROW: dict, NAME: str) -> Image.Image:
     # The PSD's game-text bbox stops at y=734 because the template reserves
     # space for a lore quote below; we don't render lore, so the band extends
     # down through the lore area (same pattern as render_event).
-    draw_textflow(canvas, draw, runs, [120, 671, 650, 828], BLACK, PT_GAME, min_size=15)
+    draw_textflow(canvas, draw, runs, [120, 671, 650, 828], BLACK, PT_GAME)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
@@ -1851,8 +1871,12 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     # 6. Card name (location, in the top chrome bar) + title (objective, in
     # the italic sub-band underneath). Unique dot prefixes the name.
     # PSD bbox: Name [182, 54, 310, 79], Title [180, 93, 309, 112].
+    # Missions have a separate TITLE bar below, so the name must stay on a
+    # single line (Kurl Excavation etc. would otherwise wrap and look like a
+    # name+subtitle pair).
     draw_card_name(canvas, draw, NAME, ROW.get("Unique", "").upper() == "Y",
-                   bar_top=54, bar_h=30, base_x=180, right_edge=665, color=BLACK)
+                   bar_top=54, bar_h=30, base_x=180, right_edge=665, color=BLACK,
+                   min_size=14, max_lines=1)
     if TITLE:
         font_title = gfont(F_CRILEE, PT_TITLE)
         title_y = vcenter_y(S(93), S(22), font_title, TITLE)
@@ -1877,27 +1901,29 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
         py = S(cy_design) - (t + b) // 2
         draw.text((px, py), points_text, font=font_pts, fill=WHITE)
 
-    # 8. Requirements (Skills column) — centred bold upright, may wrap.
+    # 8. Requirements (Skills column) — centred bold. For HQ missions the
+    # Skills column actually holds the printed HQ rules text ("You may play
+    # [Baj] cards, ..."), so route through draw_textflow which handles inline
+    # [Xyz] icons. Returns the y just below the last drawn line so the game
+    # text band below can start under the actual skills bottom.
+    skills_box = [73, 612, 660, 685]
+    skills_bottom = S(skills_box[1])
     req_text = (ROW.get("Skills") or "").strip()
     if req_text:
-        font_req = gfont(F_FUTURA_BOLD, PT_MISSION_REQ)
-        # PSD bbox ([163, 612, 566, 675]) is too narrow (text spills to many
-        # lines), but the printed cards wrap "Astrometrics, Engineer,
-        # Physics," to line 1 — pick a width between that line's measured
-        # length and the next candidate ("...Cunning>34,") so it breaks here.
-        draw_centered_text(draw, req_text, font_req,
-                           [135, 612, 605, 685], BLACK)
+        skills_bottom = draw_textflow(canvas, draw,
+            [(req_text, 'bold')], skills_box, BLACK, PT_MISSION_REQ,
+            center=True)
 
-    # 9. Game text — keyword bold lead-in, then rules text in one flow.
+    # 9. Game text — keyword bold lead-in, then rules text in one flow. Top
+    # is the max of the PSD-default y and the actual skills bottom + small
+    # gap, so long skills lines push the game text down instead of overlapping.
     keywords_text = strip_braces((ROW.get("Keywords") or "").strip())
     runs = gametext_runs(ROW.get("gametext", ""))
     if keywords_text:
         runs = [(keywords_text + " ", 'bold')] + runs
-    # PSD game-text bbox is [73, 689, 543, 783], but we don't render the lore
-    # quote, so widen right edge to the affiliation strip top and extend down
-    # through the lore band.
-    draw_textflow(canvas, draw, runs, [73, 689, 660, 828], BLACK,
-                  PT_GAME, min_size=15)
+    game_top_design = max(689, int(skills_bottom / SCALE) + 4)
+    draw_textflow(canvas, draw, runs, [73, game_top_design, 660, 828], BLACK,
+                  PT_GAME)
 
     # 10. Affiliation strip. Data values:
     #     "[Fed]"       -> one inline icon centred
@@ -1905,7 +1931,11 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     #     "Any affiliation may attempt this mission." -> render as italic text
     #     "<x> Headquarters"                          -> render as italic text
     affil = (ROW.get("Affiliation") or "").strip()
-    affil_tokens = re.findall(r"\[([^\]]+)\]", affil)
+    # Only treat the affiliation field as an icon strip when it is *purely*
+    # a sequence of [Xyz] tokens. Mixed text like "Any affiliation (except
+    # [Bor]) ..." is the plain-text variant and renders as italic text.
+    is_icon_strip = bool(affil) and bool(re.fullmatch(r"(?:\[[^\]]+\])+", affil))
+    affil_tokens = re.findall(r"\[([^\]]+)\]", affil) if is_icon_strip else []
     if affil_tokens:
         stems = [MISSION_AFFIL_ICON.get(a) for a in affil_tokens]
         stems = [s for s in stems if s]
