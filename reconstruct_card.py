@@ -1512,7 +1512,7 @@ PT_EQUIPMENT_LABEL = 38   # the "Equipment" label is larger on the printed cards
 PT_MISSION_REQ = 30       # mission Requirements text (centred, bold upright)
 PT_MISSION_POINTS = 60    # white italic display digits in the chrome circle
 PT_MISSION_SPAN = 36      # white italic digit in the small black disc
-PT_MISSION_AFFIL_TEXT = 24  # "Any affiliation..." / "Federation Headquarters" italic line
+PT_MISSION_AFFIL_TEXT = 27  # "Any affiliation..." / "Federation Headquarters" italic line
 # Unique dot asset is shared across card families (the federation template's
 # Card_Name/Unique). It sits just left of the name; when present, the name
 # slides right by ~17px to make room.
@@ -1990,7 +1990,7 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
         # dark strip band; goes through draw_textflow so inline [Xyz] icons
         # (e.g. "except [Bor]") render as glyphs. PSD strip bbox ≈ [80,875,655,915].
         draw_textflow(canvas, draw, [(affil, 'medital')],
-                      [80, 870, 655, 915], (200, 200, 200, 255),
+                      [80, 870, 655, 915], WHITE,
                       PT_MISSION_AFFIL_TEXT, center=True)
 
     # 11. Span — white digit centred in the small black disc at the bottom.
