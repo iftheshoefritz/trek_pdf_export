@@ -195,7 +195,7 @@ def infer_name_title(full_name: str, photo: Path, name_row_box=None):
     ocr = " ".join(_norm_words(_ocr_name_row(photo, name_row_box)))
     scored = sorted(
         ((SequenceMatcher(None, " ".join(_norm_words(" ".join(tokens[:k]))), ocr).ratio(), k)
-         for k in range(MIN_NAME_TOKENS, len(tokens))),
+         for k in range(MIN_NAME_TOKENS, len(tokens) + 1)),
         reverse=True)
     best_score, best_k = scored[0]
     margin = best_score - (scored[1][0] if len(scored) > 1 else 0.0)

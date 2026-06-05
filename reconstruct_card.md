@@ -138,10 +138,19 @@ Edge case: `Flaxian Scout Vessel` and similar entries don't end in `Class`
 
 ## Card name with no title
 
-Some cards (e.g. `I.K.S. Lukara`, `Flaxian Scout Vessel`) have an empty
-`Title` field — the entire name occupies the name bar and the subtitle bar
-is left blank. `draw_card_name` already handles this; just make sure not to
-introduce a forced split or fall-back title when none is in the data.
+Some cards (e.g. `I.K.S. Lukara`, `Flaxian Scout Vessel`, `Bajoran
+Interceptor`) have an empty `Title` field — the entire name occupies the name
+bar and the subtitle bar is left blank. `draw_card_name` already handles this;
+just make sure not to introduce a forced split or fall-back title when none is
+in the data.
+
+For multi-word names whose Name/Title split isn't in the data,
+`infer_name_title` OCRs the name band and scores every split point. The
+candidate range must include `len(tokens)` (i.e. all tokens in the name, empty
+title), not stop at `len(tokens) - 1` — otherwise the OCR can never recover a
+no-title card like `Bajoran Interceptor` and will always assign the last word
+to the title. The full-name candidate wins by score whenever the band reads
+both words clearly.
 
 ## Borg renderer scope
 
