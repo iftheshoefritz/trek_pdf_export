@@ -950,6 +950,17 @@ def _trim_bold_trailing_punct(text):
     return text
 
 
+# "to be killed/stopped/discarded" describes the dilemma outcome, not a
+# requirement, so the bold detector's hit on those words is a false positive.
+# Strip the <b> wrapper from any span immediately preceded by " to be " (only
+# when the lead-in itself is *not* already inside a bold context).
+_TO_BE_RE = re.compile(r'(?<!<b>)( to be )<b>([^<]*)</b>')
+
+
+def _unbold_to_be(text):
+    return _TO_BE_RE.sub(r'\1\2', text)
+
+
 def gametext_runs(text):
     """Styled runs for game text. Explicit <b>/<i> markup (from the bold sidecar)
     wins; on top of that we always force-bold 'Order -' / 'Damage -' / etc.
@@ -957,6 +968,7 @@ def gametext_runs(text):
     text = strip_braces(text.strip())
     text = _force_lexeme_bold(text)
     text = _trim_bold_trailing_punct(text)
+    text = _unbold_to_be(text)
     if '<b>' in text or '<i>' in text:
         return parse_markup_runs(text, default='med')
     return [(text, 'med')]
@@ -1288,7 +1300,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # to the bottom of the Skills and Flavor Text group (spec: y=840). The game
     # text auto-shrinks to fit rather than truncating. (Design-space coords;
     # draw_textflow scales them to the output space.)
-    TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, cfg.get("text_right", 648), 840
+    TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, cfg.get("text_right", 660), 840
     if is_ship:
         # No skills row; start the text band at the top of the Skills/Flavor group.
         block_top = 648
@@ -1933,8 +1945,8 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     # [Xyz] icons. Returns the y just below the last drawn line so the game
     # text band below can start under the actual skills bottom.
     # Inset from chrome edges — printed skills band spans roughly the centre
-    # 70% of the card width; wider lets text eclipse the chrome (Risan Approach).
-    skills_box = [105, 612, 630, 685]
+    # 65% of the card width; wider lets text eclipse the chrome (Risan Approach).
+    skills_box = [130, 612, 605, 685]
     skills_bottom = S(skills_box[1])
     req_text = (ROW.get("Skills") or "").strip()
     if req_text:
@@ -1970,8 +1982,14 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
         positions, scale = _affil_positions(len(stems))
         for stem, cx in zip(stems, positions):
             _paste_affil_icon(canvas, stem, cx, MISSION_AFFIL_CY, scale)
-    # No icons (data carries "Any affiliation..." prose or "<x> Headquarters")
-    # → leave the strip blank, matching the printed cards.
+    elif affil:
+        # Plain text variant (e.g. "Any affiliation may attempt this mission.",
+        # "Federation Headquarters"). Italic bold, centred in the strip band.
+        # PSD strip bbox ≈ [80, 875, 655, 915]; the text wraps as one flow so
+        # long sentences fit.
+        runs = [(affil, 'italic')]
+        draw_textflow(canvas, draw, runs, [80, 870, 655, 915], BLACK,
+                      PT_MISSION_AFFIL_TEXT, center=True)
 
     # 11. Span — white digit centred in the small black disc at the bottom.
     # PSD bbox: [360, 953, 373, 982]. Same Futuri Condensed Bold face as Points.
