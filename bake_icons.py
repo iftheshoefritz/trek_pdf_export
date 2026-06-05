@@ -32,7 +32,10 @@ PSDS = {
     "Borg": ("2e HD Borg v1.psd", "borg"),
     "Starfleet": ("2e HD Starfleet v1.psd", "starfleet"),
     "Vidiian": ("2e HD Vidiian v1.psd", "vidiian"),
-    "Bajoran": ("2e_HD_Bajoran_v1.psd", "bajoran"),
+    "Bajoran":     ("2e_HD_Bajoran_v1.psd",      "bajoran"),
+    "Cardassian":  ("2e_HD_Cardassian_v1.psd",   "cardassian"),
+    "Dominion":    ("2e_HD_Dominion_v1.psd",     "dominion"),
+    "Ferengi":     ("2e HD Ferengi v1.psd",      "ferengi"),
 }
 
 # Asset families to try baking. Missing layer paths are skipped silently.

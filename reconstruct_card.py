@@ -54,6 +54,11 @@ KLINGON_ASSETS = Path("extracted/klingon/assets")
 ROMULAN_ASSETS = Path("extracted/romulan/assets")
 BORG_ASSETS = Path("extracted/borg/assets")
 BAJORAN_ASSETS = Path("extracted/bajoran/assets")
+CARDASSIAN_ASSETS = Path("extracted/cardassian/assets")
+DOMINION_ASSETS = Path("extracted/dominion/assets")
+FERENGI_ASSETS = Path("extracted/ferengi/assets")
+STARFLEET_ASSETS = Path("extracted/starfleet/assets")
+VIDIIAN_ASSETS = Path("extracted/vidiian/assets")
 DILEMMA_ASSETS = Path("extracted/dilemma/assets")
 EVENT_ASSETS = Path("extracted/event/assets")
 INTERRUPT_ASSETS = Path("extracted/interrupt/assets")
@@ -344,6 +349,16 @@ AFFIL_CFG = {
         # PSD disc centres from spec.json icon bboxes vs global SLOT_RING_CENTRE.
         # Slot 4 not in PSD; mirrors slot 3 (slot 4 = slot 3 shifted down 67 px).
         "ring_centre_offsets": {"slot1": (-1, 0), "slot2": (0, +2), "slot3": (+2, 0), "slot4": (+2, 0)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
     },
     "Romulan": {
         "assets": ROMULAN_ASSETS,
@@ -362,6 +377,16 @@ AFFIL_CFG = {
         # Klingon/NA positions; corrected per spec.json icon bbox measurement.
         # Slot 4 not in PSD; mirrors slot 3.
         "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, +2), "slot3": (0, 0), "slot4": (0, 0)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
     },
     "Non-Aligned": {
         "assets": NONALIGNED_ASSETS,
@@ -389,6 +414,16 @@ AFFIL_CFG = {
         # Identical disc positions to Klingon in the PSD.
         # Slot 4 not in PSD; mirrors slot 3.
         "ring_centre_offsets": {"slot1": (-1, 0), "slot2": (0, +2), "slot3": (+2, 0), "slot4": (+2, 0)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
     },
     "Borg": {
         # Borg PSD has two stacked chrome layers (Layer_12 and Layer_13) and a
@@ -460,6 +495,154 @@ AFFIL_CFG = {
         # extends out to the inner chrome edge (~660) on actual scans.
         "skill_right": 660,
         "text_right": 648,
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
+    },
+    "Cardassian": {
+        "assets": CARDASSIAN_ASSETS,
+        # Cardassian chrome frame is Layer_12 (bbox 28,27,709,1003).
+        "cardbg_layer": "Card_Background/Layer_12.png",
+        "cardbg_paste": (28, 27),
+        "photo_notch_cutoff": 15,
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (43, 620)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (43, 688)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (43, 756)),
+            "slot4": ("Card_Background/Slot_4_Base.png", (43, 824)),
+        },
+        "socket_asset": None,
+        # Ring centres start from Bajoran calibration (similar chrome structure);
+        # adjust if glyph alignment looks off in test renders.
+        "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, -3), "slot3": (0, -4), "slot4": (0, -2)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
+    },
+    "Vidiian": {
+        "assets": VIDIIAN_ASSETS,
+        # Vidiian chrome is Card_Frame (bbox 28,26,717,1013); Image_Frame is
+        # a real comb-tooth notch strip (not hidden like Starfleet's).
+        "cardbg_layer": "Card_Background/Card_Frame.png",
+        "cardbg_paste": (28, 26),
+        "photo_notch": "Card_Background/Image_Frame.png",
+        "photo_notch_cutoff": 15,
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (45, 623)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (45, 691)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (46, 761)),
+            "slot4": ("Card_Background/Slot_4_Base.png", (46, 828)),
+        },
+        "socket_asset": None,
+        # Ring centres from baked icon bbox analysis: slot1=(76,657),
+        # slot2=(75,724), slot3=(76,794), slot4=(76,863).
+        "ring_centre_offsets": {"slot1": (+2, +4), "slot2": (+2, +4), "slot3": (+4, +4), "slot4": (+4, +6)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
+    },
+    "Starfleet": {
+        "assets": STARFLEET_ASSETS,
+        # Starfleet chrome is Card_Frame (bbox 28,26,717,1013); no comb-tooth
+        # notch (Image_Frame layer is hidden/empty in the PSD).
+        "cardbg_layer": "Card_Background/Card_Frame.png",
+        "cardbg_paste": (28, 26),
+        "photo_notch": None,
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (44, 624)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (42, 691)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (39, 761)),
+            "slot4": ("Card_Background/Slot_4_Base.png", (42, 832)),
+        },
+        "socket_asset": None,
+        # Ring centres derived from baked icon glyph bboxes in spec.json vs.
+        # SLOT_RING_CENTRE: slot1 centre=(77,657), slot2=(77,726),
+        # slot3=(76,795), slot4=(76,865).
+        "ring_centre_offsets": {"slot1": (+3, +4), "slot2": (+4, +6), "slot3": (+4, +5), "slot4": (+4, +8)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
+    },
+    "Ferengi": {
+        "assets": FERENGI_ASSETS,
+        # Ferengi chrome frame is Layer_12 (bbox 28,27,709,1003).
+        "cardbg_layer": "Card_Background/Layer_12.png",
+        "cardbg_paste": (28, 27),
+        "photo_notch_cutoff": 15,
+        # PSD only has 3 personnel slot Bases; slot 4 (AU) not present.
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (42, 619)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (42, 688)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (43, 760)),
+        },
+        "socket_asset": None,
+        # Ring offsets starting from (0,0); adjust after visual calibration.
+        "ring_centre_offsets": {},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
+    },
+    "Dominion": {
+        "assets": DOMINION_ASSETS,
+        # Dominion chrome frame is Layer_13 (bbox 28,27,709,1003).
+        "cardbg_layer": "Card_Background/Layer_13.png",
+        "cardbg_paste": (28, 27),
+        "photo_notch_cutoff": 15,
+        "per_slot_sockets": {
+            "slot1": ("Card_Background/Slot_1_Base.png", (43, 620)),
+            "slot2": ("Card_Background/Slot_2_Base.png", (43, 688)),
+            "slot3": ("Card_Background/Slot_3_Base.png", (43, 756)),
+            "slot4": ("Card_Background/Slot_4_Base.png", (43, 824)),
+        },
+        "socket_asset": None,
+        # Same slot paste positions as Cardassian; ring offsets start from
+        # Bajoran calibration, adjust if glyph placement looks off.
+        "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, -3), "slot3": (0, -4), "slot4": (0, -2)},
+        # Ship cfg — Federation defaults (not yet calibrated per-affil).
+        "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
+        "cost_centre": (152, 71),
+        "name_bar": (196, 56, 670, 30),
+        "title_bar": (210, 93, 22),
+        "class_oval_bbox": (287, 552, 440, 588),
+        "attr_label_x": (126, 335, 548),
+        "attr_value_x": (237, 449, 662),
+        "attr_bar_yh": (916, 23),
+        "rarity_bbox": (619, 984, 669, 996),
     },
 }
 FED_CFG = AFFIL_CFG["Federation"]
@@ -486,6 +669,7 @@ ICON_MAP = {
     'TOS':  ('slot2', "Personnel/Staffing/Slot_2/TOS.png"),
     'Maq':  ('slot2', "Personnel/Staffing/Slot_2/Maquis.png"),
     'E':    ('slot2', "Personnel/Staffing/Slot_2/Earth.png"),
+    'TN':   ('slot2', "Personnel/Staffing/Slot_2/Terok_Nor.png"),
     'Fut':  ('slot3', "Personnel/Staffing/Slot_3/Future.png"),
     'Past': ('slot3', "Personnel/Staffing/Slot_3/Past.png"),
     'Pa':   ('slot3', "Personnel/Staffing/Slot_3/Past.png"),   # alias used in data

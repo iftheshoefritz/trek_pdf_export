@@ -97,10 +97,14 @@ The authoritative notes are in `reconstruct_card.md` and `notes.md`:
   `fixture/gametext_bold_overrides.tsv` and are merged at write time so they
   survive re-runs. The renderer reads `fixture/gametext_bold.tsv` as the
   `GAMETEXT_MARKUP` sidecar.
-- **Scope today:** Federation Personnel, Federation Ship, Dilemma, Event have
-  renderers. Mission, Interrupt, Equipment and non-Federation affiliations
-  (Klingon/Romulan/Cardassian/Dominion/Bajoran/Ferengi/Non-Aligned) have PSD
-  templates under `templates/` but no renderer yet.
+- **Scope today:** every card type in the data has a renderer
+  (Personnel, Ship, Dilemma, Event, Interrupt, Equipment, Mission). Personnel
+  and Ship share `render_card`, which dispatches via `affil_cfg()` — all 11
+  affiliations present in the data (Federation, Klingon, Romulan, Bajoran,
+  Cardassian, Dominion, Borg, Ferengi, Starfleet, Vidiian, Non-Aligned) have
+  entries in `AFFIL_CFG`. Per-affil ship cfg currently inherits Federation
+  defaults for the non-Fed affiliations; personnel cfg is genuinely calibrated
+  per affil. The other types don't branch on affiliation.
 
 ### Data files
 
