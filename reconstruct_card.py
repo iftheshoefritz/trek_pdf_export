@@ -924,15 +924,41 @@ def parse_markup_runs(text, default='med'):
     return runs
 
 
+# Lexemes that always render bold on their own line, regardless of where they
+# appear in the rules text (start, or after a sentence terminator).
+LEXEME_BOLD_RE = re.compile(
+    r'(^|(?<=[.!?])\s+)(Damage|Order|Range|Shields|Weapons) -'
+)
+
+
+def _force_lexeme_bold(text):
+    return LEXEME_BOLD_RE.sub(
+        lambda m: '\n<b>' + m.group(2) + ' -</b>', text)
+
+
+# Trim trailing punctuation out of bold spans — bold marks the requirement
+# itself, not the comma/", all" that connects it to the next clause.
+_TRAIL_FIXES = [
+    (re.compile(r', all</b>'),  '</b>, all'),
+    (re.compile(r',</b>'),      '</b>,'),
+]
+
+
+def _trim_bold_trailing_punct(text):
+    for pat, repl in _TRAIL_FIXES:
+        text = pat.sub(repl, text)
+    return text
+
+
 def gametext_runs(text):
     """Styled runs for game text. Explicit <b>/<i> markup (from the bold sidecar)
-    wins; otherwise fall back to bolding a leading 'Order -'-style lexeme."""
+    wins; on top of that we always force-bold 'Order -' / 'Damage -' / etc.
+    onto a new line and strip trailing commas out of bold spans."""
     text = strip_braces(text.strip())
+    text = _force_lexeme_bold(text)
+    text = _trim_bold_trailing_punct(text)
     if '<b>' in text or '<i>' in text:
         return parse_markup_runs(text, default='med')
-    m = re.match(r'^([A-Z][A-Za-z]+ -)(.*)$', text)
-    if m:
-        return [('\n' + m.group(1), 'bold'), (m.group(2), 'med')]
     return [(text, 'med')]
 
 
@@ -1262,7 +1288,7 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # to the bottom of the Skills and Flavor Text group (spec: y=840). The game
     # text auto-shrinks to fit rather than truncating. (Design-space coords;
     # draw_textflow scales them to the output space.)
-    TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, cfg.get("text_right", 632), 840
+    TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, cfg.get("text_right", 648), 840
     if is_ship:
         # No skills row; start the text band at the top of the Skills/Flavor group.
         block_top = 648
@@ -1906,7 +1932,9 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     # [Baj] cards, ..."), so route through draw_textflow which handles inline
     # [Xyz] icons. Returns the y just below the last drawn line so the game
     # text band below can start under the actual skills bottom.
-    skills_box = [73, 612, 660, 685]
+    # Inset from chrome edges — printed skills band spans roughly the centre
+    # 70% of the card width; wider lets text eclipse the chrome (Risan Approach).
+    skills_box = [105, 612, 630, 685]
     skills_bottom = S(skills_box[1])
     req_text = (ROW.get("Skills") or "").strip()
     if req_text:
@@ -1942,14 +1970,8 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
         positions, scale = _affil_positions(len(stems))
         for stem, cx in zip(stems, positions):
             _paste_affil_icon(canvas, stem, cx, MISSION_AFFIL_CY, scale)
-    elif affil:
-        # Plain text variant (Any / HQ). Italic bold.
-        font_aff = gfont(F_FUTURA_BOLDO, PT_MISSION_AFFIL_TEXT)
-        # Strip wraps PSD bbox roughly [80, 875, 655, 915].
-        tw = int(draw.textlength(affil, font=font_aff))
-        y = vcenter_y(S(875), S(40), font_aff, affil)
-        cx = (S(80) + S(655)) // 2
-        draw.text((cx - tw // 2, y), affil, font=font_aff, fill=BLACK)
+    # No icons (data carries "Any affiliation..." prose or "<x> Headquarters")
+    # → leave the strip blank, matching the printed cards.
 
     # 11. Span — white digit centred in the small black disc at the bottom.
     # PSD bbox: [360, 953, 373, 982]. Same Futuri Condensed Bold face as Points.
