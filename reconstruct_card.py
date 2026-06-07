@@ -1668,9 +1668,11 @@ def render_interrupt(ROW: dict, NAME: str) -> Image.Image:
     BLACK = (0, 0, 0, 255)
 
     # Interrupts have no cost symbol on the printed card (the data's Cost
-    # column is meaningless here) and never show the unique dot.
+    # column is meaningless here) and never show the unique dot. The title
+    # can start further left than event/equipment because the cost circle
+    # slot is empty — clear only the affiliation swirl.
     draw_card_name(canvas, draw, NAME, unique=False,
-                   bar_top=65, bar_h=30, base_x=189, right_edge=670, color=BLACK)
+                   bar_top=65, bar_h=30, base_x=160, right_edge=670, color=BLACK)
 
     # "Interrupt" type label — bold, centred in [313, 555, 417, 587]
     font_lbl = gfont(F_FUTURA_BOLD, PT_INTERRUPT_LABEL)
@@ -1914,16 +1916,18 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     # Missions have a separate TITLE bar below, so the name must stay on a
     # single line (Kurl Excavation etc. would otherwise wrap and look like a
     # name+subtitle pair).
+    # Missions have no cost (the data's Cost column is meaningless here), so
+    # the name/title can start further left than personnel/ship — clear only
+    # the top-left Type icon at x≈33..115.
+    MISSION_NAME_X = 130
     draw_card_name(canvas, draw, NAME, ROW.get("Unique", "").upper() == "Y",
-                   bar_top=54, bar_h=30, base_x=180, right_edge=665, color=BLACK,
-                   min_size=14, max_lines=1)
+                   bar_top=54, bar_h=30, base_x=MISSION_NAME_X, right_edge=665,
+                   color=BLACK, min_size=14, max_lines=1)
     if TITLE:
         font_title = gfont(F_CRILEE, PT_TITLE)
         title_y = vcenter_y(S(93), S(22), font_title, TITLE)
-        # Left-aligned with the name (which sits at base_x + unique-dot offset
-        # when unique). The two lines read as a single block.
-        title_x = S(180 + UNIQUE_DOT_OFFSET) \
-                  if ROW.get("Unique", "").upper() == "Y" else S(180)
+        title_x = S(MISSION_NAME_X + UNIQUE_DOT_OFFSET) \
+                  if ROW.get("Unique", "").upper() == "Y" else S(MISSION_NAME_X)
         draw.text((title_x, title_y), TITLE, font=font_title, fill=BLACK)
 
     # 7. Points — white heavy display digit, centred in the chrome circle at
