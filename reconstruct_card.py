@@ -126,8 +126,15 @@ def load_rows(path: Path) -> list[dict]:
             for k in ("Keywords", "Skills", "gametext", "Name", "Affiliation"):
                 if k in row and row[k]:
                     row[k] = html.unescape(row[k])
+            # Skip alternate-art / reprint variants — duplicates of the primary
+            # printing under the same CollectorsInfo.
+            if _AC_R2_RE.search(row.get("Name", "")):
+                continue
             rows.append(row)
     return rows
+
+
+_AC_R2_RE = re.compile(r"\((AC|R2)\)\s*$")
 
 
 def load_name_title_overrides(path: Path) -> dict:
@@ -648,7 +655,7 @@ AFFIL_CFG = {
         "socket_asset": None,
         # Same slot paste positions as Cardassian; ring offsets start from
         # Bajoran calibration, adjust if glyph placement looks off.
-        "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, -3), "slot3": (0, -4), "slot4": (0, -2)},
+        "ring_centre_offsets": {"slot1": (-2, -1), "slot2": (0, 0), "slot3": (0, -4), "slot4": (0, -2)},
         # Ship cfg — Federation defaults (not yet calibrated per-affil).
         "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
         "cost_centre": (152, 71),
