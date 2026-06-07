@@ -876,6 +876,8 @@ INLINE_ICON_MAP = {
     # Mission/type marks
     'P': 'planet', 'S': 'space', 'Dual': 'dual', 'D': 'dual', 'HQ': 'headquarters',
     'Equ': 'equipment', 'Ev': 'event', 'Int': 'interrupt',
+    # Red skill dot — used inline in dilemma text e.g. "number of [SD] icons"
+    'SD': 'skill_dot',
 }
 LEADING_RATIO = 31.25 / 29   # uniform line height as a multiple of font size
 
