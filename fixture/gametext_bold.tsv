@@ -120,3 +120,34 @@ CollectorsInfo	gametext
 3S030	Unless you have <b>2 Diplomacy</b> or <b>Cunning>35, all</b> your personnel are stopped and this dilemma returns to its owner's dilemma pile.
 3R031	Your opponent chooses a personnel. Unless you choose to have all your personnel be stopped, that personnel is killed.
 3C008	Randomly select one of your stopped personnel on this ship to be killed.
+4C001	Unless you have <b>2 Diplomacy, 2 Treachery, and Cunning>42</b> or <b>2 Engineer, Navigation, and 2 Physics,</b> randomly select a Leadership personnel to be stopped, then this dilemma returns to its owner's dilemma pile.
+4C002	Randomly select a Diplomacy or Treachery personnel to be stopped.
+4C003	For each of your headquarters missions, randomly select a personnel to be stopped. If you still have nine personnel remaining, randomly select another personnel to be stopped. This dilemma returns to its owner's dilemma pile.
+4C004	Unless you have <b>Diplomacy, 2 Exobiology, and Strength>42</b> or <b>Intelligence, 2 Leadership, and Cunning>38,</b> randomly select a Security personnel to be stopped, then this dilemma returns to its owner's dilemma pile.
+4C006	Choose a personnel who has <b>Treachery</b> or <b>Integrity<4</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+4R007	Randomly select three personnel. They cannot use their skills while facing this dilemma. Unless you have <b>Biology,</b> Geology, and Medical or 2 Security and Strength>38, those personnel are returned to their owner's hand.
+4U008	Unless you have <b>Biology and 2 Medical</b> or <b>2 Honor and Integrity>30,</b> randomly select a personnel to be killed, then place this dilemma in your core. At the start of each of your turns, place the top card of your deck on this dilemma. When you complete a mission, all your cards here are shuffled and placed on top of your deck, then this dilemma is removed from the game.
+4R009	Your opponent chooses one of his or her captives. Unless you have the skills on that captive, all your personnel are stopped.
+4U010	Unless you have <b>2 Engineer and Transporters</b> or <b>Geology, Officer, and Strength>35,</b> randomly select two personnel to return to their owner's hand.
+4R011	Your opponent discards any number of event or equipment cards from hand and names a skill (except Acquisition, Intelligence, Law or Telepathy) for each one. Unless you have those skills, all your personnel are stopped.
+4U012	Randomly select three personnel. Unless one of those personnel has an <b>attribute>6,</b> all three are stopped.
+4C013	Randomly select an Officer or Security personnel to be stopped.
+4U014	For each event your opponent commands in his or her core, this dilemma is cost -1. Unless you have <b>Diplomacy, Intelligence, 2 Programming and Cunning>38</b> or <b>2 Honor, Law, and 2 Officer,</b> randomly select three personnel to be stopped.
+4U016	For each headquarters mission you command, your opponent names a skill. Place this dilemma on this mission. While your personnel is facing a dilemma, he or she cannot use those skills. At the end of this mission attempt, this dilemma is overcome.
+4C017	Randomly select a personnel. If that personnel has a <b>skill listed</b> in this mission's requirements (or any alternate requirements listed in the game text you are using to attempt it), he or she is stopped.
+4R018	Randomly select a personnel who costs 1 or 2. All other personnel who cost 1 or 2 are stopped.
+4C019	Unless you have the skills needed to complete this mission, this dilemma and all remaining dilemmas you have not yet faced return to their owner's dilemma pile.
+4C020	Unless you have <b>Anthropology and Leadership</b> or <b>2 Diplomacy and Integrity>30,</b> randomly stop two personnel for each headquarters mission you command.
+4C021	Unless you command an event in your core, your opponent chooses a personnel to be killed for each headquarters mission you command. If you have at least one card in your hand, you may discard your hand to prevent this.
+4U022	If your opponent commands a Jem'Hadar, randomly select a personnel to be killed. Otherwise, choose a personnel to be killed.
+4U023	Unless you have <b>Engineer and 2 Physics</b> or <b>2 Programming and Science,</b> all of your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+4U024	Your opponent names a skill. Randomly select two personnel. Each of those personnel that has that skill is stopped.
+4R025	Your opponent takes one of his or her planet dilemmas that is overcome beneath one of your missions and places it face down on top of his or her stack of chosen dilemmas.
+4C026	Unless you have <b>Anthropology, 2 Archaeology, and Integrity>38</b> or <b>2 Honor and 2 Officer,</b> all your Treachery personnel are stopped.
+4R027	Place this dilemma on this mission. At the end of this turn, this dilemma is overcome. If at that time this mission has not been completed, its owner discards his or her hand.
+4R028	For each event your opponent commands in his or her core, this dilemma is cost -1. Unless you have <b>2 Anthropology, 2 Programming, and Cunning>38</b> or <b>2 Biology, Exobiology, and 2 Medical,</b> randomly select three personnel to be killed.
+4U029	Choose a personnel. Your opponent may discard cards from hand equal to the number of [SD] icons on that personnel to place him or her in your opponent's brig.
+4R030	For each event your opponent commands in his or her core, this dilemma is cost -1. Unless you have <b>2 Geology, 2 Physics, and Cunning>38</b> or <b>2 Honor, 2 Officer, and Transporters,</b> randomly select three personnel to be killed.
+4C031	Randomly select a personnel. Unless that personnel <b>has</b> an <b>attribute>6,</b> he or she is stopped. If that personnel also has an attribute<5, he or she is killed instead of being stopped.
+4C005	Unless you have <b>Diplomacy and Cunning>30</b> or <b>Leadership and Strength>30,</b> all of your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+4C015	Choose a personnel who has <b>Diplomacy</b> or <b>Integrity>6</b> to be stopped. If you cannot, randomly select a personnel to be killed.
