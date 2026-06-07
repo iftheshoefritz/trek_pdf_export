@@ -1919,7 +1919,7 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     # Missions have no cost (the data's Cost column is meaningless here), so
     # the name/title can start further left than personnel/ship — clear only
     # the top-left Type icon at x≈33..115.
-    MISSION_NAME_X = 130
+    MISSION_NAME_X = 150
     draw_card_name(canvas, draw, NAME, ROW.get("Unique", "").upper() == "Y",
                    bar_top=54, bar_h=30, base_x=MISSION_NAME_X, right_edge=665,
                    color=BLACK, min_size=14, max_lines=1)
