@@ -77,7 +77,7 @@ AFFILIATION_CELLS = {
     "klingon":    (0, 2),
     "cardassian": (0, 6),
     "dominion":   (0, 7),
-    "bajoran":    (0, 8),
+    "bajoran":    (0, 9),
 }
 INLINE_SIZE = 24   # matches the existing extracted/icons/inline/*.png
 
