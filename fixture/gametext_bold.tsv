@@ -1,6 +1,66 @@
 CollectorsInfo	gametext
 # Auto-detected bold spans from scans (detect_bold_gametext.py),
 # with hand corrections from gametext_bold_overrides.tsv merged in.
+1U001	Place this dilemma on this mission. Each personnel on this planet who does not have Treachery is attributes -1. At the end of this turn, this dilemma is overcome.
+1R002	Unless you have <b>2 Anthropology</b> or <b>2 Leadership and Weapons>8,</b> randomly select a personnel to be <b>killed, all</b> your other personnel are stopped, and this dilemma is placed on your ship. Damage - This ship is attributes -2.
+1C003	Unless you have <b>2 Engineer and Physics</b> or <b>Medical and Transporters,</b> randomly select three personnel to be stopped.
+1C004	Unless you have a personnel who has <b>2 Anthropology</b> or a personnel who has <b>2 Telepathy,</b> your opponent chooses an Anthropology or Telepathy personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R005	Randomly select four personnel. Unless they have <b>Cunning>22</b> or one of them has <b>Cunning>7,</b> your opponent chooses one of them to be killed, then the other three are stopped.
+1C006	Unless you have <b>2 Security</b> or <b>Cunning>26,</b> your opponent chooses a personnel (except an Android or a Shape-shifter) to be killed, then all your other personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R007	Randomly select two personnel. Each of those personnel who does not have <b>Treachery</b> is killed.
+1C008	Unless you have a personnel who has <b>2 Anthropology</b> or a personnel who has <b>2 Archaeology,</b> your opponent chooses an Anthropology or Archaeology personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C009	Unless you have <b>2 Security</b> or a <b>Hand Weapon,</b> randomly select a personnel to be killed, then all your other personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R010	Unless you have <b>2 Exobiology and 2 Science</b> or <b>3 Security</b> or <b>two Hand Weapons,</b> randomly select a personnel (except a Changeling) to be killed, then all your other personnel are stopped.
+1U011	Unless you have <b>Diplomacy</b> or <b>Telepathy,</b> all your personnel are stopped. If you have two or more personnel who have Diplomacy or Telepathy, randomly select all but one of those personnel to be stopped.
+1C014	Unless you have <b>3 Security</b> or a <b>Hand Weapon and Cunning>28</b> or <b>Quark,</b> your opponent chooses a <b>Treachery</b> personnel to be killed, then all your other personnel are stopped.
+1C015	Randomly select three personnel. If the highest Cunning among those personnel is even, all three of them are stopped.
+1C016	Randomly select three personnel. Choose to return one of those personnel to its owner's hand or to have all three of them be stopped.
+1S017	Choose a personnel who has <b>Leadership</b> or <b>Officer</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+1C018	Unless you have <b>2 Engineer</b> or <b>2 Programming, choose</b> a personnel who has Medical or Science to be stopped, then this dilemma returns to its owner's dilemma pile.
+1C019	Unless you have <b>Engineer and Physics</b> or <b>2 Exobiology, all</b> your Medical personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1U020	If you have <b>Integrity>50,</b> lose 5 points. Also, unless you have <b>2 Diplomacy</b> or <b>Intelligence and 2 Treachery</b> or <b>Strength>30,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C021	Unless you have <b>2 Science and 2 Security</b> or <b>3 Treachery,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C022	Unless you have <b>Astrometrics</b> or <b>Navigation, all</b> your <b>Engineer</b> personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R023	Unless you have <b>Law,</b> randomly select a personnel who has <b>Integrity<4</b> to be placed in its owner's discard pile. If you cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R024	Randomly select three personnel. Each of those personnel who has <b>Strength<6</b> is killed.
+1S025	Return all your equipment to their owner's hands.
+1R026	Randomly select a personnel to be killed. If you still have nine personnel remaining, randomly select a second personnel to be killed. If you still have ten personnel remaining, randomly select a third personnel to be killed.
+1R027	Unless you have <b>2 Astrometrics</b> or <b>3 Engineer</b> or a personnel who has <b>2 Navigation,</b> all your personnel are stopped and this dilemma is placed on your ship. Damage - This ship is attributes -2.
+1R028	Unless you have <b>Astrometrics, Engineer, and Physics</b> or <b>Shields + unused Range</b> this <b>turn>13,</b> all your personnel are stopped and this dilemma is placed on your ship. Damage - This ship is attributes -2.
+1C029	Randomly select two personnel. Each of those personnel who has <b>Cunning+Strength<11</b> is killed.
+1R030	Unless you have <b>Cunning>32,</b> your personnel who has the highest cost is placed in your opponent's brig, then all your other personnel are stopped.
+1C031	Unless you have <b>Engineer and 2 Programming</b> or <b>2 Medical,</b> all your personnel are stopped.
+1R032	Your opponent chooses two personnel (except an Android or a Hologram). Randomly select one of those personnel to be killed.
+1S033	Choose a personnel who has <b>Leadership</b> or <b>Security</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+1S034	Randomly select nine personnel. All your other personnel are stopped. Place this dilemma on this mission. When you attempt this mission again, after your opponent draws dilemmas, he or she may take this dilemma and add it to those drawn.
+1R035	Unless you have <b>3 Officer</b> or <b>3 Programming, all</b> your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C036	Choose a personnel who has <b>Astrometrics</b> or <b>Navigation</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+1C037	Unless you have a personnel who has <b>2 Exobiology</b> or a personnel who has <b>2 Geology,</b> your opponent chooses an Exobiology or Geology personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C038	Randomly select a [Cmd] personnel to be stopped. Unless you have <b>Diplomacy and 2 Honor</b> or <b>2 Security</b> or <b>Miles O'Brien,</b> that personnel is killed instead.
+1R039	Unless you have <b>2 Diplomacy and 2 Engineer</b> or <b>2 Security</b> and a <b>Hand Weapon,</b> this dilemma is placed on your ship. Damage - At the end of each of your turns, randomly select a personnel aboard this ship to be killed.
+1C040	Unless you have <b>2 Anthropology</b> or <b>3 Diplomacy</b> or <b>Strength>35,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C041	Randomly select a personnel to be stopped. Unless you have <b>Diplomacy and Medical</b> or <b>2 Security,</b> that personnel is killed instead, then all your other personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R042	Unless you have <b>Leadership</b> or <b>Officer,</b> all your personnel are stopped. If you have two or more personnel who have <b>Leadership</b> or Officer, randomly select all but one of those personnel to be stopped.
+1S043	Randomly select a personnel to be stopped. If you still have nine personnel remaining, randomly select a second personnel to be stopped. If you still have ten personnel remaining, randomly select a third personnel to be stopped.
+1C044	Choose a personnel who has <b>Geology</b> or <b>Programming</b> to be stopped. If you cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1U045	Unless you have <b>Anthropology and Leadership</b> or <b>3 Diplomacy</b> or <b>2 Intelligence</b> or four personnel <b>who</b> each have <b>Strength>6,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R046	Randomly select a personnel to be killed. If you still have nine personnel remaining, randomly select a second personnel to be killed. If you still have ten personnel remaining, randomly select a third personnel to be killed.
+1U047	Unless at least half your personnel are not [NA], all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C048	Unless you have a personnel who has <b>2 Biology</b> or a personnel who has <b>2 Medical,</b> your opponent chooses an Biology or Medical personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1U049	Randomly select a personnel. If that personnel has <b>Acquisition</b> or <b>Treachery,</b> he or she is stopped. Otherwise, he or she is killed.
+1C050	Unless you have a personnel who has <b>2 Physics</b> or a personnel who has <b>2 Science,</b> your opponent chooses an <b>Physics</b> or Science personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R051	Unless you choose to place this dilemma on your ship at this mission, all your personnel are stopped. Damage - This ship is attributes-2.
+1C052	Choose a personnel who has <b>Engineer</b> or <b>Programming</b> to be stopped. If you cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1U053	Randomly select three personnel. Each of those personnel that does not have <b>Honor</b> or <b>Treachery</b> is stopped.
+1C054	Unless you have a personnel who has <b>2 Diplomacy</b> or a personnel who has <b>2 Leadership,</b> your opponent chooses an Diplomacy or Leadership personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C056	Randomly select a personnel who has Leadership or <b>Security.</b> If that personnel has <b>Cunning<7,</b> he or she is killed.
+1C057	Choose a personnel who has <b>Biology</b> or <b>Medical</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+1R058	The most Cunning Science personnel who does not have <b>Treachery</b> is killed. Unless you have <b>Cunning>24</b> remaining, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1U059	If you have <b>Strength>55,</b> lose 5 points. Also, unless you have <b>Anthropology and 2 Honor</b> or <b>two Hand Weapons</b> or <b>Integrity>28,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C060	Unless you have a personnel who has <b>2 Astrometrics</b> or a personnel who has <b>2 Navigation,</b> your opponent chooses an Astrometrics or Navigation personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C012	Unless you have a personnel who has <b>2 Engineer</b> or a personnel who has <b>2 Programming,</b> your opponent chooses an Engineer or Programming personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1C013	Unless you have <b>2 Archaeology</b> or <b>2 Geology,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+1R055	Unless you have a <b>Leadership</b> personnel who has <b>Cunning>6</b> or <b>Telepathy,</b> randomly select a personnel to be placed in your opponent's brig, then all your other personnel are stopped.
 2U001	Unless you have <b>2 Intelligence and Treachery</b> or <b>2 Leadership and Cunning>32,</b> randomly select a personnel. If that personnel has <b>Strength<7,</b> he or she is killed, then all your other personnel are stopped and this dilemma returns to its owner's dilemma pile.
 2R002	Randomly select three personnel. If the <b>total cost</b> of those personnel is <b>4 or less,</b> they are killed. Otherwise, randomly select one of those personnel to be killed.
 2U003	Unless you have <b>2 Leadership and Officer</b> or <b>2 Navigation and Shields>6,</b> randomly select a personnel to be killed, then this dilemma is placed on your ship. Damage - This ship is attributes -2.
@@ -29,3 +89,34 @@ CollectorsInfo	gametext
 2R026	Randomly select three personnel. If the total cost of those personnel is <b>4 or less,</b> they are killed. Otherwise, randomly select one of those personnel to be killed.
 2C027	Randomly select a Treachery personnel. If that personnel has <b>Cunning>6,</b> he or she is stopped. Otherwise, he or <b>she</b> is killed.
 2C028	Randomly select a personnel to be stopped. Unless you have <b>Astrometrics and 2 Diplomacy</b> or <b>Exobiology and 2 Medical,</b> place that personnel on top of his or her owner's deck instead.
+3C001	Randomly select one of your stopped personnel on this planet to be killed.
+3S002	Unless you have <b>Biology, Physics, and Cunning>32</b> or <b>Intelligence and 2 Medical,</b> randomly select a Leadership personnel to be killed.
+3C003	Unless you have <b>2 Diplomacy and Security</b> or <b>2 Programming and Transporters,</b> randomly select an Engineer to be killed.
+3C004	Randomly select three personnel. If any of those personnel has Leadership, all three are stopped. Otherwise, choose one of those personnel to be stopped.
+3R005	Unless you have <b>2 Geology</b> or <b>Strength>40, randomly select</b> a personnel to be killed, then all your other personnel are stopped and this dilemma returns to its owner's dilemma pile.
+3C006	Unless you have <b>2 Anthropology</b> or <b>2 Medical</b> or <b>Telepathy and Integrity>32,</b> your opponent chooses a personnel to be stopped and this dilemma is returned to its owner's dilemma pile.
+3S007	Unless you have a personnel who has <b>2 Medical</b> or a personnel who has <b>2 Science,</b> your opponent chooses a Medical or Science personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+3U009	Randomly select three personnel. If the cost of any of those personnel is 1, all three are stopped. Otherwise, choose one of those personnel to be stopped.
+3S010	Unless you have a personnel who has <b>2 Anthropology</b> or a personnel who has <b>2 Security,</b> your opponent chooses a Anthropology or Security personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+3R011	Unless you have <b>2 Honor</b> or <b>2 Treachery, all</b> your personnel are stopped. Each Honor or Treachery personnel that uses his or her skills while facing this dilemma is placed on the bottom of his or her owner's deck.
+3R012	Unless you have <b>2 Diplomacy and Integrity>32</b> or <b>Telepathy and Integrity>35,</b> all your personnel are stopped and this dilemma is placed on your ship. Damage - This ship is attributes-2.
+3C013	Unless you have <b>Astrometrics, Physics, and Cunning>32</b> or <b>Biology and 2 Medical,</b> randomly select a Science personnel to be killed.
+3C014	Randomly select three personnel. If any of those personnel has Anthropology, all three are stopped. Otherwise, choose one of those personnel to be stopped.
+3S015	Unless you have a personnel who has <b>2 Diplomacy</b> or a personnel who has <b>2 Treachery,</b> your opponent chooses a Diplomacy or Treachery personnel to be stopped. If your opponent cannot, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+3S016	Unless you have <b>Anthropology and 2 Security</b> or <b>Exobiology, Honor, and Integrity>32,</b> randomly select a Treachery personnel to be killed.
+3C017	Unless you have <b>Anthropology, Diplomacy, and Cunning>32</b> or <b>2 Exobiology and Leadership,</b> randomly select a personnel to be stopped, then this dilemma returns to its owner's dilemma pile.
+3C018	Randomly select three personnel. If any of those personnel has Security, all three are stopped. Otherwise, randomly select one of those personnel to be stopped.
+3R019	Place this dilemma on this mission. When a personnel facing a dilemma at this mission uses his or her skills, he or she is stopped. At the end of this turn, return this dilemma to its owner's dilemma pile.
+3U020	Your opponent names a skill. Randomly select a personnel who has that skill. While a personnel who has that same card title is facing a dilemma, he or she cannot use his or her skills. This effect lasts until the end of this mission attempt.
+3S021	Unless you have <b>Exobiology and 2 Medical</b> or <b>Honor and Telepathy,</b> randomly select a Security personnel to be killed.
+3R022	Unless you have <b>2 Astrometrics and 2 Navigation</b> or <b>2 Engineer, Science, and Shields>8,</b> this dilemma is placed on your ship. Damage - When your personnel aboard this ship are about to face a dilemma, randomly select one of them to be stopped.
+3U023	Randomly select a personnel to be stopped. If you still have nine personnel remaining, that personnel is placed in your opponent's brig instead, then randomly select a second personnel to be placed in your opponent's brig. If you still have ten personnel remaining, randomly select a third personnel to be placed in your opponent's brig.
+3C024	Unless you have <b>2 Anthropology and Integrity>30</b> or <b>Exobiology, Medical, and Cunning>35,</b> randomly select a personnel to be killed, then all your other personnel are stopped.
+3U025	Unless you have Intelligence and <b>Cunning>35</b> or a <b>Hand Weapon and Strength>35,</b> randomly select a personnel to be killed, then all your other personnel are stopped.
+3U026	Your opponent chooses a personnel. You may replace him or her with any one personnel of the same affiliation from your deck. Place the personnel your opponent chose in his or her owner's discard pile. Shuffle and replace your deck.
+3C027	Unless you have <b>2 Anthropology and Cunning>32</b> or <b>2 Programming and Science,</b> randomly select a personnel to be stopped, then this dilemma returns to its owner's dilemma pile.
+3U028	Place this dilemma on this mission. To begin a mission attempt at this mission, you must have at least six personnel involved. When you complete this mission, this dilemma is overcome.
+3C029	Randomly select three personnel. If any of those personnel has <b>Treachery,</b> all three are stopped. Otherwise, randomly select one of those personnel to be stopped.
+3S030	Unless you have <b>2 Diplomacy</b> or <b>Cunning>35, all</b> your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+3R031	Your opponent chooses a personnel. Unless you choose to have all your personnel be stopped, that personnel is killed.
+3C008	Randomly select one of your stopped personnel on this ship to be killed.
