@@ -1894,11 +1894,14 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
     paste_rgba(canvas, MISSION_ASSETS / "Card_Background/Card_Frame.png",
                S(27), S(26))
 
-    # 4. Type icon (Space/Planet/Headquarters) top-left.
+    # 4. Type icon — Space/Planet are 80x80 icons at top-left (PSD bbox
+    # (33,40,113,120)). The HQ asset is the full Type/Headquarters layer
+    # which extends from the top-left H icon all the way down to the silver
+    # sphere at mid-right; its native origin is (36, 45).
     mtype = (ROW.get("Mission") or "").strip().upper()
     if mtype in MISSION_TYPE_ASSET:
-        paste_rgba(canvas, MISSION_ASSETS / MISSION_TYPE_ASSET[mtype],
-                   S(33), S(40))
+        paste_xy = (S(36), S(45)) if mtype == "H" else (S(33), S(40))
+        paste_rgba(canvas, MISSION_ASSETS / MISSION_TYPE_ASSET[mtype], *paste_xy)
 
     # 5. Quadrant icon (left, below image). Beta has no asset.
     quad = (ROW.get("Quadrant") or "").strip().upper()
@@ -1944,14 +1947,6 @@ def render_mission(ROW: dict, NAME: str, TITLE: str = "") -> Image.Image:
         px = S(cx_design) - (l + r) // 2
         py = S(cy_design) - (t + b) // 2
         draw.text((px, py), points_text, font=font_pts, fill=WHITE)
-    elif mtype == "H":
-        # HQ missions have no Points value; the printed card shows a large
-        # affiliation glyph centred at the same position. Derive the stem
-        # from the leading word of "<x> Headquarters".
-        affil_raw = (ROW.get("Affiliation") or "").strip()
-        hq_stem = affil_raw.split()[0] if affil_raw else ""
-        if (MISSION_ASSETS / "Affiliations/icons" / f"{hq_stem}.png").exists():
-            _paste_affil_icon(canvas, hq_stem, 664, 590)
 
     # 8. Requirements (Skills column) — centred bold. For HQ missions the
     # Skills column actually holds the printed HQ rules text ("You may play
