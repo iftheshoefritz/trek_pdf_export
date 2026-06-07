@@ -1006,7 +1006,10 @@ def keyword_runs(text):
         if ': ' in phrase:
             head, tail = phrase.split(': ', 1)
             runs.append((head + ': ', 'bold'))
-            runs.append((tail, 'italic'))
+            # Both sides of the colon are bold; only "Commander: <ship>"
+            # italicises the ship name.
+            tail_style = 'italic' if head.strip() == 'Commander' else 'bold'
+            runs.append((tail, tail_style))
         else:
             runs.append((phrase, 'bold'))
     return runs
