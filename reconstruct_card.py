@@ -1820,6 +1820,8 @@ MISSION_AFFIL_ICON = {
     "Baj": "Bajoran",
     "Fer": "Ferengi",
     "Bor": "Borg",
+    "SF":  "Starfleet",
+    "Non": "Non-Alligned",
 }
 
 # Affiliation strip geometry, derived from the PSD's actual icon positions in
