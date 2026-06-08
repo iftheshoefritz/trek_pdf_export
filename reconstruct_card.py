@@ -73,9 +73,9 @@ PHOTOS = Path("fixture/low quality decipher images")
 CARDIMAGES = Path("../webula/public/cardimages")
 NAME_TITLE_OVERRIDE = Path("fixture/name_title_map.tsv")
 # Per-card game text with <b>/<i> markup (bold = dilemma requirements etc.).
-# There is no markup in the card data, so bold is recovered from the original
-# scans by detect_bold_gametext.py and reviewed by hand. When a card appears
-# here its marked-up text replaces the plain gametext at render time.
+# Extracted from db_for_achievements.sql by extract_dilemma_bold_from_db.py.
+# When a card appears here its marked-up text replaces the plain gametext at
+# render time.
 GAMETEXT_MARKUP = Path("fixture/gametext_bold.tsv")
 DEFAULT_INPUT  = Path("fixture/federation_personnel_fixture.txt")
 OUTDIR = Path("fixture/reconstructed")
@@ -605,10 +605,12 @@ AFFIL_CFG = {
         "ring_centre_offsets": {"slot1": (+3, +4), "slot2": (+4, +6), "slot3": (+4, +5), "slot4": (+4, +8)},
         # Ship cfg — Federation defaults (not yet calibrated per-affil).
         "ship_staff_slot_xy": [(49, 168), (49, 223), (49, 279), (49, 334), (49, 389)],
-        "cost_centre": (152, 71),
-        "name_bar": (196, 56, 670, 30),
-        "title_bar": (210, 93, 22),
-        "class_oval_bbox": (287, 552, 440, 588),
+        # Cost/Name/Title/Class bboxes from the SF PSD (Card_Frame's chrome
+        # sits slightly lower than Federation's).
+        "cost_centre": (158, 77),
+        "name_bar": (198, 63, 670, 29),
+        "title_bar": (213, 99, 22),
+        "class_oval_bbox": (290, 555, 445, 592),
         "attr_label_x": (126, 335, 548),
         "attr_value_x": (237, 449, 662),
         "attr_bar_yh": (916, 23),

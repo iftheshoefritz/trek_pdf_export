@@ -338,32 +338,20 @@ none of them is flavor text. If/when a flavor source is added, plumb it into
 ## Bold game-text detection
 
 **DILEMMAS ONLY.** Bold game text is a dilemma-specific convention — it marks
-the "requirements" to overcome a dilemma. No other card type uses bold this way,
-so `detect_bold_gametext.py` is meant to be run only on dilemma rows; running it
-on other types is meaningless.
+the "requirements" to overcome a dilemma (skills, attributes, cost, number of
+personnel, ...) and matters for gameplay. No other card type uses bold this way.
 
-Bold game text marks 2E "requirements" (skills, attributes, cost, number of
-personnel, ...) and matters for gameplay, but no card-data source records it.
-`detect_bold_gametext.py` recovers it from the scans and writes
-`fixture/gametext_bold.tsv`, which `reconstruct_card.py` reads (via the
-`GAMETEXT_MARKUP` sidecar) to render `<b>..</b>` runs. See the script's module
-docstring for the full pipeline and rules. Two design facts worth keeping front
-of mind:
+`cards_with_processed_columns.txt` doesn't carry the markup, but the 2E `card`
+table in `db_for_achievements.sql` does — `card.gametext` for Dilemma rows
+contains `<b>...</b>` runs verbatim from the original card data.
+`extract_dilemma_bold_from_db.py` parses the SQL dump, joins each row to a
+master entry by title (handling embedded `"`, `'`, etc.), and writes
+`fixture/gametext_bold.tsv`. `reconstruct_card.py` reads it via the
+`GAMETEXT_MARKUP` sidecar to render `<b>..</b>` runs.
 
-- **Per-card self-calibration is mandatory.** The dilemmas span 10+ years and
-  are mostly *virtual* (never-printed) cards with no common print/scan/render
-  process, so there is no absolute or cross-card weight scale — bold vs regular
-  is only separable *within* one card. Hence per-card / per-line baselines, and
-  detection per word-instance (the same word can be bold in one place and not
-  another, so we never key off word identity).
-- **Recall-biased on purpose.** A missed bold is a silent gameplay error; an
-  extra one is obvious in review and easy to trim. Thresholds favour
-  over-flagging; the sidecar is a reviewed first pass.
-
-Cases the pixels can't resolve (heavy-print or low-contrast cards) are pinned in
-`fixture/gametext_bold_overrides.tsv` and merged at write time, so they survive
-re-running the detector. `--review-dir DIR` writes per-card crops with the
-detected-bold words boxed, for eyeballing against the scans.
+Verified comprehensive for sets 1-14 (335 unique master titles → 292 matched →
+186 with bold; the 43 unmatched are `*A`/`(R2)`/`(SR)`/`(AC)` reprints whose
+base printings ARE matched and carry the same gametext).
 
 ## Reference deck and source PDFs
 
@@ -378,16 +366,8 @@ The source PDFs are large (~148MB total) and are **git-ignored** (`fixture/*.pdf
 plus the `fixture/*_cards/` images sliced from them) — kept locally only.
 
 Source PDFs under `fixture/`:
-- `2eed_hires.pdf` — the 2E errata document: more recent updates to older cards,
-  so it spans many eras. Its text is *real text in the actual fonts*
-  (regular = `Futura-Condensed`, bold = `Futura-CondensedBold`), so bold would be
-  recoverable directly from font names — but **it covers very few of the cards we
-  care about**, so it can never be more than a patch over a small handful.
-  **OUT OF SCOPE — do not propose this as a bold-detection improvement.** It is
-  deliberately set aside until the scan-based approaches in
-  `detect_bold_gametext.py` are exhausted (the in-script borderline-disambiguation
-  priors, per-line calibration tuning, etc.). Revisit only if those are genuinely
-  played out; until then it is not a replacement for, nor a layer above,
-  `detect_bold_gametext.py`.
+- `2eed_hires.pdf` — the 2E errata document: more recent updates to older
+  cards. Not currently used by the pipeline; bold markup is sourced from
+  `db_for_achievements.sql` (see "Bold game-text detection" above).
 - `ReturntoGrace_hires.pdf`, `2e_eratta_sample.pdf` — further PDFs, not yet
   examined. `extract_cards.py` slices individual card images out of such grids.

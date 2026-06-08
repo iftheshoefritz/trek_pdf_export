@@ -31,14 +31,13 @@ python3 extract_layout_from_template.py "templates/2e HD Federation v1.psd" ./ex
 python3 reconstruct_card.py [INPUT.txt] [--dpi 300|600|800]
 # default INPUT is fixture/federation_personnel_fixture.txt
 
-# Detect bold runs in DILEMMA game text from scans -> fixture/gametext_bold.tsv
-python3 detect_bold_gametext.py [--review-dir DIR]
+# Extract DILEMMA bold markup from the achievements DB -> fixture/gametext_bold.tsv
+python3 extract_dilemma_bold_from_db.py
 ```
 
 There is no test suite, lint config, or package manifest. Required CLI tooling:
-`tesseract` on PATH (used by `reconstruct_card.py` for NAME/TITLE split and by
-`detect_bold_gametext.py`). Python deps used directly: `PIL`/`Pillow`, `psd-tools`,
-`numpy`, `scipy` (for `detect_bold_gametext.py`).
+`tesseract` on PATH (used by `reconstruct_card.py` for NAME/TITLE split).
+Python deps used directly: `PIL`/`Pillow`, `psd-tools`.
 
 ## Architecture
 
@@ -89,14 +88,14 @@ The authoritative notes are in `reconstruct_card.md` and `notes.md`:
   alignment, uniform line height, and auto-shrink for dense game text. Keyword
   text continues inline with game text on the same line unless the game text
   begins with an "Order -"-style bold lexeme.
-- **Bold game text is DILEMMA-ONLY** and not present in any data source.
-  `detect_bold_gametext.py` recovers it per-card from the scans (per-card
-  self-calibration is mandatory — these are virtual cards from 10+ years with
-  no common print/scan process; cross-card weight scales don't exist).
-  The detector is recall-biased; hand corrections live in
-  `fixture/gametext_bold_overrides.tsv` and are merged at write time so they
-  survive re-runs. The renderer reads `fixture/gametext_bold.tsv` as the
-  `GAMETEXT_MARKUP` sidecar.
+- **Bold game text is DILEMMA-ONLY** and not present in
+  `cards_with_processed_columns.txt`, but the 2E `card` table in
+  `db_for_achievements.sql` stores `<b>...</b>` markup in `card.gametext` for
+  dilemmas. `extract_dilemma_bold_from_db.py` joins those rows to the master
+  file by title and writes `fixture/gametext_bold.tsv`. The renderer reads
+  that as the `GAMETEXT_MARKUP` sidecar. Verified comprehensive for sets 1–14
+  (the unmatched titles are all `*A`/`(R2)`/`(SR)`/`(AC)` reprint variants
+  whose base printings are already matched).
 - **Scope today:** every card type in the data has a renderer
   (Personnel, Ship, Dilemma, Event, Interrupt, Equipment, Mission). Personnel
   and Ship share `render_card`, which dispatches via `affil_cfg()` — all 11
@@ -126,11 +125,6 @@ The authoritative notes are in `reconstruct_card.md` and `notes.md`:
   is the chosen approach. (Genuine alternatives, if ever needed:
   super-resolution baked per-DPI, vectorising key elements, or sourcing higher-
   res templates.)
-- **`2eed_hires.pdf` is OUT OF SCOPE as a bold-detection source** even though
-  its bold is recoverable from font names. It covers very few of the cards we
-  care about. Do not propose it as an improvement over the scan-based detector
-  until the in-script disambiguation priors and per-line calibration in
-  `detect_bold_gametext.py` are genuinely exhausted.
 - **Ship staffing dark socket disc** is authentic, not an artefact (visible on
   printed cards). Keying it transparent was tried and rejected — the scan's
   own printed star ghosts through.

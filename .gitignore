@@ -18,3 +18,7 @@ fixture/reconstructed_*.png
 fixture/*.pdf
 # card images sliced out of those PDFs (regenerate with extract_cards.py)
 fixture/*_cards/
+
+# achievements DB dump (~129MB) — bold-markup source for
+# extract_dilemma_bold_from_db.py; kept locally
+db_for_achievements.sql

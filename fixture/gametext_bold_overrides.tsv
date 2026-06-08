@@ -1,5 +1,0 @@
-CollectorsInfo	gametext
-# Intentionally empty — cleared to start bold detection from a clean slate (no
-# hand overrides). To override the scan-based detector for a card it can't get
-# right, add a row here (CollectorsInfo<TAB>marked-up gametext); overrides win
-# and survive re-running detect_bold_gametext.py.
