@@ -1492,8 +1492,13 @@ def render_dilemma(ROW: dict, NAME: str) -> Image.Image:
     cx = (S(313) + S(415)) // 2
     draw.text((cx - lbl_w // 2, lbl_y), lbl, font=font_lbl, fill=BLACK)
 
-    # Game text — flows in the text band; auto-shrinks to fit. No keyword line.
-    draw_textflow(canvas, draw, gametext_runs(ROW["gametext"]),
+    # Game text — keyword (e.g. "Consume: 2.") renders bold ahead of the rules
+    # text, like events. Flows in the text band; auto-shrinks to fit.
+    keywords_text = strip_braces(ROW["Keywords"].strip())
+    runs = gametext_runs(ROW["gametext"])
+    if keywords_text:
+        runs = keyword_runs(keywords_text) + [(" ", "med")] + runs
+    draw_textflow(canvas, draw, runs,
                   [120, 670, 635, 797], BLACK, PT_GAME)
 
     # Rarity — centred in [619, 984, 669, 996]
