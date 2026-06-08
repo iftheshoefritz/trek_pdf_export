@@ -938,15 +938,20 @@ def parse_markup_runs(text, default='med'):
 
 
 # Lexemes that always render bold on their own line, regardless of where they
-# appear in the rules text (start, or after a sentence terminator).
+# appear in the rules text (start, or after a sentence terminator — including
+# `.)` / `."` patterns where a closer follows the terminator).
 LEXEME_BOLD_RE = re.compile(
-    r'(^|(?<=[.!?])\s+)(Damage|Order|Range|Shields|Weapons) -'
+    r'(^|[.!?][)"’”]*\s+)(Damage|Order|Range|Shields|Weapons) -'
 )
 
 
 def _force_lexeme_bold(text):
-    return LEXEME_BOLD_RE.sub(
-        lambda m: '\n<b>' + m.group(2) + ' -</b>', text)
+    # Decipher prints these keywords with an en-dash (e.g. "Order –"), even
+    # though the source data and CC use a hyphen-minus.
+    def sub(m):
+        prefix = m.group(1).rstrip()  # keep terminator + any closers, drop the gap
+        return prefix + '\n<b>' + m.group(2) + ' –</b>'
+    return LEXEME_BOLD_RE.sub(sub, text)
 
 
 # Trim trailing punctuation out of bold spans — bold marks the requirement
@@ -1647,7 +1652,7 @@ def render_event(ROW: dict, NAME: str) -> Image.Image:
     runs = gametext_runs(ROW["gametext"])
     if keywords_text:
         runs = [(keywords_text + " ", 'bold')] + runs
-    draw_textflow(canvas, draw, runs, [120, 672, 639, 828], BLACK, PT_GAME)
+    draw_textflow(canvas, draw, runs, [120, 672, 660, 828], BLACK, PT_GAME)
 
     # Rarity — centred in [619, 984, 669, 996]
     font_rarity = gfont(F_FUTURA_BOLD, PT_RARITY)
