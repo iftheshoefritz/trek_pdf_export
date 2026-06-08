@@ -151,6 +151,21 @@ CollectorsInfo	gametext
 4C031	Randomly select a personnel. Unless that personnel <b>has</b> an <b>attribute>6,</b> he or she is stopped. If that personnel also has an attribute<5, he or she is killed instead of being stopped.
 4C005	Unless you have <b>Diplomacy and Cunning>30</b> or <b>Leadership and Strength>30,</b> all of your personnel are stopped and this dilemma returns to its owner's dilemma pile.
 4C015	Choose a personnel who has <b>Diplomacy</b> or <b>Integrity>6</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+7R015	Unless you have <b>Astrometrics, Navigation, Physics, and Cunning>34</b> or <b>Exobiology, Leadership, Medical, and Integrity>32,</b> place this dilemma in your core and place your ship on this dilemma. At the end of your next turn, remove this dilemma from the game and place the ship at your headquarters mission.
+7C003	Unless you have twelve different skills, all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+7C006	Randomly select two personnel. If they share one or more of the same skills, both are stopped.
+7R004	Your opponent may spend three extra in total cost on dilemmas during this mission attempt.
+7U011	Your opponent chooses two personnel. Randomly select one of those personnel to be stopped.
+7R002	Randomly select two personnel. They cannot use their <b>skills while</b> facing this dilemma. Unless you have <b>Anthropology, Diplomacy, and Honor</b> or <b>Law, Security, and Strength>35,</b> all your personnel are stopped.
+7C007	Unless you have <b>3 Engineer and Leadership</b> or a personnel who has <b>Cunning>6,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+7R008	Unless you have two personnel who each have <b>Integrity>5, Cunning>5, and Strength>5,</b> or have two personnel who have <b>total attributes>38,</b> all your personnel are stopped and this dilemma is placed on your ship. Damage - You have 1 fewer counters to spend during each of your Play and Draw Cards segments.
+7C009	For each dilemma your opponent consumes with this dilemma, add 10 Cunning to this dilemma's requirements. Unless you have Cunning>15, all your personnel are stopped.
+7U013	Randomly select three personnel. Each of those who is a [Cmd] personnel is stopped.
+7C012	Randomly select two personnel. Unless they have <b>Integrity>11</b> or <b>Cunning>11,</b> both are stopped.
+7U001	The personnel who has the fewest [SD] icons is stopped. If that personnel does not have at least four [SD] icons, he or she is killed instead.
+7U005	Unless you have <b>3 Acquisition</b> or <b>Cunning>35,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+7R010	Unless you have <b>Biology and 2 Security</b> or <b>2 Physics and Cunning>35,</b> randomly select a personnel to be stopped and your opponent may move up to two dilemmas from beneath one of your missions to another of your non-headquarters missions.
+7U014	Unless you have <b>Cunning>40</b> or a personnel who has <b>both Diplomacy and Integrity>7,</b> randomly select three personnel. They cannot use their skills during this mission attempt.
 5P001	Randomly select X personnel to be stopped.
 5P002	Place this dilemma on this mission. Your opponent names a skill. Each of your personnel who has that skill is attributes-2. At the end of this turn, this dilemma returns to its owner's dilemma pile.
 5P003	Place this dilemma on this mission (limit one per mission). When a dilemma is overcome here, if that dilemma killed any of your personnel, randomly select a personnel attempting the mission to be killed. Otherwise, if that dilemma stopped any of your personnel, randomly select a personnel attempting the mission to be stopped.
