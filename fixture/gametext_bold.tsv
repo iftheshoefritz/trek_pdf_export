@@ -151,3 +151,19 @@ CollectorsInfo	gametext
 4C031	Randomly select a personnel. Unless that personnel <b>has</b> an <b>attribute>6,</b> he or she is stopped. If that personnel also has an attribute<5, he or she is killed instead of being stopped.
 4C005	Unless you have <b>Diplomacy and Cunning>30</b> or <b>Leadership and Strength>30,</b> all of your personnel are stopped and this dilemma returns to its owner's dilemma pile.
 4C015	Choose a personnel who has <b>Diplomacy</b> or <b>Integrity>6</b> to be stopped. If you cannot, randomly select a personnel to be killed.
+5P001	Randomly select X personnel to be stopped.
+5P002	Place this dilemma on this mission. Your opponent names a skill. Each of your personnel who has that skill is attributes-2. At the end of this turn, this dilemma returns to its owner's dilemma pile.
+5P003	Place this dilemma on this mission (limit one per mission). When a dilemma is overcome here, if that dilemma killed any of your personnel, randomly select a personnel attempting the mission to be killed. Otherwise, if that dilemma stopped any of your personnel, randomly select a personnel attempting the mission to be stopped.
+6P001	Randomly select three personnel. If the <b>total cost</b> of those personnel is <b>4 or less,</b> they are killed. Otherwise, randomly select one of those personnel to be stopped.
+6P002	Unless you have an <b>Admiral</b> or a <b>General</b> or <b>3 Leadership,</b> all your personnel are stopped and this dilemma returns to its owner's dilemma pile.
+6P003	Your opponent names a number. Randomly select two personnel. Each of those personnel that has an attribute matching that number is stopped.
+6P004	Your opponent names a number. For each of your headquarters missions, randomly select a personnel who has a cost equal to that number to be killed and this dilemma returns to its owner's dilemma pile.
+6P005	Randomly select a Security personnel to be stopped. If that personnel costs 2 or less, randomly select two other <b>Security</b> personnel to be stopped.
+6P006	Place this dilemma in your core. Randomly select a personnel and place him or her on this dilemma. At the start of your next turn, remove this dilemma from the game and return the personnel on it to his or her owner's hand.
+6P007	Randomly select a personnel. Unless he or she has <b>at least one skill listed in</b> this <b>mission requirements,</b> stop that personnel, then randomly select another personnel to be stopped.
+6P008	Your opponent chooses a personnel. Unless you choose to place him or her aboard your ship at this mission, randomly select two personnel to be stopped.
+6P009	Unless there are no damage markers on this <b>ship, all</b> your personnel are stopped.
+6P010	Unless you have <b>Engineer and 2 Navigation</b> or <b>Astrometrics, Officer, and Science,</b> all your personnel are stopped and this dilemma is placed on your ship. Damage - At the start of each of your turns, discard a card from hand.
+6P011	Unless you have <b>Biology, Medical, and Science</b> or <b>2 Security</b> and a <b>non-Hand Weapon equipment,</b> randomly select a personnel to be killed, all of your other personnel are stopped, and this dilemma returns to its owner's dilemma pile.
+6P012	Place this dilemma on this mission. Each personnel may use no more than one skill during each dilemma he or she faces. Each personnel may use no more than one skill to meet a mission's requirements. At the end of this turn, this dilemma returns to its owner's dilemma pile.
+6P013	Randomly select a personnel to be stopped. Unless you have <b>Anthropology and 2 Diplomacy</b> or <b>Transporters and 3 Treachery,</b> place that personnel on one of your headquarters missions.
