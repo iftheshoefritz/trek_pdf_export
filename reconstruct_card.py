@@ -1323,8 +1323,12 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # draw_textflow scales them to the output space.)
     TEXT_LEFT, TEXT_RIGHT, TEXT_BOTTOM = 126, cfg.get("text_right", 660), 840
     if is_ship:
-        # No skills row; start the text band at the top of the Skills/Flavor group.
+        # Ships have no skills row; start at the top of the Skills/Flavor group.
         block_top = 648
+    elif not ROW.get("Skills", "").strip():
+        # Personnel with no skills: start the text band where skill row 0 would
+        # have been (not below an imaginary empty row).
+        block_top = 634
     else:
         block_top = 644 + cur_row * 33 + 35   # design space; cur_row is a 0-based count
 
