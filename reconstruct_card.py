@@ -1251,7 +1251,14 @@ def render_card(ROW: dict, NAME: str, TITLE: str) -> Image.Image:
     # Borg: y=98..120).
     font_title = gfont(F_CRILEE, PT_TITLE)
     title_bar = cfg.get("title_bar", (210, 93, 22))  # (x, top, h)
-    title_y = vcenter_y(S(title_bar[1]), S(title_bar[2]), font_title, TITLE)
+    # Center the *cap height* in the bar (reference "H"), not the actual
+    # title bbox: that way Williams (no descender) and Mayweather (with 'y'
+    # descender) sit with their caps at the same height. Descenders hang
+    # below the bar, as on the printed cards.
+    # Nudge -2 design-space px so caps sit where the printed cards have them
+    # (the bar's geometric centre is slightly low relative to the optical
+    # placement Decipher used).
+    title_y = vcenter_y(S(title_bar[1]), S(title_bar[2]), font_title, "H") - S(2)
     draw.text((S(title_bar[0]), title_y), TITLE, font=font_title, fill=BLACK)
 
     # Class/Race oval — centred in the per-affil bbox (Fed 287,552..440,588;
@@ -1573,8 +1580,6 @@ def draw_card_name(canvas, draw, NAME: str, unique: bool,
     coords are design-space; right_edge is design-space too. If unique, paste
     the unique dot just left of the name and shift the name right."""
     if unique:
-        # Centre the dot vertically with the (first) line of name text.
-        paste_rgba(canvas, UNIQUE_DOT_ASSET, S(base_x), S(bar_top + 7))
         name_x = S(base_x + UNIQUE_DOT_OFFSET)
     else:
         name_x = S(base_x)
@@ -1594,8 +1599,13 @@ def draw_card_name(canvas, draw, NAME: str, unique: bool,
             lines = [NAME]
 
     if len(lines) == 1:
-        name_y = vcenter_y(S(bar_top), S(bar_h), font_name, lines[0])
+        # Center the cap (reference "H"), not the actual text — keeps names
+        # with descenders ("Jadzia Dax") at the same cap height as ones
+        # without ("William Riker"). Descenders hang below the bar.
+        name_y = vcenter_y(S(bar_top), S(bar_h), font_name, "H") - S(9)
         draw.text((name_x, name_y), lines[0], font=font_name, fill=color)
+        cap_top, cap_bot = font_name.getbbox("H")[1], font_name.getbbox("H")[3]
+        cap_mid_px = name_y + (cap_top + cap_bot) // 2
     else:
         # Multi-line: centre the wrapped block on the bar's midline so both
         # lines sit symmetrically inside the two visible horizontal frame lines
@@ -1604,11 +1614,24 @@ def draw_card_name(canvas, draw, NAME: str, unique: bool,
         # lines, not anchored to the top or bottom.)
         line_h = int(S(size) * 1.0)
         midline = S(bar_top) + S(bar_h) // 2
+        first_y = None
         for i, line in enumerate(lines):
             center_y = midline + (i - (len(lines) - 1) / 2) * line_h
             fb = font_name.getbbox(line)
             y = int(center_y - (fb[1] + fb[3]) / 2)
+            if first_y is None:
+                first_y = y
             draw.text((name_x, y), line, font=font_name, fill=color)
+        cap_top, cap_bot = font_name.getbbox("H")[1], font_name.getbbox("H")[3]
+        cap_mid_px = first_y + (cap_top + cap_bot) // 2
+
+    if unique:
+        # Centre the unique dot vertically on the cap midline of the (first)
+        # name line, so it reads as part of the same baseline. The asset is
+        # in design space; paste_rgba scales it, so use the device-space
+        # height when offsetting.
+        dot_h_device = int(Image.open(UNIQUE_DOT_ASSET).size[1] * SCALE)
+        paste_rgba(canvas, UNIQUE_DOT_ASSET, S(base_x), cap_mid_px - dot_h_device // 2)
 
 
 def render_event(ROW: dict, NAME: str) -> Image.Image:
